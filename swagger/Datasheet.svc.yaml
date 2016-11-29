@@ -1,0 +1,711 @@
+swagger: "2.0"
+
+info:
+  version: 1.0.0
+  title: Datasheet Service
+  description: This API allows the consumer to perform several operations in a table matrix.
+schemes:
+  - http
+host: localhost:3005
+basePath: /
+
+paths:
+  /Users:
+    post:
+      tags:
+        - Users
+      description: Create a new item in the resource User.
+      consumes:
+        - application/json
+        - application/xml
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - name: user
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/Users'
+      responses:
+        201:
+          description: User successfully created.
+          schema:
+            $ref: '#/definitions/UserID'
+        400:
+          description: Bad request. Check the definition documentation.
+    get:
+      tags:
+        - Users
+      description: Get all available registered users.
+      consumes:
+        - application/json
+        - application/xml
+      produces:
+        - application/json
+        - application/xml
+      responses:
+        200:
+          description: User(s) was/were found.
+          schema:
+            $ref: '#/definitions/UserListResponse'
+        400:
+          description: Bad request. Check the definition documentation.
+  /Users/{UserID}:
+    get:
+      tags:
+        - Users
+      description: Gets the information for a specific UserID
+      consumes:
+        - application/json
+        - application/xml
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - name: UserID
+          in: path
+          required: true
+          type: string
+      responses:
+        200:
+          description: The user was found.
+          schema:
+              $ref: '#/definitions/Users'
+        400:
+          description: Bad request. Check the definition documentation.
+        404:
+          description: User wasn't found.
+    put:
+      tags:
+        - Users
+      description: Update the information for a specific UserID.
+      consumes:
+        - application/json
+        - application/xml
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - name: UserID
+          in: path
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/UsersRequest'
+      responses:
+        200:
+          description: User successfully updated.
+          schema:
+             $ref: '#/definitions/Users'
+        400:
+          description: Bad request. Check the definition documentation.
+        404:
+          description: User wasn't found for edit.
+  /Users/{UserID}/Datasets:
+    post:
+      tags:
+        - Datasets
+      description: Create datasets.
+      consumes:
+        - application/json
+        - application/xml
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - name: UserID
+          in: path
+          required: true
+          type: string
+        - name: dataset
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/Datasets'
+      responses:
+        201:
+          description: Dataset created successfully.
+          schema:
+            $ref: '#/definitions/DatasetID'
+        400:
+          description: Bad request. Check the definition documentation.
+    get:
+      tags:
+        - Datasets
+      description: Gets all existents datasets of this user.
+      consumes:
+        - application/json
+        - application/xml
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - name: UserID
+          in: path
+          required: true
+          type: string
+      responses:
+        200:
+          description: Dataset(s) was/were found.
+          schema:
+              $ref: '#/definitions/DatasetListResponse'
+        400:
+          description: Bad request. Check the definition documentation.
+        404:
+          description: Dataset not found.
+  /Users/{UserID}/Datasets/{DatasetID}:
+    get:
+      tags:
+        - Datasets
+      description: Gets the information for a specific DatasetID 
+      consumes:
+        - application/json
+        - application/xml
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - name: UserID
+          in: path
+          required: true
+          type: string
+        - name: DatasetID
+          in: path
+          required: true
+          type: string
+      responses:
+        200:
+          description: Dataset found.
+          schema:
+              $ref: '#/definitions/Datasets'
+        400:
+          description: Bad request. Check the definition documentation.
+        404:
+          description: Dataset not found.
+    put:
+      tags:
+        - Datasets
+      description: Update a dataset.
+      consumes:
+        - application/json
+        - application/xml
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - name: UserID
+          in: path
+          required: true
+          type: string
+        - name: DatasetID
+          in: path
+          required: true
+          type: string
+        - name: dataset
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/DatasetRequest'
+      responses:
+        200:
+          description: Dataset successfully updated
+        400:
+          description: Bad request. Check the definition documentation.
+        404:
+          description: Dataset not found.
+    delete:
+      tags:
+        - Datasets
+      description: Delete a specific DatasetID.
+      consumes:
+        - application/json
+        - application/xml
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - name: UserID
+          in: path
+          required: true
+          type: string
+        - name: DatasetID
+          in: path
+          required: true
+          type: string
+      responses:
+        200:
+          description: Dataset sucessfully  deleted.
+        400:
+          description: Bad request. Check the definition documentation.
+        404:
+          description: Dataset wasn't found for delete.
+  /Users/{UserID}/Macros:
+    post:
+      tags:
+        - Macros
+      description: Creates a macro
+      consumes:
+        - application/json
+        - application/xml
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - name: UserID
+          in: path
+          required: true
+          type: string
+        - name: macro
+          in: body
+          required: true
+          schema:
+            type: array
+            items: {
+              $ref: '#/definitions/Stat'
+            }
+            description: Description of macro.
+                  
+      responses:
+        201:
+          description: Macro was successfully created.
+          schema:
+              $ref: '#/definitions/Dataset'
+        400:
+            description: Bad request. Check the definition documentation.
+    get:
+      tags:
+        - Macros
+      description: Gets all existent macros of current user.
+      consumes:
+        - application/json
+        - application/xml
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - name: UserID
+          in: path
+          required: true
+          type: string
+      responses:
+        200:
+          description: Macro(s) was/were found.
+          schema:
+            description: List of macros of current user.
+            type: array
+            items: {
+              $ref: '#/definitions/Macros'
+            }
+        400:
+          description: Bad request. Check the definition documentation.
+        404:
+          description: Macro(s) was/were not found.
+  /Users/{UserID}/Macros/{MacroID}:
+    put:
+      tags:
+        - Macros
+      description: Update a macro.
+      consumes:
+        - application/json
+        - application/xml
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - name: UserID
+          in: path
+          required: true
+          type: string
+        - name: MacroID
+          in: path
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/Macros'
+      responses:
+        200:
+          description: Macro successfully updated
+        400:
+          description: Bad request. Check the definition documentation.
+        404:
+          description: Macro not found.
+  /Stats:
+    get:
+      tags:
+        - Stats
+      description: List all operations (ID, MathType and Description) available for a specific statistic math operation.
+      consumes:
+        - application/json
+        - application/xml
+      produces:
+        - application/json
+        - application/xml
+      responses:
+        200:
+          description: Stat(s) available.
+          schema:
+              $ref: '#/definitions/StatResponse'
+        400:
+          description: Bad request. Check the definition documentation.
+  /Trnsfs:
+    get:
+      tags:
+        - Transformations
+      description: List all operations (ID, MathType and Description) available for a specific transformation math operation.
+      consumes:
+        - application/json
+        - application/xml
+      produces:
+        - application/json
+        - application/xml
+      responses:
+        200:
+          description: Tansoformation(s) available.
+          schema:
+              $ref: '#/definitions/TrnsfResponse'
+        400:
+          description: Bad request. Check the definition documentation.
+  /Charts:
+    get:
+      tags:
+        - Charts
+      description: Return a chart representation (image binary file) of the dataset.
+      consumes:
+        - application/json
+        - application/xml
+      produces:
+        - application/json
+        - application/xml
+      responses:
+        200:
+          description: Charts(s) available.
+          schema:
+              $ref: '#/definitions/Chart'
+        400:
+          description: Bad request. Check the definition documentation.
+  /Users/{UserID}/Datasets/{DatasetID}/Stats:
+    get:
+      tags:
+        - Stats
+      description: Calculate stat of entire dataset
+      consumes:
+        - application/json
+        - application/xml
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+       - name: UserID
+         in: path
+         required: true
+         type: string
+       - name: DatasetID
+         in: path
+         required: true
+         type: string
+       - name: StatID
+         in: query
+         required: true
+         description: Number of statID
+         type: string
+       - name: row
+         in: query
+         required: false
+         description: Row number of dataset
+         type: integer
+       - name: col
+         in: query
+         required: false
+         description: Column number of dataset
+         type: integer
+       - name: MyRef
+         in: query
+         required: true
+         description: Reference for callback after operation finishes
+         type: string
+       - name: URLCallback
+         in: query
+         required: true
+         description: URL for callback after operation finishes
+         type: string
+      responses:
+        202:
+          description: Accepted.
+        400:
+          description: Bad request. Check the definition documentation.
+  /Users/{UserID}/Datasets/{DatasetID}/Trnsf:
+    get:
+      tags:
+        - Transformations
+      description: Calculate transformation of a dataset
+      consumes:
+        - application/json
+        - application/xml
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+       - name: UserID
+         in: path
+         required: true
+         type: string
+       - name: DatasetID
+         in: path
+         required: true
+         type: string
+       - name: TrnsfID
+         in: query
+         required: true
+         type: string
+       - name: value
+         in: query
+         description: value of the transformation. 
+         type: string
+       - name: MyRef
+         in: query
+         required: true
+         description: Reference for callback after operation finishes
+         type: string
+       - name: URLCallback
+         in: query
+         required: true
+         description: URL for callback after operation finishes
+         type: string
+      responses:
+        202:
+          description: Accepted.
+        400:
+          description: Bad request. Check the definition documentation.
+        default:
+          description: Unexpected error
+          schema:
+            $ref: "#/definitions/Error"
+  /Users/{UserID}/Datasets/{DatasetID}/{MacroID}/:
+    get:
+      tags:
+        - Stats
+      description: Calculate stat of entire dataset
+      consumes:
+        - application/json
+        - application/xml
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+       - name: UserID
+         in: path
+         required: true
+         type: string
+       - name: DatasetID
+         in: path
+         required: true
+         type: string
+       - name: MacroID
+         in: path
+         required: true
+         type: string
+       - name: row
+         in: query
+         required: false
+         description: Row number of dataset
+         type: integer
+       - name: col
+         in: query
+         required: false
+         description: Column number of dataset
+         type: integer
+       - name: MyRef
+         in: query
+         required: true
+         description: Reference for callback after operation finishes
+         type: string
+       - name: URLCallback
+         in: query
+         required: true
+         description: URL for callback after operation finishes
+         type: string
+      responses:
+        202:
+          description: Accepted.
+        400:
+          description: Bad request. Check the definition documentation.
+definitions:
+  Dataset:
+    type: object
+    properties:
+      dataset_id:
+        type: string
+        description: Unique identifier 
+      rows:
+        type: string
+        description: Description of product.
+      cols:
+        type: string
+        description: Display name of product.
+      data:
+        type: object
+        properties:
+          values:
+            type: array
+            items: {
+              type: integer
+            }
+            description: Description of product.
+  DatasetListResponse: 
+    type: array
+    items: {
+        "$ref": "#/definitions/Datasets"
+    }
+    description: The List of datasets.
+  Macros:
+    type: array
+    items: {
+        "$ref": "#/definitions/Item"
+      }
+  Item:
+    type : object
+    properties:
+      order: 
+        type: integer
+      stat:
+        type: object
+        properties:
+          id:
+            type: string
+          value:
+            type: integer
+      transform:
+        type: object
+        properties:
+          id:
+            type: string
+  Trnsfs:
+    type: object
+    properties:
+      transf_id:
+        type: string
+      desc_transfs:
+        type: string
+  TrnsfResponse:
+    type: array
+    items: {
+      "$ref": "#/definitions/Trnsfs"
+    }
+  Stat:
+    type: object
+    properties:
+      stat_id:
+        type: string
+      desc_stat:
+        type: string
+  Chart:
+    type: object
+    properties:
+      chart_id:
+        type: string
+      desc_chart:
+        type: string
+  Error:
+    type: object
+    properties:
+      code:
+        type: integer
+        format: int32
+      message:
+        type: string
+      fields:
+        type: string
+
+  Users:
+    type: object
+    properties:
+      full name:
+        type: string
+        description: Your full name.
+      username:
+        type: string
+        description: Unique identifier as nickname. e.g. user123
+      password:
+        type: string
+        description: Your password code.
+  UsersRequest:
+    type: object
+    properties:
+      full name:
+        type: string
+        description: Your full name.
+      password:
+        type: string
+        description: Your password code.
+  UserID:
+    type: object
+    properties:
+      full name:
+        type: string
+        description: Your full name confirming that you logged with sucess.
+  UserListResponse: 
+    type: array
+    items: {
+        "$ref": "#/definitions/Users"
+    }
+    description: The List of users.
+  Datasets:
+    type: object
+    properties:
+      dataset_id:
+        type: string
+        description: Unique identifier representing a specific dataset id
+      rows:
+        type: integer
+        description: The qtd. line number of dataset.
+      cols:
+        type: integer
+        description: The qtd. column number of dataset.
+      values:
+        type: array
+        items: {
+          type: integer,
+          description:  values of dataset.
+        }
+        description: List of values of dataset.
+  DatasetRequest:
+    type: object
+    properties:
+      rows:
+        type: integer
+        description: The qtd. line number of dataset.
+      cols:
+        type: integer
+        description: The qtd. column number of dataset.
+      values:
+        type: array
+        items: {
+          type: integer,
+          description:  values of dataset.
+        }
+        description: List of values of dataset.
+  DatasetID:
+    type: object
+    properties:
+      dataset_id:
+        type: string
+        description: Unique identifier representing a specific dataset id.
+  StatResponse:
+    type: object
+    properties:
+      stat_id:
+        type: string
+        description: Unique identifier representing a specific statistic math id
+      stat_type:
+        type: string
+        description: the type of stat. E.g. StatMeasure, Transformations, Charts.
+      desc_stat:
+        type: string
+        description: description of operation stat.

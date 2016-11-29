@@ -1,0 +1,100 @@
+swagger: "2.0"
+
+info:
+  version: 1.0.0
+  title: Transformations Service
+  description: This API allows to perform operations in a table matrix.
+schemes:
+  - http
+host: localhost:3005
+basePath: /Trnsf/v1
+
+paths:
+  /:
+    post:
+      tags:
+        - Transformation
+      description: Calculate transformation of a dataset
+      consumes:
+        - application/json
+        - application/xml
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+       - name: body
+         in: body
+         required: true
+         schema:
+           type: object
+           properties:
+            dataset:
+               "$ref": "#/definitions/Dataset"
+            list_operations:
+              type: array
+              items: {
+                "$ref": "#/definitions/Item"
+                }
+       - name: trnsf_type
+         in: query
+         required: true
+         type: string
+       - name: value
+         in: query
+         required: false
+         description: value for the transformation. 
+         type: string
+       - name: MyRef
+         in: query
+         required: true
+         description: Reference for callback after operation finishes
+         type: string
+       - name: URLCallback
+         in: query
+         required: true
+         description: URL for callback after operation finishes
+         type: string
+      responses:
+        202:
+          description: Accepted.
+        400:
+          description: Bad request. Check the definition documentation.
+definitions:
+  Dataset:
+    type: object
+    properties:
+      dataset_id:
+        type: string
+        description: Unique identifier 
+      rows:
+        type: string
+        description: Description of product.
+      cols:
+        type: string
+        description: Display name of product.
+      data:
+        type: object
+        properties:
+          values:
+            type: array
+            items: {
+              type: integer
+            }
+            description: Description of product.
+  Item:
+    type : object
+    properties:
+      order: 
+        type: integer
+      stat:
+        type: object
+        properties:
+          id:
+            type: string
+          value:
+            type: integer
+      transform:
+        type: object
+        properties:
+          id:
+            type: string

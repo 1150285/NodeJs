@@ -6,7 +6,7 @@ info:
   description: This API allows the consumer to perform several operations in a table matrix.
 schemes:
   - http
-host: localhost:3005
+host: localhost:3001
 basePath: /
 
 paths:
@@ -391,7 +391,7 @@ paths:
         400:
           description: Bad request. Check the definition documentation.
   /Users/{UserID}/Datasets/{DatasetID}/Stats:
-    get:
+    post:
       tags:
         - Stats
       description: Calculate stat of entire dataset
@@ -441,7 +441,7 @@ paths:
         400:
           description: Bad request. Check the definition documentation.
   /Users/{UserID}/Datasets/{DatasetID}/Trnsf:
-    get:
+    post:
       tags:
         - Transformations
       description: Calculate transformation of a dataset
@@ -488,7 +488,7 @@ paths:
           schema:
             $ref: "#/definitions/Error"
   /Users/{UserID}/Datasets/{DatasetID}/{MacroID}/:
-    get:
+    post:
       tags:
         - Stats
       description: Calculate stat of entire dataset

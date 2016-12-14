@@ -471,18 +471,20 @@ app.route("/Users/:userID/Macros")
 		//inserir function para iterar os valores informados para criar a macro
 		//inserir function para validar se a quantidade linhas x colunas fazem match com os valores informados
 		
-		if (req.username && req.body.macro_id && req.body.stat_id && req.body.transf_id && req.body.chart_id ) {
-						
-			//TODO = Develop here what happens
-			console.log("»»» Accepted POST to this resource. Develop here what happens");
-			
-			// send 201 response
-			res.statusCode = 201;
-			res.setHeader("Content-Type", "application/html");
-			res.end("<html><body><h1> " +
-					"The Macro: " + req.body.macro_id + " was successfully created for username: " + req.username +
-					"</h1></body></html>");
-			console.log("»»» Macro: " + req.body.macro_id + " was successfully created for username: " + req.username);
+		if (req.username && req.body.macro_id) {
+			if (req.body.stat_id || req.body.transf_id || req.body.chart_id) {
+											
+				//TODO = Develop here what happens
+				console.log("»»» Accepted POST to this resource. Develop here what happens");
+				
+				// send 201 response
+				res.statusCode = 201;
+				res.setHeader("Content-Type", "application/html");
+				res.end("<html><body><h1> " +
+						"The Macro: " + req.body.macro_id + " was successfully created for username: " + req.username +
+						"</h1></body></html>");
+				console.log("»»» Macro: " + req.body.macro_id + " was successfully created for username: " + req.username);
+			}
 		}
 		else {
 			res.statusCode = 400;
@@ -545,17 +547,19 @@ app.route("/Users/:userID/Macros/:macroID")
 		//for debug
 		//console.log(req.username + req.macro_id);
 		if (req.username && req.macro_id) {
-						
-			//TODO = Develop here what happens
-			console.log("»»» Accepted PUT to this resource. Develop here what happens");
-						
-			// send 200 response
-			res.statusCode = 200;
-			res.setHeader("Content-Type", "application/html");
-			res.end("<html><body><h1> " +
-					"Macro: " + req.macro_id + " successfully updated! " +
-					"</h1></body></html>");
-			console.log("»»» Macro: " + req.macro_id + " successfully updated!");
+			if (req.body.stat_id || req.body.transf_id || req.body.chart_id) {
+									
+				//TODO = Develop here what happens
+				console.log("»»» Accepted PUT to this resource. Develop here what happens");
+							
+				// send 200 response
+				res.statusCode = 200;
+				res.setHeader("Content-Type", "application/html");
+				res.end("<html><body><h1> " +
+						"Macro: " + req.macro_id + " successfully updated! " +
+						"</h1></body></html>");
+				console.log("»»» Macro: " + req.macro_id + " successfully updated!");
+			}
 		}
 		else {
 			if (req.username === undefined || req.macro_id === undefined ) {
@@ -618,6 +622,123 @@ app.route("/Users/:userID/Macros/:macroID")
 		}
 	});
 
+//
+//handling individual items in the collection
+//
+//URL: /Stats
+//
+//GET 		return specific user 200 or 400
+//POST 		not allowed, returns 405
+//PUT 		not allowed, returns 405
+//DELETE 	not allowed, returns 405
+//
+
+app.route("/Stats") 
+	.get(function(req, res) {
+	//for debug
+	//console.log(req.username);
+	console.log("»»» Accepted GET to this resource. Develop here what happens");
+	res.json(stats);
+	})
+	.put(function(req, res) {
+		res.statusCode = 405;
+		res.setHeader("Content-Type", "application/html");
+		res.end("<html><body><h1> " +
+				"Method not allowed in this resource. Check the definition documentation " +
+				"</h1></body></html>");
+	})
+	.post(function(req, res) {
+		res.statusCode = 405;
+		res.setHeader("Content-Type", "application/html");
+		res.end("<html><body><h1> " +
+				"Method not allowed in this resource. Check the definition documentation " +
+				"</h1></body></html>");
+	})
+	.delete(function(req, res) {
+		res.statusCode = 405;
+		res.setHeader("Content-Type", "application/html");
+		res.end("<html><body><h1> " +
+				"Method not allowed in this resource. Check the definition documentation " +
+				"</h1></body></html>");
+	})
+
+//
+//handling individual items in the collection
+//
+//URL: /Transfs
+//
+//GET 		return specific user 200 or 400
+//POST 		not allowed, returns 405
+//PUT 		not allowed, returns 405
+//DELETE 	not allowed, returns 405
+//
+app.route("/Transfs") 
+	.get(function(req, res) {
+	//for debug
+	//console.log(req.username);
+	console.log("»»» Accepted GET to this resource. Develop here what happens");
+	res.json(transfs);
+	})
+	.put(function(req, res) {
+		res.statusCode = 405;
+		res.setHeader("Content-Type", "application/html");
+		res.end("<html><body><h1> " +
+				"Method not allowed in this resource. Check the definition documentation " +
+				"</h1></body></html>");
+	})
+	.post(function(req, res) {
+		res.statusCode = 405;
+		res.setHeader("Content-Type", "application/html");
+		res.end("<html><body><h1> " +
+				"Method not allowed in this resource. Check the definition documentation " +
+				"</h1></body></html>");
+	})
+	.delete(function(req, res) {
+		res.statusCode = 405;
+		res.setHeader("Content-Type", "application/html");
+		res.end("<html><body><h1> " +
+				"Method not allowed in this resource. Check the definition documentation " +
+				"</h1></body></html>");
+	})
+
+//
+//handling individual items in the collection
+//
+//URL: /Charts
+//
+//GET 		return specific user 200 or 400
+//POST 		not allowed, returns 405
+//PUT 		not allowed, returns 405
+//DELETE 	not allowed, returns 405
+//
+app.route("/Charts") 
+	.get(function(req, res) {
+	//for debug
+	//console.log(req.username);
+	console.log("»»» Accepted GET to this resource. Develop here what happens");
+	res.json(charts);
+	})
+	.put(function(req, res) {
+		res.statusCode = 405;
+		res.setHeader("Content-Type", "application/html");
+		res.end("<html><body><h1> " +
+				"Method not allowed in this resource. Check the definition documentation " +
+				"</h1></body></html>");
+	})
+	.post(function(req, res) {
+		res.statusCode = 405;
+		res.setHeader("Content-Type", "application/html");
+		res.end("<html><body><h1> " +
+				"Method not allowed in this resource. Check the definition documentation " +
+				"</h1></body></html>");
+	})
+	.delete(function(req, res) {
+		res.statusCode = 405;
+		res.setHeader("Content-Type", "application/html");
+		res.end("<html><body><h1> " +
+				"Method not allowed in this resource. Check the definition documentation " +
+				"</h1></body></html>");
+	})
 
 
 /////////////////////////////

@@ -1,38 +1,49 @@
-///////////////////////////////////////////////////////
-//
-// Leonardo Marques de Andrade, Paulo Afonso, Paulo Russo (1160091, 1161660 e 1150285)
-// PSIDI / MEI / ISEP
-// (c) 2016
-//
-///////////////////////////////////////////////////////
+/**
+* Datasheet project
+* Leonardo Marques de Andrade, Paulo Afonso e Paulo Russo (1160091, 1161660 e 1150285)
+* PSIDI / MEI / ISEP
+* (c) 2016
 
+* Check Readme and Documentation to understand how this servers works
+* https://bitbucket.org/ODSOFT_2016_1160091/restify
+**/
 
-//
-// Check Readme and Documentation to understand how this servers works
-//
-
+/************
+ Global Vars & Constants
+************/
 
 var express = require('express');
 var bodyParser = require('body-parser');
 //var methodOverride = require('method-override');
+var request = require('request');
+var json2html = require('json-to-html')
 
 var app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
 //app.use(methodOverride());
 
+var callbackApp = express();
+callbackApp.use(bodyParser.json());
+callbackApp.use(bodyParser.urlencoded({extended:true}));
+
 // logging : DEBUG
 //app.use(express.logger('dev'));
-
-
-/************/
-// data
-/************/
 
 const port = process.env.PORT || 3001;
 const SERVER_ROOT = "http://localhost:" + port;
 
-// DATA STORE
+const serverHeavyOpsPort = process.env.PORT || 3002;
+const serverHeavyOps = "http://localhost:" + serverHeavyOpsPort;
+
+const callbackPort = process.env.PORT || 3005;
+const CALLBACK_ROOT = "http://localhost:" + callbackPort;
+
+var SequenceID = 1;
+
+/************
+ data store
+************/
 
 var users =  {};
 var datasets =  {};
@@ -42,10 +53,10 @@ var macros =  {};
 var stats =  {};
 var transfs =  {};
 var charts = {}
+var resultsStoreList = [];
+var now = new Date();
 
 // INITIAL DATA
-
-var now = new Date();
 
 users['u1'] = {username: "u1", fullName:"Paulo Afonso",			Password:"node1234", 	createdOn: now, updatedOn: now};
 users['u2'] = {username: "u2", fullName:"Leonardo Andrade", 	Password:"node1234", 	createdOn: now, updatedOn: now};
@@ -82,9 +93,11 @@ charts['c1'] = {chart_id: "c1",		desc_chart:"Pie chart of a desired row / column
 charts['c2'] = {chart_id: "c2",		desc_chart:"Line / bar chart of a desired row / column"};
 charts['c3'] = {chart_id: "c3",		desc_chart:"Line / bar chart of the entire data set"};
 
-//
-// helper functions
-//
+//Store Heavy Ops for later consulting
+resultsStoreList [1] = {ResultNumber: "No results from Heavy Ops to see yet"} 
+/************
+global functions
+************/
 
 function buildMessageCreation(newID, text, user){
 	const now = new Date();
@@ -106,8 +119,14 @@ function buildMessageUpdate(newID, text, user){
 		};
 }
 
-//
-//handling the collection
+/*
+ * Function for auto-increment Callbacks ID
+ */
+function getSequence(seqtype) {
+	if (seqtype = "stID")
+		return SequenceID++; 
+}
+
 //
 //URL: /Users
 //
@@ -166,17 +185,13 @@ app.route("/Users")
 				"</h1></body></html>");
 	});
 
-//
-//handling individual items in the collection
-//
-//URL: /Users/:userID
-//
-//GET 		return specific user 200 or 404
-//POST 		not allowed, returns 405
-//PUT 		overwrite data for existent user, returns 200, 400 or 404 
-//DELETE 	delete an user, returns 200 or 404
-
-//
+/**
+ * URL: /Users/:userID
+ * GET 		return specific user 200 or 404
+ * POST 	not allowed, returns 405
+ * PUT 		overwrite data for existent user, returns 200, 400 or 404 
+ * DELETE 	delete an user, returns 200 or 404
+**/
 
 app.param('userID', function(req, res, next, userID){
 req.username = userID;
@@ -267,9 +282,6 @@ app.route("/Users/:userID")
 
 ///DATASETS
 
-
-//
-//handling individual items in the collection
 //
 //URL: /Users/:userID/Datasets
 //
@@ -277,8 +289,6 @@ app.route("/Users/:userID")
 //POST		create new entry, returns 201 or 400
 //PUT 		not allowed, returns 405
 //DELETE 	not allowed, returns 405
-
-//
 
 app.route("/Users/:userID/Datasets") 
 	.get(function(req, res) {
@@ -331,9 +341,6 @@ app.route("/Users/:userID/Datasets")
 				"</h1></body></html>");
 	});
 
-
-//
-//handling individual items in the collection
 //
 //URL: /Users/:userID/Datasets/:datasetID
 //
@@ -342,13 +349,10 @@ app.route("/Users/:userID/Datasets")
 //PUT 		overwrite data for existent user, returns 200, 400 or 404 
 //DELETE 	delete an user, returns 200 or 404
 
-//
-
-
 app.param('datasetID', function(req, res, next, datasetID){
-req.dataset_id = datasetID;
-return next()
-})
+	req.dataset_id = datasetID;
+	return next()
+	})
 
 app.route("/Users/:userID/Datasets/:datasetID") 
 	.get(function(req, res) {
@@ -432,7 +436,7 @@ app.route("/Users/:userID/Datasets/:datasetID")
 				res.end("<html><body><h1> " +
 						"Dataset: " + req.dataset_id + " successfully deleted for username: " + req.username +
 						"</h1></body></html>");
-				console.log("»»» Dataset: " + req.dataset_id + " successfully deleted for username: " + req.username);
+				console.log("»»» Nada a ver " + req.dataset_id + " successfully deleted for username: " + req.username);
 			} else {
 				res.statusCode = 400;
 				res.setHeader("Content-Type", "application/html");
@@ -700,7 +704,7 @@ app.route("/Transfs")
 				"Method not allowed in this resource. Check the definition documentation " +
 				"</h1></body></html>");
 	})
-
+	
 //
 //handling individual items in the collection
 //
@@ -733,6 +737,53 @@ app.route("/Charts")
 				"</h1></body></html>");
 	})
 	.delete(function(req, res) {
+		res.statusCode = 405;	
+		res.setHeader("Content-Type", "application/html");
+		res.end("<html><body><h1> " +
+				"Method not allowed in this resource. Check the definition documentation " +
+				"</h1></body></html>");
+	})
+
+//
+//URL: /Results
+//
+//GET 		return specific user 200
+//POST 		not allowed, returns 405
+//PUT 		not allowed, returns 405
+//DELETE 	not allowed, returns 405
+//
+app.route("/Results") 
+	.get(function(req, res) {
+		
+	var stringList = "";
+	console.log("»»» Accepted GET to this resource. Develop here what happens ");
+	
+	for(var i = 1; i < resultsStoreList.length;i++) {
+		stringList += "<p>"+ json2html(resultsStoreList[i]) + "</p>";
+	}
+	console.log(stringList);
+	
+	res.statusCode = 200;
+	res.setHeader("Content-Type", "application/html");
+	res.end("<html><body><h1> Results stored untill now </h1>" +
+			stringList +
+			"</body></html>");	
+	})
+	.put(function(req, res) {
+		res.statusCode = 405;
+		res.setHeader("Content-Type", "application/html");
+		res.end("<html><body><h1> " +
+				"Method not allowed in this resource. Check the definition documentation " +
+				"</h1></body></html>");
+	})
+	.post(function(req, res) {
+		res.statusCode = 405;
+		res.setHeader("Content-Type", "application/html");
+		res.end("<html><body><h1> " +
+				"Method not allowed in this resource. Check the definition documentation " +
+				"</h1></body></html>");
+	})
+	.delete(function(req, res) {
 		res.statusCode = 405;
 		res.setHeader("Content-Type", "application/html");
 		res.end("<html><body><h1> " +
@@ -740,10 +791,266 @@ app.route("/Charts")
 				"</h1></body></html>");
 	})
 
+///HEAVY OPS
 
-/////////////////////////////
+//
+//URL: /callback/:myRefID
+//
+//internal usage
+//
+	
+callbackApp.route("/callback/:myRefID") 
+  .post(function(req, res) {
+    // reply back
+    res.status(204).send("No Content");
+    // process the response to our callback request
+    // handle callbacks that are not sent by our server "security". postman can't invoke this endpoint directly.
+    //persists the result in the resultsStoreList[].
+    console.log( "The result of callback number " + req.params.myRefID + " is " + req.body.myRefValue );
+    
+	var resultJson = {};
+	resultJson.key = req.params.myRefID;
+	resultJson.value = req.body.myRefValue;
+	
+    resultsStoreList [req.params.myRefID] = resultJson;
+	console.log("»»» Received a callback request with: " + req.body.result + " for cliRef = " + req.params.myRefID + " Develop here what happens!!!");
+  });
+
+
+//
+//URL: /Users/:userID/Datasets/:datasetID/:statID
+//
+//GET 		not allowed, returns 405
+//POST 		return specific user 202 or 400
+//PUT 		not allowed, returns 405
+//DELETE 	not allowed, returns 405
+//
+
+app.param('statID', function(req, res, next, statID){
+	req.stat_id = statID;
+	return next()
+	})
+	
+app.route("/Users/:userID/Datasets/:datasetID/:statID") 
+	.post(function(req, res) {
+		console.log("»»» Accepted POST request to calculate statID: " + req.stat_id + " for DatasetID: " + req.dataset_id + " and UserID: " + req.username + " Develop here what happens");
+		if (req.username && req.dataset_id && req.stat_id ) {
+			callbackID = getSequence("stID");
+						
+			//setTimeout(function() {
+				request({
+					   uri : serverHeavyOps + "/HeavyOps/" + req.username + "/" + req.dataset_id + "/" + req.stat_id,
+					   method: "POST",
+					   json : {text:"test of callback post", sender:"Datasheet_srv.js", callbackURL: CALLBACK_ROOT + "/callback/", myRef:callbackID},
+					}, 
+				   function(err, res, body){
+						
+						if (!err && 202 === res.statusCode) {
+							console.log("»»» Posted a Heavy Operation request and got " + res.statusCode );
+							console.log("»»» Success!... Gets your callback results within 30 seconds in http://localhost:3001/Results/" + callbackID  );
+							res.statusCode = 202;
+						} else	{
+							console.log("»»» Internal error in HeavyOps server. Please contact system administrator. Status Code = " + res.statusCode);
+						}
+					});
+			//}, 2000);
+			res.setHeader("Content-Type", "application/html");
+			res.end("<html><body><h1> " +
+					"<p>Success!... Your request operation number is " + callbackID + "</p>" +
+					"<p>This is a heavy operation so gets your callback result within 30 seconds in <a href='" + "http://localhost:3001/Results/" + "'" + ">Results</a></p>" +
+					"<p>Or come back to Home Page to request more operations <a href='http://localhost:3001/index.html'>Home Page</a></p>" +
+					"</h1></body></html>");
+		} else {
+			if (req.username === undefined || req.dataset_id === undefined || req.stat_id === undefined) {
+				res.statusCode = 400;
+				res.setHeader("Content-Type", "application/html");
+				res.end("<html><body><h1> " +
+						"Bad request. Check the definition documentation. " +
+						"</h1></body></html>");
+				console.log("»»» Bad request. Check the definition documentation.");
+			} 
+		}
+	})
+	.get(function(req, res) {
+		res.statusCode = 405;
+		res.setHeader("Content-Type", "application/html");
+		res.end("<html><body><h1> " +
+				"Method not allowed in this resource. Check the definition documentation " +
+				"</h1></body></html>");
+	})
+	.put(function(req, res) {
+		res.statusCode = 405;
+		res.setHeader("Content-Type", "application/html");
+		res.end("<html><body><h1> " +
+				"Method not allowed in this resource. Check the definition documentation " +
+				"</h1></body></html>");
+	})
+	.delete(function(req, res) {
+		res.statusCode = 405;
+		res.setHeader("Content-Type", "application/html");
+		res.end("<html><body><h1> " +
+				"Method not allowed in this resource. Check the definition documentation " +
+				"</h1></body></html>");
+	})
+
+	//
+//URL: /Users/:userID/Datasets/:datasetID/:transfID
+//
+//GET 		not allowed, returns 405
+//POST 		return specific user 202 or 400
+//PUT 		not allowed, returns 405
+//DELETE 	not allowed, returns 405
+//
+
+app.param('transfID', function(req, res, next, transfID){
+	req.transf_id = transfID;
+	return next()
+	})
+	
+app.route("/Users/:userID/Datasets/:datasetID/:transfID") 
+	.post(function(req, res) {
+		console.log("»»» Accepted POST request to calculate transfID: " + req.transf_id + " for DatasetID: " + req.dataset_id + " and UserID: " + req.username + " Develop here what happens");
+		if (req.username && req.dataset_id && req.transf_id ) {
+			callbackID = getSequence("stID");
+						
+			//setTimeout(function() {
+				request({
+					   uri : serverHeavyOps + "/HeavyOps/" + req.username + "/" + req.dataset_id + "/" + req.transf_id,
+					   method: "POST",
+					   json : {text:"test of callback post", sender:"Datasheet_srv.js", callbackURL: CALLBACK_ROOT + "/callback/", myRef:callbackID},
+					}, 
+				   function(err, res, body){
+						
+						if (!err && 202 === res.statusCode) {
+							console.log("»»» Posted a Heavy Operation request and got " + res.statusCode );
+							console.log("»»» Success!... Gets your callback results within 30 seconds in http://localhost:3001/Results/" + callbackID  );
+							res.statusCode = 202;
+						} else	{
+							console.log("»»» Internal error in HeavyOps server. Please contact system administrator. Status Code = " + res.statusCode);
+						}
+					});
+			//}, 2000);
+			res.setHeader("Content-Type", "application/html");
+			res.end("<html><body><h1> " +
+					"<p>Success!... Your request operation number is " + callbackID + "</p>" +
+					"<p>This is a heavy operation so gets your callback result within 30 seconds in <a href='" + "http://localhost:3001/Results/" + "'" + ">Results</a></p>" +
+					"<p>Or come back to Home Page to request more operations <a href='http://localhost:3001/index.html'>Home Page</a></p>" +
+					"</h1></body></html>");
+		} else {
+			if (req.username === undefined || req.dataset_id === undefined || req.transf_id === undefined) {
+				res.statusCode = 400;
+				res.setHeader("Content-Type", "application/html");
+				res.end("<html><body><h1> " +
+						"Bad request. Check the definition documentation. " +
+						"</h1></body></html>");
+				console.log("»»» Bad request. Check the definition documentation.");
+			} 
+		}
+	})
+	.get(function(req, res) {
+		res.statusCode = 405;
+		res.setHeader("Content-Type", "application/html");
+		res.end("<html><body><h1> " +
+				"Method not allowed in this resource. Check the definition documentation " +
+				"</h1></body></html>");
+	})
+	.put(function(req, res) {
+		res.statusCode = 405;
+		res.setHeader("Content-Type", "application/html");
+		res.end("<html><body><h1> " +
+				"Method not allowed in this resource. Check the definition documentation " +
+				"</h1></body></html>");
+	})
+	.delete(function(req, res) {
+		res.statusCode = 405;
+		res.setHeader("Content-Type", "application/html");
+		res.end("<html><body><h1> " +
+				"Method not allowed in this resource. Check the definition documentation " +
+				"</h1></body></html>");
+	})
+
+//
+//URL: /Users/:userID/Datasets/:datasetID/:macroID
+//
+//GET 		not allowed, returns 405
+//POST 		return specific user 202 or 400
+//PUT 		not allowed, returns 405
+//DELETE 	not allowed, returns 405
+//
+	
+app.route("/Users/:userID/Datasets/:datasetID/:macroID") 
+	.post(function(req, res) {
+		console.log("»»» Accepted POST request to calculate transf_id: " + req.macro_id + " for DatasetID: " + req.dataset_id + " and UserID: " + req.username + " Develop here what happens");
+		if (req.username && req.dataset_id && req.macro_id ) {
+			callbackID = getSequence("stID");
+						
+			//setTimeout(function() {
+				request({
+					   uri : serverHeavyOps + "/HeavyOps/" + req.username + "/" + req.dataset_id + "/" + req.macro_id,
+					   method: "POST",
+					   json : {text:"test of callback post", sender:"Datasheet_srv.js", callbackURL: CALLBACK_ROOT + "/callback/", myRef:callbackID},
+					}, 
+				   function(err, res, body){
+						
+						if (!err && 202 === res.statusCode) {
+							console.log("»»» Posted a Heavy Operation request and got " + res.statusCode );
+							console.log("»»» Success!... Gets your callback results within 30 seconds in http://localhost:3001/Results/" + callbackID  );
+							res.statusCode = 202;
+						} else	{
+							console.log("»»» Internal error in HeavyOps server. Please contact system administrator. Status Code = " + res.statusCode);
+						}
+					});
+			//}, 2000);
+			res.setHeader("Content-Type", "application/html");
+			res.end("<html><body><h1> " +
+					"<p>Success!... Your request operation number is " + callbackID + "</p>" +
+					"<p>This is a heavy operation so gets your callback result within 30 seconds in <a href='" + "http://localhost:3001/Results/" + "'" + ">Results</a></p>" +
+					"<p>Or come back to Home Page to request more operations <a href='http://localhost:3001/index.html'>Home Page</a></p>" +
+					"</h1></body></html>");
+		} else {
+			if (req.username === undefined || req.dataset_id === undefined || req.macro_id === undefined) {
+				res.statusCode = 400;
+				res.setHeader("Content-Type", "application/html");
+				res.end("<html><body><h1> " +
+						"Bad request. Check the definition documentation. " +
+						"</h1></body></html>");
+				console.log("»»» Bad request. Check the definition documentation.");
+			} 
+		}
+	})
+	.get(function(req, res) {
+		res.statusCode = 405;
+		res.setHeader("Content-Type", "application/html");
+		res.end("<html><body><h1> " +
+				"Method not allowed in this resource. Check the definition documentation " +
+				"</h1></body></html>");
+	})
+	.put(function(req, res) {
+		res.statusCode = 405;
+		res.setHeader("Content-Type", "application/html");
+		res.end("<html><body><h1> " +
+				"Method not allowed in this resource. Check the definition documentation " +
+				"</h1></body></html>");
+	})
+	.delete(function(req, res) {
+		res.statusCode = 405;
+		res.setHeader("Content-Type", "application/html");
+		res.end("<html><body><h1> " +
+				"Method not allowed in this resource. Check the definition documentation " +
+				"</h1></body></html>");
+	})
+
+/*
+ * RUNNING
+ */
+	
+	
 // STARTING ...
-
 app.listen(port, function() {
-  console.log("Listening on " + port);
+  console.log("Listening requests on " + port);
+});
+
+//STARTING callback
+callbackApp.listen(callbackPort, function() {
+  console.log("Listening callbacks on " + callbackPort);
 });

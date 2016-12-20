@@ -17,7 +17,9 @@ The to consume use a postman ou use Client_srv.js
 ### Who do I talk to? ###
 
 Leonardo Andrade, 
-Paulo Afonso or
+Daniel Afonso or
 Paulo Russo
 
 1160091@isep.ipp.pt
+
+1161660@isep.ipp.pt

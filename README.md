@@ -10,15 +10,14 @@ Repositório para versionar o Assigment de PSIDI - Mestrado em Engenharia Inform
 
 Checkout the project using https://1161660@bitbucket.org/ODSOFT_2016_1160091/restify.git
 Go to restify/solution/
-Open terminal and type node Datasheet_srv.js (to run datasheet server)
+Open 2 terminals in this folder and in the first type:
+"node Datasheet_srv.js" (to run Datasheet server)
+in the second type:
+"node HeavyOps_srv.js" (to run HeavyOps server)
+
 Open Postman
-Create a POST to http://localhost:3001/Users (to create a user)
-
-Only need to run JS scripts in following order:
-Datasheet_srv.js
-Transformations_srv.js
-
-The to consume use a postman ou use Client_srv.js
+For Example to create an user do a: POST to http://localhost:3001/Users
+For all others operations please check the documentation definition
 
 ### Who do I talk to? ###
 
@@ -27,5 +26,5 @@ Daniel Afonso or
 Paulo Russo
 
 1160091@isep.ipp.pt
-
 1161660@isep.ipp.pt
+1150285@isep.ipp.pt

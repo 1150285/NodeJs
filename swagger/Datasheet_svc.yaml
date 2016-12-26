@@ -3,7 +3,7 @@ swagger: "2.0"
 info:
   version: 1.0.0
   title: Datasheet Service
-  description: This API allows the consumer to perform several operations in a table matrix.
+  description: This API  allows the consumer to perform several operations in a table matrix.
 schemes:
   - http
 host: localhost:3001

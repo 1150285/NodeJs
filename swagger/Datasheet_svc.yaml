@@ -114,8 +114,7 @@ paths:
         - application/json
         - application/xml
       produces:
-        - application/json
-        - application/xml
+        - application/html
       parameters:
         - name: UserID
           in: path
@@ -141,8 +140,7 @@ paths:
         - application/json
         - application/xml
       produces:
-        - application/json
-        - application/xml
+        - application/html
       parameters:
         - name: UserID
           in: path
@@ -166,8 +164,7 @@ paths:
         - application/json
         - application/xml
       produces:
-        - application/json
-        - application/xml
+        - application/html
       parameters:
         - name: UserID
           in: path
@@ -194,8 +191,7 @@ paths:
         - application/json
         - application/xml
       produces:
-        - application/json
-        - application/xml
+        - application/html
       parameters:
         - name: UserID
           in: path
@@ -225,8 +221,7 @@ paths:
         - application/json
         - application/xml
       produces:
-        - application/json
-        - application/xml
+        - application/html
       parameters:
         - name: UserID
           in: path
@@ -669,12 +664,8 @@ definitions:
         type: integer
         description: The qtd. column number of dataset.
       values:
-        type: array
-        items: {
-          type: integer,
-          description:  values of dataset.
-        }
-        description: List of values of dataset.
+        type: string
+        description: List of values of dataset in HTML.
   DatasetRequest:
     type: object
     properties:

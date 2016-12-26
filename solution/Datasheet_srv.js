@@ -17,6 +17,7 @@ var bodyParser = require('body-parser');
 //var methodOverride = require('method-override');
 var request = require('request');
 var json2html = require('json-to-html')
+var matrix = require("node-matrix")
 
 var app = express();
 app.use(bodyParser.json());
@@ -65,8 +66,80 @@ users['u3'] = {username: "u3", fullName:"Paulo Russo",			Password:"node1234", 	c
 datasetsValues1 = [1,2,3,4];
 datasetsValues2 = [1,2,3,4,5,6,7,8,9];
 
-datasets['d1'] = {dataset_id: "d1", rows:2, 	cols:2, 	values:datasetsValues1, 	createdOn: now, updatedOn: now};
+datasets['d1'] = {rows:2, 	cols:2, 	values:datasetsValues1, 	createdOn: now, updatedOn: now};
 datasets['d2'] = {dataset_id: "d2", rows:3, 	cols:3, 	values:datasetsValues2, 	createdOn: now, updatedOn: now};
+
+var dataset_id = "d3";
+var d3 = matrix({ rows: 7, columns: 10, values: 5 });
+var str = (JSON.stringify(d3.dimensions));
+console.log(str);
+var dim = str.slice(1, str.length - 1);
+console.log(dim);
+var RowXCol = dim.split(",");
+var rows = RowXCol[0];
+console.log(rows);
+var cols = RowXCol[1];
+console.log(cols);
+var line = 0;
+var column = 0;
+var datasetsValues = "";
+
+var tableDatasetError = "<html><head>" + 
+"<style>table { font-family: arial, sans-serif; border-collapse: collapse; width: 100%; } " +
+"td, th { border: 1px solid #dddddd; text-align: center; padding: 8px; } " +
+"tr:nth-child(even) { background-color: #dddddd; } </style> " +
+"</head><body><table>" +
+"<tr>" +
+"<th>Dataset</th>" +
+"</tr>" +
+"<tr>" +
+"<td>Error. This Dataset have a row or col = 0. Please setup</td>" +
+"</tr>" +
+"</table></body></html>"
+
+if (rows != 0) {
+	if (cols != 0) {
+		const tableDatasetHead = "<html><head>" + 
+		"<style>table { font-family: arial, sans-serif; border-collapse: collapse; width: 100%; } " +
+		"td, th { border: 1px solid #dddddd; text-align: center; padding: 8px; } " +
+		"tr:nth-child(even) { background-color: #dddddd; } </style> " +
+		"</head><body><table style='width:100%' >";
+		
+		var tableDatasetBody = 
+		"<tr>" +
+		"<th colspan='" + (cols + 1 ) + "'>Dataset ID: " + dataset_id + "</th>" +
+		"</tr>" +
+		"<tr>" +
+		"<td>Row X Col</td>";
+		for(column = 0; column < cols; column++) {
+		
+			tableDatasetBody += "<td>" + (column + 1) + "</td>";
+		}
+		tableDatasetBody +=
+		"</tr>" +
+		"<tr>" ;
+		for(column = 0; column < cols; column++) {
+			for(line = 0; line < rows; line++) {
+				tableDatasetBody += "<td>" + (line + 1) + "</td>" ;
+				for(column = 0; column < cols; column++) {
+					tableDatasetBody += "<td>" + d3[line][column] + "</td>" ;
+				}
+				tableDatasetBody +=
+					"</tr>" +
+					"<tr>" ;
+			}
+		}
+		
+		const tableDatasetTail = "</tr></table></body></html>";
+		datasetsValues = tableDatasetHead + tableDatasetBody + tableDatasetTail;
+	} else {
+	datasetsValues = tableDatasetError;
+	}
+} else {
+		datasetsValues = tableDatasetError;	
+}
+
+datasets['d3'] = {dataset_id: "d3", row: rows, col: cols, values:datasetsValues, createdOn: now, updatedOn: now};
 
 //A group of functions to Calculate Stats or Transfs and Prints Charts in a row 
 macros['m1'] = {content: "s1,t1,c1", 			createdOn: now, updatedOn: now};
@@ -295,7 +368,9 @@ app.route("/Users/:userID/Datasets")
 		//for debug
 		//console.log(req.body.fullName + req.username + req.body.password);
 		console.log("»»» Accepted GET to this resource. Develop here what happens");
-		res.json(datasets);
+		res.statusCode = 200;
+		res.setHeader("Content-Type", "application/html");
+		res.end( datasetsValues );
 		
 	})
 	.post(function(req, res) {
@@ -359,8 +434,10 @@ app.route("/Users/:userID/Datasets/:datasetID")
 		//for debug
 		//console.log(req.body.fullName + req.username + req.body.password);
 		if (req.dataset_id) {
-			console.log("»»» Accepted GET to this resource. Develop here what happens");
-			res.json(datasets[req.dataset_id]);
+			console.log("»»» Accepted GET to this resource. Develop here what happens");		
+			res.statusCode = 200;
+			res.setHeader("Content-Type", "application/html");
+			res.end( datasetsValues );
 		} else {
 			res.statusCode = 404 ;
 			res.setHeader("Content-Type", "application/html");

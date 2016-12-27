@@ -16,15 +16,16 @@ var express = require('express');
 var bodyParser = require('body-parser');
 //var methodOverride = require('method-override');
 var request = require('request');
-var json2html = require('json-to-html');
 var mongoose = require('mongoose');
-
-
 var jsonParser = bodyParser.json();
+var json2html = require('json-to-html')
+var matrix = require("node-matrix")
+var get = require('simple-object-query').get;
+var where = require('simple-object-query').where;
 
 var app = express();
-app.use(jsonParser);
-//app.use(bodyParser.urlencoded({extended:true}));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended:true}));
 //app.use(methodOverride());
 
 var callbackApp = express();
@@ -45,30 +46,13 @@ const CALLBACK_ROOT = "http://localhost:" + callbackPort;
 
 var SequenceID = 1;
 
-var db = mongoose.connection;
-
-db.on('error', console.error);
-db.once('open', function() {
-    var dataset = new mongoose.Schema( {
-        dataset_id: String,
-        rows: Integer,
-        cols: Integer,
-        values: [Integer]
-    });
-
-    var Dataset = mongoose.model('Dataset', dataset);
-});
-
-mongoose.connect('mongodb://localhost/datasheet');
-
 /************
  data store
 ************/
 
 var users =  {};
 var datasets =  {};
-var datasetsValues1 = [];
-var datasetsValues2 = [];
+var datasetTableValues = "";
 var macros =  {};
 var stats =  {};
 var transfs =  {};
@@ -78,15 +62,93 @@ var now = new Date();
 
 // INITIAL DATA
 
+//3 users as initial example
 users['u1'] = {username: "u1", fullName:"Paulo Afonso",			Password:"node1234", 	createdOn: now, updatedOn: now};
 users['u2'] = {username: "u2", fullName:"Leonardo Andrade", 	Password:"node1234", 	createdOn: now, updatedOn: now};
 users['u3'] = {username: "u3", fullName:"Paulo Russo",			Password:"node1234", 	createdOn: now, updatedOn: now};
 
-	datasetsValues1 = [1,2,3,4];
-datasetsValues2 = [1,2,3,4,5,6,7,8,9];
 
-datasets['d1'] = {dataset_id: "d1", rows:2, 	cols:2, 	values:datasetsValues1, 	createdOn: now, updatedOn: now};
-datasets['d2'] = {dataset_id: "d2", rows:3, 	cols:3, 	values:datasetsValues2, 	createdOn: now, updatedOn: now};
+//3 Random Datasets as initial example
+function buildRandomDataset(datasetID, lines, columns) {
+
+	var dataset_id = datasetID;
+	var dataMatrix = matrix({ rows: lines, columns: columns, values: Math.random });
+	//row and col preparation
+	var str = (JSON.stringify(dataMatrix.dimensions));
+	//console.log(str);
+	var dim = str.slice(1, str.length - 1);
+	//console.log(dim);
+	var RowXCol = dim.split(",");
+	var rows = RowXCol[0];
+	//console.log(rows);
+	var cols = RowXCol[1];
+	//console.log(cols);
+	var line = 0;
+	var column = 0;
+
+	var tableDatasetError = "<html><head>" +
+	"<style>table { font-family: arial, sans-serif; border-collapse: collapse; width: 100%; } " +
+	"td, th { border: 1px solid #dddddd; text-align: center; padding: 8px; } " +
+	"tr:nth-child(even) { background-color: #dddddd; } </style> " +
+	"</head><body><table>" +
+	"<tr>" +
+	"<th>Dataset</th>" +
+	"</tr>" +
+	"<tr>" +
+	"<td>Error. This Dataset have a row or col = 0. Please setup</td>" +
+	"</tr>" +
+	"</table></body></html>"
+
+	if (rows != 0) {
+		if (cols != 0) {
+			const tableDatasetHead = "<html><head>" +
+			"<style>table { font-family: arial, sans-serif; border-collapse: collapse; width: 100%; } " +
+			"td, th { border: 1px solid #dddddd; text-align: center; padding: 8px; } " +
+			"tr:nth-child(even) { background-color: #dddddd; } </style> " +
+			"</head><body><table style='width:100%' >";
+
+			var tableDatasetBody =
+			"<tr>" +
+			"<th colspan='" + (cols + 1 ) + "'>Dataset ID: " + dataset_id + "</th>" +
+			"</tr>" +
+			"<tr>" +
+			"<td>Row X Col</td>";
+			for(column = 0; column < cols; column++) {
+
+				tableDatasetBody += "<td>" + (column + 1) + "</td>";
+			}
+			tableDatasetBody +=
+			"</tr>" +
+			"<tr>" ;
+			for(column = 0; column < cols; column++) {
+				for(line = 0; line < rows; line++) {
+					tableDatasetBody += "<td>" + (line + 1) + "</td>" ;
+					for(column = 0; column < cols; column++) {
+						tableDatasetBody += "<td>" + dataMatrix[line][column] + "</td>" ;
+					}
+					tableDatasetBody +=
+						"</tr>" +
+						"<tr>" ;
+				}
+			}
+
+			const tableDatasetTail = "</tr></table></body></html>";
+			datasetTableValues = tableDatasetHead + tableDatasetBody + tableDatasetTail;
+		} else {
+		datasetTableValues = tableDatasetError;
+		}
+	} else {
+			datasetTableValues = tableDatasetError;
+	}
+	datasets[dataset_id] = {dataset_id: dataset_id, row:rows, 	col:cols, 	datasetValues:datasetTableValues, 	createdOn: now, updatedOn: now};
+}
+
+buildRandomDataset("d1", 2, 2);
+buildRandomDataset("d2", 3, 3);
+buildRandomDataset("d3", 4, 4);
+//datasets['d1'] = {dataset_id: "d1", row:rows, 	col:cols, 	datasetValues:datasetTableValues, 	createdOn: now, updatedOn: now};
+//datasets['d2'] = {dataset_id: "d2", row:rows, 	col:cols, 	datasetValues:datasetTableValues, 	createdOn: now, updatedOn: now};
+//datasets['d3'] = {dataset_id: "d3", row:rows,		col:cols,	datasetValues:datasetTableValues,	createdOn: now, updatedOn: now};
 
 //A group of functions to Calculate Stats or Transfs and Prints Charts in a row 
 macros['m1'] = {content: "s1,t1,c1", 			createdOn: now, updatedOn: now};
@@ -138,6 +200,7 @@ function buildMessageUpdate(newID, text, user){
 			updatedOn: now,
 		};
 }
+
 
 /*
  * Function for auto-increment Callbacks ID
@@ -240,9 +303,7 @@ app.route("/Users/:userID")
 		if (req.username && req.body.fullName && req.body.password || 
 				req.username && req.body.password ||
 				req.username && req.body.fullName) {
-
-
-
+						
 			//TODO = Develop here what happens
 			console.log("»»» Accepted PUT to this resource. Develop here what happens");
 			
@@ -314,10 +375,19 @@ app.route("/Users/:userID")
 
 app.route("/Users/:userID/Datasets") 
 	.get(function(req, res) {
-		//for debug
-		//console.log(req.body.fullName + req.username + req.body.password);
-		console.log("»»» Accepted GET to this resource. Develop here what happens");
-		res.json(datasets);
+		console.log("»»» Accepted GET to Datasets/ resource. Develop here what happens");
+		//var result = "There are no Datasets to this user";
+		var result = "";
+		var allDatasets = "";
+		for(i=0; i < Object.keys(datasets).length; i++){
+			allDatasets = "d" + (i+1) + ".datasetValues" ;
+			result += get(datasets, allDatasets) ;
+		}
+		//console.log(result);
+
+		res.statusCode = 200;
+		res.setHeader("Content-Type", "application/html");
+		res.end( result );
 		
 	})
 	.post(function(req, res) {
@@ -396,7 +466,9 @@ app.route("/Users/:userID/Datasets/:datasetID")
 		//console.log(req.body.fullName + req.username + req.body.password);
 		if (req.dataset_id) {
 			console.log("»»» Accepted GET to this resource. Develop here what happens");
-			res.json(datasets[req.dataset_id]);
+			res.statusCode = 200;
+			res.setHeader("Content-Type", "application/html");
+			res.end( datasetTableValues );
 		} else {
 			res.statusCode = 404 ;
 			res.setHeader("Content-Type", "application/html");

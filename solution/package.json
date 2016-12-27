@@ -1,0 +1,36 @@
+{
+  "name": "restify",
+  "version": "1.0.0",
+  "description": "",
+  "author": "",
+  "contributors": [{
+    "name": "",
+    "email": ""
+  }],
+  "bin": {
+    "module-name": "./bin/module-name"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://1161660@bitbucket.org/ODSOFT_2016_1160091/restify.git"
+  },
+  "bugs": {
+    "url": "https://bitbucket.org/ODSOFT_2016_1160091/restify/issues"
+  },
+  "keywords": [
+    "restify"
+  ],
+  "dependencies": {
+    "body-parser": "1.15.2",
+    "express": "4.14.0 ",
+    "json-to-html": "0.1.2",
+    "request": "2.79.0",
+    "xmldom": "0.1.27",
+    "xpath": "0.0.23",
+    "mongoose": "4.7.5",
+    "node-matrix": "0.1.1"
+  },
+  "devDependencies": {
+
+  }
+}

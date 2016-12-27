@@ -16,11 +16,15 @@ var express = require('express');
 var bodyParser = require('body-parser');
 //var methodOverride = require('method-override');
 var request = require('request');
-var json2html = require('json-to-html')
+var json2html = require('json-to-html');
+var mongoose = require('mongoose');
+
+
+var jsonParser = bodyParser.json();
 
 var app = express();
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended:true}));
+app.use(jsonParser);
+//app.use(bodyParser.urlencoded({extended:true}));
 //app.use(methodOverride());
 
 var callbackApp = express();
@@ -40,6 +44,22 @@ const callbackPort = process.env.PORT || 3005;
 const CALLBACK_ROOT = "http://localhost:" + callbackPort;
 
 var SequenceID = 1;
+
+var db = mongoose.connection;
+
+db.on('error', console.error);
+db.once('open', function() {
+    var dataset = new mongoose.Schema( {
+        dataset_id: String,
+        rows: Integer,
+        cols: Integer,
+        values: [Integer]
+    });
+
+    var Dataset = mongoose.model('Dataset', dataset);
+});
+
+mongoose.connect('mongodb://localhost/datasheet');
 
 /************
  data store
@@ -62,7 +82,7 @@ users['u1'] = {username: "u1", fullName:"Paulo Afonso",			Password:"node1234", 	
 users['u2'] = {username: "u2", fullName:"Leonardo Andrade", 	Password:"node1234", 	createdOn: now, updatedOn: now};
 users['u3'] = {username: "u3", fullName:"Paulo Russo",			Password:"node1234", 	createdOn: now, updatedOn: now};
 
-datasetsValues1 = [1,2,3,4];
+	datasetsValues1 = [1,2,3,4];
 datasetsValues2 = [1,2,3,4,5,6,7,8,9];
 
 datasets['d1'] = {dataset_id: "d1", rows:2, 	cols:2, 	values:datasetsValues1, 	createdOn: now, updatedOn: now};
@@ -220,7 +240,9 @@ app.route("/Users/:userID")
 		if (req.username && req.body.fullName && req.body.password || 
 				req.username && req.body.password ||
 				req.username && req.body.fullName) {
-						
+
+
+
 			//TODO = Develop here what happens
 			console.log("»»» Accepted PUT to this resource. Develop here what happens");
 			
@@ -304,9 +326,23 @@ app.route("/Users/:userID/Datasets")
 		//inserir function para iterar os valores informados para criar o dataset
 		//inserir function para validar se a quantidade linhas x colunas fazem match com os valores informados
 		
-		if (req.username && req.body.dataset_id && req.body.rows && req.body.cols && req.body.values ) {
+		if (req.body.rows && req.body.cols && req.body.values ) {
 						
 			//TODO = Develop here what happens
+
+           /* var id = mongoose.Types.ObjectId();
+            var dataset = new Dataset({
+                dataset_id: id,
+                rows: req.body.rows,
+                cols: req.body.cols,
+                values: req.body.values
+            });
+
+            dataset.save(function(err, thor) {
+                if (err) return console.error(err);
+                console.dir(thor);
+            });*/
+
 			console.log("»»» Accepted POST to this resource. Develop here what happens");
 			
 			// send 201 response

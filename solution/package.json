@@ -28,7 +28,9 @@
     "xmldom": "0.1.27",
     "xpath": "0.0.23",
     "mongoose": "4.7.5",
-    "node-matrix": "0.1.1"
+    "node-matrix": "0.1.1",
+    "simple-object-query": "1.6.0",
+    "mongoose-auto-increment": "5.0.1"
   },
   "devDependencies": {
 

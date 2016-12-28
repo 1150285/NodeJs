@@ -36,7 +36,7 @@ global functions
 function calculation(callbackURL, myRefValue, oper_id, dataset_id, username) {
 	// POST message
 	//Calculate here de stat. You can/should do internal requests to Datasheet_srv to enhance the calculation
-	var myRefURLcallback = callbackURL + myRefValue;
+	var myRefURLcallback = callbackURL +"/"+ myRefValue;
 	var result = "1 + 1 = 2";
 	
 	var resultJson = {'key' : 'value'};
@@ -95,7 +95,7 @@ app.route("/HeavyOps/:userID/:datasetID/:operID")
 					
 			// queue the request - handle it when possible - remove it after tests
 			
-			calculation(req.body.callbackURL, req.body.myRef, req.oper_id, req.dataset_id, req.username);
+			calculation(req.body.callbackURL, req.body.myRef, req.oper_id, req.dataset, req.username);
 
 			// send 202 Accepted
 			res.statusCode = 202;

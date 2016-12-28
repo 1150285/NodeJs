@@ -259,9 +259,9 @@ function buildDataset(dataset) {
     }
     return datasetTableValuesFinal;
 }
-buildRandomDataset("d1", 2, 2);
-buildRandomDataset("d2", 3, 3);
-buildRandomDataset("d3", 4, 4);
+// buildRandomDataset("d1", 2, 2);
+// buildRandomDataset("d2", 3, 3);
+// buildRandomDataset("d3", 4, 4);
 //datasets['d1'] = {dataset_id: "d1", row:rows, 	col:cols, 	datasetValues:datasetTableValues, 	createdOn: now, updatedOn: now};
 //datasets['d2'] = {dataset_id: "d2", row:rows, 	col:cols, 	datasetValues:datasetTableValues, 	createdOn: now, updatedOn: now};
 //datasets['d3'] = {dataset_id: "d3", row:rows,		col:cols,	datasetValues:datasetTableValues,	createdOn: now, updatedOn: now};
@@ -1064,38 +1064,46 @@ callbackApp.route("/callback/:myRefID")
 //DELETE 	not allowed, returns 405
 //
 
-app.param('statID', function(req, res, next, statID){
+/*app.param('statID', function(req, res, next, statID){
 	req.stat_id = statID;
 	return next()
-	})
+	})*/
 	
-app.route("/Users/:userID/Datasets/:datasetID/:statID") 
+app.route("/Users/:userID/Datasets/:datasetID/Stats")
 	.post(function(req, res) {
-		console.log("»»» Accepted POST request to calculate statID: " + req.stat_id + " for DatasetID: " + req.dataset_id + " and UserID: " + req.username + " Develop here what happens");
-		if (req.username && req.dataset_id && req.stat_id ) {
+
+		console.log("»»» Accepted POST request to calculate statID:  " + req.query.StatID + "for DatasetID: " + req.dataset_id + " and UserID: " + req.username + " Develop here what happens");
+		if (req.username && req.dataset_id && req.query.StatID ) {
 			callbackID = getSequence("stID");
-						
-			//setTimeout(function() {
-				request({
-					   uri : serverHeavyOps + "/HeavyOps/" + req.username + "/" + req.dataset_id + "/" + req.stat_id,
-					   method: "POST",
-					   json : {text:"test of callback post", sender:"Datasheet_srv.js", callbackURL: CALLBACK_ROOT + "/callback/", myRef:callbackID},
-					}, 
-				   function(err, res, body){
-						
-						if (!err && 202 === res.statusCode) {
-							console.log("»»» Posted a Heavy Operation request and got " + res.statusCode );
-							console.log("»»» Success!... Gets your callback results within 30 seconds in http://localhost:3001/Results/" + callbackID  );
-							res.statusCode = 202;
-						} else	{
-							console.log("»»» Internal error in HeavyOps server. Please contact system administrator. Status Code = " + res.statusCode);
-						}
-					});
-			//}, 2000);
+            var urlCallback = CALLBACK_ROOT + "/Users/" + req.username + "/Datasets/" + req.dataset_id + "/Stats/"+req.query.StatID+"/Results"
+
+            var datasetV = "";
+            Dataset.find({ idDataset: req.dataset_id },function (err, dataset) {
+                if (err) return console.error(err);
+                console.log(dataset);
+                datasetV = dataset[0];
+                //setTimeout(function() {
+                request({
+                        uri : serverHeavyOps + "/HeavyOps/" + req.username + "/" + req.dataset_id + "/" + req.query.StatID,
+                        method: "POST",
+                        json : {text:"test of callback post", sender:"Datasheet_srv.js", callbackURL: urlCallback, myRef:callbackID , dataset:datasetV},
+                    },
+                    function(err, res, body){
+
+                        if (!err && 202 === res.statusCode) {
+                            console.log("»»» Posted a Heavy Operation request and got " + res.statusCode );
+                            console.log("»»» Success!... Gets your callback results within 30 seconds in " + urlCallback  );
+                            res.statusCode = 202;
+                        } else	{
+                            console.log("»»» Internal error in HeavyOps server. Please contact system administrator. Status Code = " + res.statusCode);
+                        }
+                    });
+                //}, 2000);
+            })
 			res.setHeader("Content-Type", "application/html");
 			res.end("<html><body><h1> " +
 					"<p>Success!... Your request operation number is " + callbackID + "</p>" +
-					"<p>This is a heavy operation so gets your callback result within 30 seconds in <a href='" + "http://localhost:3001/Results/" + "'" + ">Results</a></p>" +
+					"<p>This is a heavy operation so gets your callback result within 30 seconds in <a href='" + urlCallback + "'" + ">Results</a></p>" +
 					"<p>Or come back to Home Page to request more operations <a href='http://localhost:3001/index.html'>Home Page</a></p>" +
 					"</h1></body></html>");
 		} else {
@@ -1131,6 +1139,31 @@ app.route("/Users/:userID/Datasets/:datasetID/:statID")
 				"</h1></body></html>");
 	})
 
+
+
+callbackApp.route("/Users/:userID/Datasets/:datasetID/Stats/:statID/Results/:callbackID")
+    .get(function(req, res) {
+        res.statusCode = 405;
+        res.setHeader("Content-Type", "application/html");
+        res.end("<html><body><h1> " +
+            "Method not allowed in this resource. Check the definition documentation " +
+            "</h1></body></html>");
+    })
+    .post(function(req, res) {
+        // reply back
+        res.status(204).send("No Content");
+        // process the response to our callback request
+        // handle callbacks that are not sent by our server "security". postman can't invoke this endpoint directly.
+        //persists the result in the resultsStoreList[].
+        console.log( "The result of dataset"+ req.params.statID +" callback number " + req.params.callbackID + " is " + req.url );
+
+        var resultJson = {};
+        resultJson.key = req.url;
+        resultJson.value = req.body.myRefValue;
+
+        resultsStoreList [req.params.myRefID] = resultJson;
+        console.log("»»» Received a callback request with: " + req.body.result + " for cliRef = " + req.url + " Develop here what happens!!!");
+    });
 	//
 //URL: /Users/:userID/Datasets/:datasetID/:transfID
 //

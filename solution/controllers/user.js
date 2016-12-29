@@ -50,6 +50,13 @@ exports.getUsers = function(req, res) {
     });
 };
 
+exports.putUsers = function(req, res) {
+    res.statusCode = 405;
+    res.setHeader("Content-Type", "application/html");
+    res.end("<html><body><h1> " +
+        "Method not allowed in this resource. Check the definition documentation " +
+        "</h1></body></html>");
+}
 
 exports.getUser = function(req, res) {
     if (req.username) {

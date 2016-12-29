@@ -59,7 +59,7 @@ const serverHeavyOps = "http://localhost:" + serverHeavyOpsPort;
 const callbackPort = process.env.PORT || 3005;
 const CALLBACK_ROOT = "http://localhost:" + callbackPort;
 
-var SequenceID = 1;
+
 
 /************
  data store
@@ -240,13 +240,7 @@ function buildMessageUpdate(newID, text, user){
 }
 
 
-/*
- * Function for auto-increment Callbacks ID
- */
-function getSequence(seqtype) {
-	if (seqtype = "stID")
-		return SequenceID++; 
-}
+
 
 
 // Create our Express router

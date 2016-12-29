@@ -1,4 +1,28 @@
 var Statistical = require('../models/statistical');
+var Dataset = require('../models/dataset');
+var stat = require('simple-statistics');
+
+const GEOMETRIC_MEAN = 0;
+const MEDIAN = 1;
+const MODE = 2;
+const MID_RANGE = 3;
+const VARIANCE = 4;
+const STD_DEVIATION = 5;
+const COUNT = 6;
+const MIN = 7;
+const MAX = 8;
+
+const callbackPort = process.env.PORT || 3005;
+const CALLBACK_ROOT = "http://localhost:" + callbackPort;
+
+var SequenceID = 1;
+/*
+ * Function for auto-increment Callbacks ID
+ */
+function getSequence(seqtype) {
+    if (seqtype = "stID")
+        return SequenceID++;
+}
 
 exports.postStatisticals = function(req, res) {
     console.log("»»» Accepted POST request to calculate statID:  " + req.query.StatID + "for DatasetID: " + req.dataset_id + " and UserID: " + req.username + " Develop here what happens");
@@ -7,32 +31,43 @@ exports.postStatisticals = function(req, res) {
         var urlCallback = CALLBACK_ROOT + "/Users/" + req.username + "/Datasets/" + req.dataset_id + "/Stats/"+req.query.StatID+"/Results"
 
         var datasetV = "";
+        var result = 0;
         Dataset.find({ idDataset: req.dataset_id },function (err, dataset) {
             if (err) return console.error(err);
             console.log(dataset);
             datasetV = dataset[0];
-            //setTimeout(function() {
-            request({
-                    uri : serverHeavyOps + "/HeavyOps/" + req.username + "/" + req.dataset_id + "/" + req.query.StatID,
-                    method: "POST",
-                    json : {text:"test of callback post", sender:"Datasheet_srv.js", callbackURL: urlCallback, myRef:callbackID , dataset:datasetV},
-                },
-                function(err, res, body){
+            if(GEOMETRIC_MEAN == req.query.StatID){
+                result = stat.mean(datasetV.values);
+            }
+            else if(MEDIAN == req.query.StatID){
+                result = stat.median(datasetV.values);
+            }
+            else if(MODE == req.query.StatID){
+                result = stat.mode(datasetV.values);
+            }
+            else if(MID_RANGE == req.query.StatID){
+                result = stat.average(datasetV.values);
+            }
+            else if(VARIANCE == req.query.StatID){
+                result = stat.variance(datasetV.values);
+            }
+            else if(STD_DEVIATION == req.query.StatID){
+                result = stat.standardDeviation(datasetV.values);
+            }
+            else if(COUNT == req.query.StatID){
+                result = datasetV.values.length;
+            }
+            else if(MIN == req.query.StatID){
+                result = stat.min(datasetV.values);
+            }
+            else if(MAX == req.query.StatID){
+                result = stat.max(datasetV.values);
+            }
 
-                    if (!err && 202 === res.statusCode) {
-                        console.log("»»» Posted a Heavy Operation request and got " + res.statusCode );
-                        console.log("»»» Success!... Gets your callback results within 30 seconds in " + urlCallback  );
-                        res.statusCode = 202;
-                    } else	{
-                        console.log("»»» Internal error in HeavyOps server. Please contact system administrator. Status Code = " + res.statusCode);
-                    }
-                });
-            //}, 2000);
         })
         res.setHeader("Content-Type", "application/html");
         res.end("<html><body><h1> " +
-            "<p>Success!... Your request operation number is " + callbackID + "</p>" +
-            "<p>This is a heavy operation so gets your callback result within 30 seconds in <a href='" + urlCallback + "'" + ">Results</a></p>" +
+            "<p>Success!... Your request result is"+result+"</p>" +
             "<p>Or come back to Home Page to request more operations <a href='http://localhost:3001/index.html'>Home Page</a></p>" +
             "</h1></body></html>");
     } else {

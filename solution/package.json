@@ -34,6 +34,7 @@
     "passport-http": "^0.3.0",
     "request": "2.79.0",
     "simple-object-query": "1.6.0",
+    "simple-statistics": "^2.2.0",
     "xmldom": "0.1.27",
     "xpath": "0.0.23"
   },

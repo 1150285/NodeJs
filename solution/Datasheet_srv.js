@@ -16,19 +16,30 @@ var express = require('express');
 var bodyParser = require('body-parser');
 //var methodOverride = require('method-override');
 var request = require('request');
-var mongoose = require('mongoose'),
-    Schema = mongoose.Schema,
-    autoIncrement = require('mongoose-auto-increment');
+
 var jsonParser = bodyParser.json();
 var json2html = require('json-to-html')
 var matrix = require("node-matrix")
 var get = require('simple-object-query').get;
 var where = require('simple-object-query').where;
+var passport = require('passport');
+
+var userController = require('./controllers/user');
+var datasetController = require('./controllers/dataset');
+var authController = require('./controllers/auth');
+
+var connection = require('./db/db')
+var Dataset = require('./models/dataset');
+
 
 var app = express();
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
 //app.use(methodOverride());
+
+// Use the passport package in our application
+app.use(passport.initialize());
 
 var callbackApp = express();
 callbackApp.use(bodyParser.json());
@@ -52,6 +63,7 @@ var SequenceID = 1;
  data store
 ************/
 
+/*
 
 var db = mongoose.connection;
 
@@ -67,10 +79,14 @@ var datasetSchema = new mongoose.Schema({
     values: [Number]
 });
 
-var connection = mongoose.createConnection('mongodb://localhost/datasetdb');
-var Dataset = connection.model('Dataset', datasetSchema);
-autoIncrement.initialize(connection);
-datasetSchema.plugin(autoIncrement.plugin, { model: 'Dataset', field: 'idDataset' });
+ */
+//var connection = mongoose.createConnection('mongodb://localhost/datasetdb');
+//var Dataset = connection.model('Dataset', datasetSchema);
+
+
+
+
+//mongoose.connect('mongodb://localhost/datasetdb');
 
 var users =  {};
 var datasets =  {};
@@ -105,12 +121,20 @@ function buildRandomDataset(lines, columns) {
         }
     }
 
-    var id = mongoose.Types.ObjectId();
     var dataset = new Dataset({
         numRows: dataMatrix.numRows,
         numCols: dataMatrix.numCols,
         values: values
     });
+
+
+
+/*    var id = mongoose.Types.ObjectId();
+    var dataset = new Dataset({
+        numRows: dataMatrix.numRows,
+        numCols: dataMatrix.numCols,
+        values: values
+    });*/
 
     dataset.save(
 		function(err, dataset) {
@@ -118,7 +142,7 @@ function buildRandomDataset(lines, columns) {
 			console.log(dataset);
 			dataset_id = dataset.idDataset;
 		}
-    );	
+    );
 }
 
 function printDatasetHTML(dataset) {
@@ -257,6 +281,17 @@ function getSequence(seqtype) {
 		return SequenceID++; 
 }
 
+
+// Create our Express router
+var router = express.Router();
+// Register all our routes with /api
+app.use('/', router);
+
+
+router.route('/Users')
+    .post(userController.postUsers)
+    .get(userController.getUsers);
+
 //
 //URL: /Users
 //
@@ -266,7 +301,7 @@ function getSequence(seqtype) {
 //DELETE 	not allowed, returns 405
 //
 
-app.route("/Users") 
+/*app.route("/Users")
 	.get(function(req, res) {
 		//TODO = Develop here what happens
 		console.log("»»» Accepted GET to this resource. Develop here what happens");
@@ -313,7 +348,7 @@ app.route("/Users")
 		res.end("<html><body><h1> " +
 				"Method not allowed in this resource. Check the definition documentation " +
 				"</h1></body></html>");
-	});
+	});*/
 
 /**
  * URL: /Users/:userID
@@ -420,8 +455,11 @@ app.route("/Users/:userID")
 //PUT 		not allowed, returns 405
 //DELETE 	not allowed, returns 405
 
-app.route("/Users/:userID/Datasets") 
-	.get(function(req, res) {
+app.route("/Users/:userID/Datasets")
+    .post(datasetController.postDataset)
+    .get(datasetController.getDataset);
+
+	/*.get(function(req, res) {
 		console.log("»»» Accepted GET to .../Datasets/ resource");
 		//var result = "There are no Datasets to this user";
 		var result = "";
@@ -447,19 +485,17 @@ app.route("/Users/:userID/Datasets")
 		
 		if (Number (req.body.rows) && Number (req.body.cols) && req.body.values ) {
 			console.log("entrei no full");
-			var id = mongoose.Types.ObjectId();
+			//var id = mongoose.Types.ObjectId();
             var dataset = new Dataset({
-                dataset_id: id,
                 rows: req.body.rows,
                 cols: req.body.cols,
                 values: req.body.values
             });
 
-            dataset.save(function(err, thor) {
+            dataset.saveDataset(function(err, dataset) {
                 if (err) return console.error(err);
-                console.dir(thor);
+                console.dir(dataset);
             });
-			
 			// send 201 response
 			res.statusCode = 201;
 			res.setHeader("Content-Type", "application/html");
@@ -505,7 +541,7 @@ app.route("/Users/:userID/Datasets")
 		res.end("<html><body><h1> " +
 				"Method not allowed in this resource. Check the definition documentation " +
 				"</h1></body></html>");
-	});
+	});*/
 
 //
 //URL: /Users/:userID/Datasets/:datasetID

@@ -3,10 +3,12 @@
   "version": "1.0.0",
   "description": "",
   "author": "",
-  "contributors": [{
-    "name": "",
-    "email": ""
-  }],
+  "contributors": [
+    {
+      "name": "",
+      "email": ""
+    }
+  ],
   "bin": {
     "module-name": "./bin/module-name"
   },
@@ -21,18 +23,19 @@
     "restify"
   ],
   "dependencies": {
+    "bcrypt-nodejs": "0.0.3",
     "body-parser": "1.15.2",
     "express": "4.14.0 ",
     "json-to-html": "0.1.2",
-    "request": "2.79.0",
-    "xmldom": "0.1.27",
-    "xpath": "0.0.23",
     "mongoose": "4.7.5",
+    "mongoose-auto-increment": "5.0.1",
     "node-matrix": "0.1.1",
+    "passport": "^0.3.2",
+    "passport-http": "^0.3.0",
+    "request": "2.79.0",
     "simple-object-query": "1.6.0",
-    "mongoose-auto-increment": "5.0.1"
+    "xmldom": "0.1.27",
+    "xpath": "0.0.23"
   },
-  "devDependencies": {
-
-  }
+  "devDependencies": {}
 }

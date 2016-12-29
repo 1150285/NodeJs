@@ -27,6 +27,9 @@ var passport = require('passport');
 var userController = require('./controllers/user');
 var datasetController = require('./controllers/dataset');
 var authController = require('./controllers/auth');
+var macroController = require('./controllers/macro');
+var transformationController = require('./controllers/transformation');
+var statisticalController = require('./controllers/statistical');
 
 var connection = require('./db/db')
 var Dataset = require('./models/dataset');
@@ -362,8 +365,13 @@ app.param('userID', function(req, res, next, userID){
 req.username = userID;
 return next()
 })
-app.route("/Users/:userID") 
-	.get(function(req, res) {
+app.route("/Users/:userID")
+	.get(userController.getUser)
+	.put(authController.isAuthenticated,userController.putUser)
+	.delete(authController.isAuthenticated,userController.deleteUser);
+
+
+/*	.get(function(req, res) {
 		//for debug
 		//console.log(req.body.fullName + req.username + req.body.password);
 		if (req.username) {
@@ -425,24 +433,24 @@ app.route("/Users/:userID")
 	})
 	.delete(function(req, res) {
 		var entry = users[req.username];
-		if (entry === undefined) {
-			res.statusCode = 404 ;
-			res.setHeader("Content-Type", "application/html");
-			res.end("<html><body><h1> " +
-					"User " + req.username + " not found! " +
-					"</h1></body></html>");
-			console.log("»»» User " + req.username + " not found!");
-		}
-		else {
-			delete users[req.username];
-			res.statusCode = 204 ;
-			res.setHeader("Content-Type", "application/html");
-			res.end("<html><body><h1> " +
-					"User " + req.username + " successfully deleted! " +
-					"</h1></body></html>");
-			console.log("»»» User " + req.username + " successfully deleted!");
-		}
-	});
+        if (entry === undefined) {
+            res.statusCode = 404 ;
+            res.setHeader("Content-Type", "application/html");
+            res.end("<html><body><h1> " +
+                "User " + req.username + " not found! " +
+                "</h1></body></html>");
+            console.log("»»» User " + req.username + " not found!");
+        }
+        else {
+            delete users[req.username];
+            res.statusCode = 204 ;
+            res.setHeader("Content-Type", "application/html");
+            res.end("<html><body><h1> " +
+                "User " + req.username + " successfully deleted! " +
+                "</h1></body></html>");
+            console.log("»»» User " + req.username + " successfully deleted!");
+        }
+	});*/
 
 
 ///DATASETS
@@ -456,8 +464,8 @@ app.route("/Users/:userID")
 //DELETE 	not allowed, returns 405
 
 app.route("/Users/:userID/Datasets")
-    .post(datasetController.postDataset)
-    .get(datasetController.getDataset);
+    .post(datasetController.postDatasets)
+    .get(datasetController.getDatasets);
 
 	/*.get(function(req, res) {
 		console.log("»»» Accepted GET to .../Datasets/ resource");
@@ -554,10 +562,15 @@ app.route("/Users/:userID/Datasets")
 app.param('datasetID', function(req, res, next, datasetID){
 	req.dataset_id = datasetID;
 	return next()
-	})
+	});
 
-app.route("/Users/:userID/Datasets/:datasetID") 
-	.get(function(req, res) {
+app.route("/Users/:userID/Datasets/:datasetID")
+    .put(datasetController.putDataset)
+    .get(datasetController.getDataset)
+	.delete(datasetController.deleteDataset);
+
+
+/*	.get(function(req, res) {
 
 		if (req.dataset_id) {
 			console.log("»»» Accepted GET to /Datasets/ID? resource. ");
@@ -656,7 +669,7 @@ app.route("/Users/:userID/Datasets/:datasetID")
 				console.log("»»» Bad request. Check the definition documentation.");
 			}
 		}
-	});
+	});*/
 
 ///MACROS
 
@@ -671,8 +684,11 @@ app.route("/Users/:userID/Datasets/:datasetID")
 //DELETE 	not allowed, returns  405
 //
 
-app.route("/Users/:userID/Macros") 
-	.get(function(req, res) {
+app.route("/Users/:userID/Macros")
+	.get(macroController.getMacros)
+	.post(macroController.postMacros);
+
+	/*.get(function(req, res) {
 		//for debug
 		//console.log(req.username);
 		console.log("»»» Accepted GET to this resource. Develop here what happens");
@@ -723,7 +739,7 @@ app.route("/Users/:userID/Macros")
 				"Method not allowed in this resource. Check the definition documentation " +
 				"</h1></body></html>");
 	});
-
+*/
 //
 //handling individual items in the collection
 //
@@ -740,7 +756,11 @@ app.param('macroID', function(req, res, next, macroID){
 	return next()
 	})
 
-app.route("/Users/:userID/Macros/:macroID") 
+app.route("/Users/:userID/Macros/:macroID")
+	.get(macroController.getMacro)
+	.put(macroController.putMacro)
+	.delete(macroController.deleteMacro);
+/*
 	.get(function(req, res) {
 		//for debug
 		//console.log(req.username + req.macro_id);
@@ -835,6 +855,7 @@ app.route("/Users/:userID/Macros/:macroID")
 			}
 		}
 	});
+*/
 
 //
 //handling individual items in the collection
@@ -1042,7 +1063,8 @@ callbackApp.route("/callback/:myRefID")
 	})*/
 	
 app.route("/Users/:userID/Datasets/:datasetID/Stats")
-	.post(function(req, res) {
+	.post(statisticalController.postStatisticals);
+	/*.post(function(req, res) {
 
 		console.log("»»» Accepted POST request to calculate statID:  " + req.query.StatID + "for DatasetID: " + req.dataset_id + " and UserID: " + req.username + " Develop here what happens");
 		if (req.username && req.dataset_id && req.query.StatID ) {
@@ -1109,7 +1131,7 @@ app.route("/Users/:userID/Datasets/:datasetID/Stats")
 		res.end("<html><body><h1> " +
 				"Method not allowed in this resource. Check the definition documentation " +
 				"</h1></body></html>");
-	})
+	})*/
 
 
 
@@ -1150,8 +1172,9 @@ app.param('transfID', function(req, res, next, transfID){
 	return next()
 	})
 	
-app.route("/Users/:userID/Datasets/:datasetID/:transfID") 
-	.post(function(req, res) {
+app.route("/Users/:userID/Datasets/:datasetID/:transfID")
+	.post(transformationController.postTransformations);
+	/*.post(function(req, res) {
 		console.log("»»» Accepted POST request to calculate transfID: " + req.transf_id + " for DatasetID: " + req.dataset_id + " and UserID: " + req.username + " Develop here what happens");
 		if (req.username && req.dataset_id && req.transf_id ) {
 			callbackID = getSequence("stID");
@@ -1210,7 +1233,7 @@ app.route("/Users/:userID/Datasets/:datasetID/:transfID")
 		res.end("<html><body><h1> " +
 				"Method not allowed in this resource. Check the definition documentation " +
 				"</h1></body></html>");
-	})
+	})*/
 
 //
 //URL: /Users/:userID/Datasets/:datasetID/:macroID
@@ -1221,8 +1244,9 @@ app.route("/Users/:userID/Datasets/:datasetID/:transfID")
 //DELETE 	not allowed, returns 405
 //
 	
-app.route("/Users/:userID/Datasets/:datasetID/:macroID") 
-	.post(function(req, res) {
+app.route("/Users/:userID/Datasets/:datasetID/:macroID")
+	.post(macroController.postMacro);
+/*	.post(function(req, res) {
 		console.log("»»» Accepted POST request to calculate transf_id: " + req.macro_id + " for DatasetID: " + req.dataset_id + " and UserID: " + req.username + " Develop here what happens");
 		if (req.username && req.dataset_id && req.macro_id ) {
 			callbackID = getSequence("stID");
@@ -1281,7 +1305,7 @@ app.route("/Users/:userID/Datasets/:datasetID/:macroID")
 		res.end("<html><body><h1> " +
 				"Method not allowed in this resource. Check the definition documentation " +
 				"</h1></body></html>");
-	})
+	})*/
 
 /*
  * RUNNING

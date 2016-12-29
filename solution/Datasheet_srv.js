@@ -91,18 +91,20 @@ users['u3'] = {username: "u3", fullName:"Paulo Russo",			Password:"node1234", 	c
 
 
 //3 Random Datasets as initial example
-function buildRandomDataset(datasetID, lines, columns) {
+function buildRandomDataset(lines, columns) {
 
     var values = [];
-	var dataset_id = datasetID;
+	var dataset_id = "";
 	var dataMatrix = matrix({ rows: lines, columns: columns, values: Math.random });
-    var strq = (JSON.stringify(dataMatrix));
-
-    for(var col = 0; col < dataMatrix.numCols; col++) {
-        for(var row = 0; row < dataMatrix.numRows; row++) {
-            values.push(dataMatrix[col][row]);
+    
+    for(var row = 0; row < dataMatrix.numRows; row++) {
+    	for(var col = 0; col < dataMatrix.numCols; col++) {
+            values.push( 
+				Math.round((dataMatrix[row][col]*100), 3) 
+			);
         }
     }
+
     var id = mongoose.Types.ObjectId();
     var dataset = new Dataset({
         numRows: dataMatrix.numRows,
@@ -110,161 +112,90 @@ function buildRandomDataset(datasetID, lines, columns) {
         values: values
     });
 
-    dataset.save(function(err, dataset) {
-        if (err) return console.error(err);
-        console.dir(dataset);
-        dataset_id = dataset.idDataset;
-    });
-
-    //row and col preparation
-	var str = (JSON.stringify(dataMatrix.dimensions));
-	//console.log(str);
-	var dim = str.slice(1, str.length - 1);
-	//console.log(dim);
-	var RowXCol = dim.split(",");
-	var rows = RowXCol[0];
-	//console.log(rows);
-	var cols = RowXCol[1];
-	//console.log(cols);
-	var line = 0;
-	var column = 0;
-
-	var tableDatasetError = "<html><head>" +
-	"<style>table { font-family: arial, sans-serif; border-collapse: collapse; width: 100%; } " +
-	"td, th { border: 1px solid #dddddd; text-align: center; padding: 8px; } " +
-	"tr:nth-child(even) { background-color: #dddddd; } </style> " +
-	"</head><body><table>" +
-	"<tr>" +
-	"<th>Dataset</th>" +
-	"</tr>" +
-	"<tr>" +
-	"<td>Error. This Dataset have a row or col = 0. Please setup</td>" +
-	"</tr>" +
-	"</table></body></html>"
-
-	if (rows != 0) {
-		if (cols != 0) {
-			const tableDatasetHead = "<html><head>" +
-			"<style>table { font-family: arial, sans-serif; border-collapse: collapse; width: 100%; } " +
-			"td, th { border: 1px solid #dddddd; text-align: center; padding: 8px; } " +
-			"tr:nth-child(even) { background-color: #dddddd; } </style> " +
-			"</head><body><table style='width:100%' >";
-
-			var tableDatasetBody =
-			"<tr>" +
-			"<th colspan='" + (cols + 1 ) + "'>Dataset ID: " + dataset_id + "</th>" +
-			"</tr>" +
-			"<tr>" +
-			"<td>Row X Col</td>";
-			for(column = 0; column < cols; column++) {
-
-				tableDatasetBody += "<td>" + (column + 1) + "</td>";
-			}
-			tableDatasetBody +=
-			"</tr>" +
-			"<tr>" ;
-			for(column = 0; column < cols; column++) {
-				for(line = 0; line < rows; line++) {
-					tableDatasetBody += "<td>" + (line + 1) + "</td>" ;
-					for(column = 0; column < cols; column++) {
-						tableDatasetBody += "<td>" + dataMatrix[line][column] + "</td>" ;
-					}
-					tableDatasetBody +=
-						"</tr>" +
-						"<tr>" ;
-				}
-			}
-
-			const tableDatasetTail = "</tr></table></body></html>";
-			datasetTableValues = tableDatasetHead + tableDatasetBody + tableDatasetTail;
-		} else {
-		datasetTableValues = tableDatasetError;
+    dataset.save(
+		function(err, dataset) {
+			if (err) return console.error(err);
+			console.log(dataset);
+			dataset_id = dataset.idDataset;
 		}
-	} else {
-			datasetTableValues = tableDatasetError;
-	}
-	datasets[dataset_id] = {dataset_id: dataset_id, row:rows, 	col:cols, 	datasetValues:datasetTableValues, 	createdOn: now, updatedOn: now};
+    );	
 }
 
-function buildDataset(dataset) {
+function printDatasetHTML(dataset) {
 
     var values = [];
-    var datasetTableValuesFinal ="";
+    var datasetTableValuesFinal = "";
     for(item = 0; item < dataset.length; item++) {
-    var dataset_id = dataset[item].idDataset;
 
-    var datasetTableValues = "";
-    var rows = dataset[item].numRows;
-    //console.log(rows);
-    var cols = dataset[item].numCols;
-    //console.log(cols);
-    var line = 0;
-    var column = 0;
-
-    var tableDatasetError = "<html><head>" +
-        "<style>table { font-family: arial, sans-serif; border-collapse: collapse; width: 100%; } " +
-        "td, th { border: 1px solid #dddddd; text-align: center; padding: 8px; } " +
-        "tr:nth-child(even) { background-color: #dddddd; } </style> " +
-        "</head><body><table>" +
-        "<tr>" +
-        "<th>Dataset</th>" +
-        "</tr>" +
-        "<tr>" +
-        "<td>Error. This Dataset have a row or col = 0. Please setup</td>" +
-        "</tr>" +
-        "</table></body></html>"
-
-    if (rows != 0) {
-        if (cols != 0) {
-            const tableDatasetHead = "<html><head>" +
-                "<style>table { font-family: arial, sans-serif; border-collapse: collapse; width: 100%; } " +
-                "td, th { border: 1px solid #dddddd; text-align: center; padding: 8px; } " +
-                "tr:nth-child(even) { background-color: #dddddd; } </style> " +
-                "</head><body><table style='width:100%' >";
-
-            var tableDatasetBody =
-                "<tr>" +
-                "<th colspan='" + (cols + 1 ) + "'>Dataset ID: " + dataset_id + "</th>" +
-                "</tr>" +
-                "<tr>" +
-                "<td>Row X Col</td>";
-            for(column = 0; column < cols; column++) {
-
-                tableDatasetBody += "<td>" + (column + 1) + "</td>";
-            }
-            tableDatasetBody +=
-                "</tr>" +
-                "<tr>" ;
-            for(column = 0; column < cols; column++) {
+    	var dataset_id = dataset[item].idDataset;
+	    var datasetTableValues = "";
+	    var rows = dataset[item].numRows;
+	    var cols = dataset[item].numCols;
+	    var line = 0;
+	    var column = 0;
+		var arrayPosition = 0;
+	
+	    var tableDatasetError = "<html><head>" +
+	        "<style>table { font-family: arial, sans-serif; border-collapse: collapse; width: 100%; } " +
+	        "td, th { border: 1px solid #dddddd; text-align: center; padding: 8px; } " +
+	        "tr:nth-child(even) { background-color: #dddddd; } </style> " +
+	        "</head><body><table>" +
+	        "<tr>" +
+	        "<th>Dataset</th>" +
+	        "</tr>" +
+	        "<tr>" +
+	        "<td>Error. There are no Datasets to see yet. Create one first!</td>" +
+	        "</tr>" +
+	        "</table></body></html>"
+	
+	    if (rows != 0) {
+	        if (cols != 0) {
+	            const tableDatasetHead = "<html><head>" +
+	                "<style>table { font-family: arial, sans-serif; border-collapse: collapse; width: 100%; } " +
+	                "td, th { border: 1px solid #dddddd; text-align: center; padding: 8px; } " +
+	                "tr:nth-child(even) { background-color: #dddddd; } </style> " +
+	                "</head><body><table style='width:100%' >";
+	
+	            var tableDatasetBody =
+	                "<tr>" +
+	                "<th colspan='" + (cols + 1 ) + "'>Dataset ID: " + dataset_id + "</th>" +
+	                "</tr>" +
+	                "<tr>" +
+	                "<td>Row X Col</td>";
+	            for(column = 0; column < cols; column++) {
+	
+	                tableDatasetBody += "<td>" + (column + 1) + "</td>";
+	            }
+	            tableDatasetBody +=
+	                "</tr>" +
+	                "<tr>" ;
+	            
                 for(line = 0; line < rows; line++) {
                     tableDatasetBody += "<td>" + (line + 1) + "</td>" ;
                     for(column = 0; column < cols; column++) {
-                        tableDatasetBody += "<td>" + dataset[item].values[line+column] + "</td>" ;
+                        tableDatasetBody += "<td>" + dataset[item].values[arrayPosition] + "</td>" ;
+                        arrayPosition++
                     }
                     tableDatasetBody +=
                         "</tr>" +
                         "<tr>" ;
                 }
-            }
-
-            const tableDatasetTail = "</tr></table></body></html>";
-            datasetTableValues = tableDatasetHead + tableDatasetBody + tableDatasetTail;
-        } else {
-            datasetTableValues = tableDatasetError;
-        }
-    } else {
-        datasetTableValues = tableDatasetError;
-    }
-        datasetTableValuesFinal = datasetTableValuesFinal.concat(datasetTableValues);
+	            
+	            const tableDatasetTail = "</tr></table></body></html>";
+	            datasetTableValues = tableDatasetHead + tableDatasetBody + tableDatasetTail;
+	        } else {
+	            datasetTableValues = tableDatasetError;
+	        }
+	    } else {
+	        datasetTableValues = tableDatasetError;
+	    }
+	        datasetTableValuesFinal = datasetTableValuesFinal.concat(datasetTableValues);
     }
     return datasetTableValuesFinal;
 }
-// buildRandomDataset("d1", 2, 2);
-// buildRandomDataset("d2", 3, 3);
-// buildRandomDataset("d3", 4, 4);
-//datasets['d1'] = {dataset_id: "d1", row:rows, 	col:cols, 	datasetValues:datasetTableValues, 	createdOn: now, updatedOn: now};
-//datasets['d2'] = {dataset_id: "d2", row:rows, 	col:cols, 	datasetValues:datasetTableValues, 	createdOn: now, updatedOn: now};
-//datasets['d3'] = {dataset_id: "d3", row:rows,		col:cols,	datasetValues:datasetTableValues,	createdOn: now, updatedOn: now};
+buildRandomDataset(2, 2);
+buildRandomDataset(3, 5);
+buildRandomDataset(2, 7);
 
 //A group of functions to Calculate Stats or Transfs and Prints Charts in a row 
 macros['m1'] = {content: "s1,t1,c1", 			createdOn: now, updatedOn: now};
@@ -491,7 +422,7 @@ app.route("/Users/:userID")
 
 app.route("/Users/:userID/Datasets") 
 	.get(function(req, res) {
-		console.log("»»» Accepted GET to Datasets/ resource. Develop here what happens");
+		console.log("»»» Accepted GET to .../Datasets/ resource");
 		//var result = "There are no Datasets to this user";
 		var result = "";
 		var allDatasets = "";
@@ -501,16 +432,12 @@ app.route("/Users/:userID/Datasets")
 		}
         res.statusCode = 200;
         res.setHeader("Content-Type", "application/html");
-        //res.end( result );
-		//console.log(result);
         Dataset.find(function (err, datasets) {
             if (err) return console.error(err);
-            console.log(datasets);
-            res.end(buildDataset(datasets));
-            //res.end(datasets);
-        })
-
-		
+            //console.log(datasets);
+            res.end(printDatasetHTML(datasets));
+        });	
+        console.log("»»» Returned GET for all existents Datasets");
 	})
 	.post(function(req, res) {
 		//for debug
@@ -518,11 +445,9 @@ app.route("/Users/:userID/Datasets")
 		//inserir function para iterar os valores informados para criar o dataset
 		//inserir function para validar se a quantidade linhas x colunas fazem match com os valores informados
 		
-		if (req.body.rows && req.body.cols && req.body.values ) {
-						
-			//TODO = Develop here what happens
-
-           /* var id = mongoose.Types.ObjectId();
+		if (Number (req.body.rows) && Number (req.body.cols) && req.body.values ) {
+			console.log("entrei no full");
+			var id = mongoose.Types.ObjectId();
             var dataset = new Dataset({
                 dataset_id: id,
                 rows: req.body.rows,
@@ -533,25 +458,38 @@ app.route("/Users/:userID/Datasets")
             dataset.save(function(err, thor) {
                 if (err) return console.error(err);
                 console.dir(thor);
-            });*/
-
-			console.log("»»» Accepted POST to this resource. Develop here what happens");
+            });
 			
 			// send 201 response
 			res.statusCode = 201;
 			res.setHeader("Content-Type", "application/html");
 			res.end("<html><body><h1> " +
-					"The Dataset: " + req.body.dataset_id + " was successfully created for username: " + req.username +
+					"The specific Dataset: " + dataset_id + " was successfully created for username: " + req.username +
 					"</h1></body></html>");
-			console.log("»»» Dataset: " + req.body.dataset_id + " was successfully created for username: " + req.username);
-		}
+			console.log("»»» The specific Dataset: " + dataset_id + " was successfully created for username: " + req.username);
+		} 
 		else {
+			if (Number (req.body.rows) && Number (req.body.cols) ) {
+				
+				buildRandomDataset(req.body.rows, req.body.cols);
+				
+				// send 201 response
+				res.statusCode = 201;
+				res.setHeader("Content-Type", "application/html");
+				res.end("<html><body><h1> " +
+						"A Random Dataset for username: " + req.username + " was successfully created. Your DatasetID = " + dataset_id +  
+						"</h1></body></html>");
+				console.log("»»» A Random Dataset for username: " + req.username + " was successfully created. Your DatasetID = " + dataset_id);
+			} 
+			else {
+			
 			res.statusCode = 400;
 			res.setHeader("Content-Type", "application/html");
 			res.end("<html><body><h1> " +
 					"Bad request. Check the definition documentation. " +
 					"</h1></body></html>");
-			console.log("»»» Bad request. Check the definition documentation.");	
+			console.log("»»» Bad request. Check the definition documentation.");
+			}
 		}
 	})
 	.put(function(req, res) {
@@ -584,10 +522,9 @@ app.param('datasetID', function(req, res, next, datasetID){
 
 app.route("/Users/:userID/Datasets/:datasetID") 
 	.get(function(req, res) {
-		//for debug
-		//console.log(req.body.fullName + req.username + req.body.password);
+
 		if (req.dataset_id) {
-			console.log("»»» Accepted GET to this resource. Develop here what happens");
+			console.log("»»» Accepted GET to /Datasets/ID? resource. ");
 			res.statusCode = 200;
 			res.setHeader("Content-Type", "application/html");
 			//res.end( datasets[req.dataset_id].datasetValues );
@@ -595,9 +532,8 @@ app.route("/Users/:userID/Datasets/:datasetID")
             Dataset.find({ idDataset: req.dataset_id },function (err, dataset) {
                 if (err) return console.error(err);
                 console.log(dataset);
-                res.end(buildDataset(dataset));
+                res.end(printDatasetHTML(dataset));
             })
-
 
 		} else {
 			res.statusCode = 404 ;

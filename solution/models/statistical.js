@@ -22,4 +22,7 @@ var statisticalSchema = new mongoose.Schema({
     }
 });
 
+autoIncrement.initialize(mongoose);
+statisticalSchema.plugin(autoIncrement.plugin, { model: 'Statistical', field: 'idStatistical', startAt: 1});
+
 var Statistical = module.exports = mongoose.model('Statistical', statisticalSchema);

@@ -28,4 +28,7 @@ var macroSchema = new mongoose.Schema({
     }
 });
 
+autoIncrement.initialize(mongoose);
+macroSchema.plugin(autoIncrement.plugin, { model: 'Macro', field: 'idMacro', startAt: 1});
+
 var Macro = module.exports = mongoose.model('Macro', macroSchema);

@@ -19,6 +19,6 @@ var datasetSchema = new Schema({
 });
 
 autoIncrement.initialize(mongoose);
-datasetSchema.plugin(autoIncrement.plugin, { model: 'Dataset', field: 'idDataset' });
+datasetSchema.plugin(autoIncrement.plugin, { model: 'Dataset', field: 'idDataset', startAt: 1});
 
 var Dataset = module.exports = mongoose.model('Dataset', datasetSchema);

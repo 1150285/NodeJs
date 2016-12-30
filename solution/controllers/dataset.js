@@ -1,10 +1,53 @@
 var Dataset = require('../models/dataset');
+var Functions = require('../controllers/functions');
 var matrix = require("node-matrix");
+var mongoose = require('mongoose')
+
+//Functions.buildRandomDataset(2, 2);
+//Functions.buildRandomDataset(3, 5);
+//Functions.buildRandomDataset(2, 7);
+
+exports.getDatasets = function(req, res) {
+
+	console.log("»»» Accepted GET to .../Datasets/ resource");
+
+	res.statusCode = 200;
+	res.setHeader("Content-Type", "application/html");
+	var dataset = "";
+	Dataset.find(function (err, datasets) {
+		if (err) {
+			res.statusCode = 404 ;
+			res.setHeader("Content-Type", "application/html");
+			res.end("<html><body><h1> " +
+					"Dataset: " + req.dataset_id + " was not found! " +
+					"</h1></body></html>");
+			console.log("»»» Dataset: " + req.dataset_id + " or User " + req.username + " not found! ");
+			return console.error(err);
+		}
+		else {
+			if (dataset.length === 0) {
+
+				res.statusCode = 404;
+				res.setHeader("Content-Type", "application/html");
+				res.end("<html><body><h1> " +
+						"None datasets found! " +
+						"Create one doing POST to <a href='http://localhost:3001/Datasets'>http://localhost:3001/Datasets</a>" +
+						"</h1></body></html>");
+				console.log(dataset);
+				console.log("»»» Dataset: " + req.dataset_id + " was not found! ");
+			}
+			else {
+				res.statusCode = 200;
+				res.setHeader("Content-Type", "application/html");
+				res.end(Functions.printDatasetHTML(dataset));
+				console.log("»»» Returned GET with an existent Dataset");
+			}
+		}
+	});	
+};
 
 exports.postDatasets = function(req, res) {
 	console.log("»»» Accepted POST to .../Datasets/ resource");
-	//inserir function para validar se a quantidade linhas x colunas fazem match com os valores informados
-	
 	if (Number (req.body.rows) && Number (req.body.cols) && req.body.values ) {
 		
 		var numbers = req.body.values;
@@ -12,12 +55,12 @@ exports.postDatasets = function(req, res) {
 		var eachNumber = [];
 		for (var i =0; i < RowXCol.length; i++) {
 			eachNumber.push(parseInt(RowXCol[i]));
-			console.log(eachNumber[i]);
+			//console.log(eachNumber[i]);
 		}
-		console.log(eachNumber.length);
+		//console.log(eachNumber.length);
 		
 		var arraySize = (req.body.rows * req.body.cols) ;
-		console.log(arraySize);
+		//console.log(arraySize);
 		
 		if ( arraySize === eachNumber.length) {
 			
@@ -45,11 +88,11 @@ exports.postDatasets = function(req, res) {
 						res.statusCode = 201;
 						res.setHeader("Content-Type", "application/html");
 						res.end("<html><body><h1> " +
-								"The specific Dataset: " + dataset_id + " was successfully created for username: " + req.username +
+								"Your specific Dataset: " + dataset_id + " was successfully created for username: " + req.username +
 								"</h1></body></html>");
-						console.log("»»» The specific Dataset: " + dataset_id + " was successfully created for username: " + req.username);
+						console.log(dataset);
+						console.log("»»» Your specific Dataset: " + dataset_id + " was successfully created for username: " + req.username);
 					}
-					console.log(dataset);
 				}
 			);
 		}
@@ -120,25 +163,6 @@ exports.postDatasets = function(req, res) {
 	}
 };
 
-exports.getDatasets = function(req, res) {
-
-	console.log("»»» Accepted GET to .../Datasets/ resource");
-	//var result = "There are no Datasets to this user";
-	var result = "";
-	var allDatasets = "";
-	for(i=0; i < Object.keys(datasets).length; i++){
-		allDatasets = "d" + (i+1) + ".datasetValues" ;
-		result += get(datasets, allDatasets) ;
-	}
-	res.statusCode = 200;
-	res.setHeader("Content-Type", "application/html");
-	Dataset.find(function (err, datasets) {
-		if (err) return console.error(err);
-		res.end(printDatasetHTML(datasets));
-	});	
-	console.log("»»» Returned GET for all existents Datasets");
-};
-
 exports.getDataset = function(req, res) {
 
 	console.log("»»» Accepted GET to /Datasets/ID? resource.");
@@ -149,9 +173,9 @@ exports.getDataset = function(req, res) {
 				res.statusCode = 404 ;
 				res.setHeader("Content-Type", "application/html");
 				res.end("<html><body><h1> " +
-						"Dataset: " + req.dataset_id + " or User: " + req.username + " not found! " +
+						"Dataset: " + req.dataset_id + " was not found! " +
 						"</h1></body></html>");
-				console.log("»»» Dataset: " + req.dataset_id + " or User " + req.username + " not found! ");
+				console.log("»»» Dataset: " + req.dataset_id + " was not found! ");
 				return console.error(err);
 			}
 			else {
@@ -159,90 +183,95 @@ exports.getDataset = function(req, res) {
 					res.statusCode = 404 ;
 					res.setHeader("Content-Type", "application/html");
 					res.end("<html><body><h1> " +
-							"Dataset: " + req.dataset_id + " or User: " + req.username + " not found! " +
+							"Dataset: " + req.dataset_id + " was not found! " +
 							"</h1></body></html>");
-					console.log("»»» Dataset: " + req.dataset_id + " or User: " + req.username + " not found! ");
+					console.log("»»» Dataset: " + req.dataset_id + " was not found! ");
 					console.log(dataset);
 				}
 				else {
 					res.statusCode = 200;
 					res.setHeader("Content-Type", "application/html");
-					res.end(printDatasetHTML(dataset));
+					res.end(Functions.printDatasetHTML(dataset));
+					console.log(dataset);
 					console.log("»»» Returned GET for the existent Dataset");
 				}
 			}
-		})
+		});
 	} 
 };
 
 exports.putDataset = function(req, res) {
 
-    console.log("»»» Accepted PUT to /Datasets/ID resource.");
+	console.log("»»» Accepted PUT to /Datasets/ID resource.");
 	if (Number (req.body.row) && Number (req.body.col) && Number (req.body.newValue) ) {
-		var datasetAfterPut = "";
-		Dataset.find({ idDataset: req.dataset_id },function (err, dataset) {
-			if (err) {
-				res.statusCode = 404 ;
-				res.setHeader("Content-Type", "application/html");
-				res.end("<html><body><h1> " +
-						"Dataset: " + req.dataset_id + " or User: " + req.username + " not found! " +
-						"</h1></body></html>");
-				console.log("»»» Dataset: " + req.dataset_id + " or User " + req.username + " not found! ");
-				return console.error(err);
-			}
-			else {
-				if (dataset.length === 0) {
-					res.statusCode = 404 ;
-					res.setHeader("Content-Type", "application/html");
-					res.end("<html><body><h1> " +
-							"Dataset: " + req.dataset_id + " or User: " + req.username + " not found! " +
-							"</h1></body></html>");
-					console.log("»»» Dataset: " + req.dataset_id + " or User: " + req.username + " not found! ");
-					console.log(dataset);
-				}
-				else {
-					var rows = dataset[0].numRows;
-					var cols = dataset[0].numCols;
-					if ( parseInt (req.body.row) < parseInt (rows + 1) 
-							&& parseInt (req.body.col) < parseInt (cols + 1) ) {
+        var datasetAfterPut = "";
+        Dataset.find({ idDataset: req.dataset_id },function (err, dataset) {
+            if (err) {
+    			res.statusCode = 404 ;
+    			res.setHeader("Content-Type", "application/html");
+    			res.end("<html><body><h1> " +
+    					"Dataset: " + req.dataset_id + " was not found! " +
+    					"</h1></body></html>");
+    			console.log("»»» Dataset: " + req.dataset_id + " was not found! ");
+            	return console.error(err);
+            }
+            else {
+                if (dataset.length === 0) {
+                	res.statusCode = 404 ;
+        			res.setHeader("Content-Type", "application/html");
+        			res.end("<html><body><h1> " +
+        					"Dataset: " + req.dataset_id + " was not found! " +
+        					"</h1></body></html>");
+        			console.log("»»» Dataset: " + req.dataset_id + " was not found! ");
+        			console.log(dataset);
+                }
+                else {
+            	    var rows = dataset[0].numRows;
+            	    var cols = dataset[0].numCols;
+                	if ( parseInt (req.body.row) < parseInt (rows + 1) 
+                			&& parseInt (req.body.col) < parseInt (cols + 1) ) {
 
-						var arrayPosition = 0;
-						if (parseInt(req.body.row) <= 1){
-							arrayPosition = parseInt (req.body.col - 1);
-						}
-						else {
-							arrayPosition = (  (parseInt(req.body.col) + 
-											( parseInt(cols) * (parseInt(req.body.row) -1) )
-											) - 1);
-						}
-													
-						if (dataset[0].values[arrayPosition]) {
-							dataset[0].values[arrayPosition] = parseInt (req.body.newValue);
-							//Data with new values
-							datasetAfterPut = dataset[0];
-						}
-					}
-					else {
-						res.statusCode = 400;
-						res.setHeader("Content-Type", "application/html");
-						res.end("<html><body><h1> " +
-								"Bad request. This position does not exist in Dataset. Check values and try again " +
-								"</h1></body></html>");
-						console.log("»»» Bad request. Check the definition documentation.");
-					}
-				}
-			}
-		});
-		datasetAfterPut.save(function(err, datasetAfterPut) {
-			if (err) return console.error(err);
-			console.dir(datasetAfterPut);
-			
-			res.statusCode = 200;
-			res.setHeader("Content-Type", "application/html");
-			res.end(printDatasetHTML(dataset));
-			console.log(dataset);
-			console.log("»»» Returned PUT updating the existent Dataset");	
-		});
+                		var arrayPosition = 0;
+                		if (parseInt(req.body.row) <= 1){
+                			arrayPosition = parseInt (req.body.col - 1);
+                		}
+                		else {
+                			arrayPosition = (  (parseInt(req.body.col) + 
+                							( parseInt(cols) * (parseInt(req.body.row) -1) )
+                							) - 1);
+                		}
+                    	                    		
+                	    if (dataset[0].values[arrayPosition]) {
+                	    	dataset[0].values[arrayPosition] = parseInt (req.body.newValue);
+                	    	//Data with new values
+            	            datasetAfterPut = dataset[0].values;
+            	            console.log(dataset[0].values);
+            	    		Dataset.findOneAndUpdate({ idDataset: req.dataset_id }, { $set: { values: dataset[0].values }}, function (err, dataset) {
+            	    			if (!err) {
+            						res.statusCode = 200;
+            						res.setHeader("Content-Type", "application/html");
+                    				res.end("<html><body><h1> " +
+                    						"Update OK. Do a GET to this DatasetID " + req.dataset_id  + " to see the results " +
+                    						"</h1></body></html>");
+                    				console.log("»»» Update OK. Do a GET do see Results");
+            	    			}
+            	    			else {
+            	    				return console.error(err);
+            	    			}
+            	    		});
+                	    }
+                	}
+            	    else {
+        				res.statusCode = 400;
+        				res.setHeader("Content-Type", "application/html");
+        				res.end("<html><body><h1> " +
+        						"Bad request. This position does not exist in Dataset. Check values and try again " +
+        						"</h1></body></html>");
+        				console.log("»»» Bad request. Check the definition documentation.");
+            	    }
+            	}
+            }
+        });
 	}
 	else {
 		res.statusCode = 400;
@@ -255,86 +284,27 @@ exports.putDataset = function(req, res) {
 };
 
 exports.deleteDataset = function(req, res) {
-    if (req.username === undefined || req.dataset_id === undefined ) {
 
-        console.log("»»» Accepted DELETE to this resource. Develop here what happens");
-        //TODO eliminar da base de dados o dataset
-        res.statusCode = 404 ;
-        res.setHeader("Content-Type", "application/html");
-        res.end("<html><body><h1> " +
-            "Dataset or User " + req.dataset_id + " or " + req.username + " not found! " +
-            "</h1></body></html>");
-        console.log("»»» Dataset or User " + req.dataset_id + " or " + req.username + " not found! ");
-    }
-    else {
-        if (req.username && req.dataset_id) {
-
-            delete datasets[req.dataset_id];
+    console.log("»»» Accepted DELETE to this resource. Develop here what happens");
+	Dataset.findOneAndRemove({ idDataset: req.dataset_id }, function (err, dataset) {
+		if (!err) {
+			console.log("»»» Delete OK. Do a GET do see Results");
 			
-			/*
-				dataset.findByIdAndRemove({datasetId: req.dataset_id}, {}, function(err, obj) {
-					if (err) next(err);
-					req.session.destroy(function(error) {
-					  if (err) {
-						next(err)
-					  }
-					});
-					res.json(200, obj);
-				  });
-			*/
-            console.log("»»» Accepted DELETE to this resource. Develop here what happens");
-
-            res.statusCode = 200 ;
-            res.setHeader("Content-Type", "application/html");
-            res.end("<html><body><h1> " +
-                "Dataset: " + req.dataset_id + " successfully deleted for username: " + req.username +
-                "</h1></body></html>");
-            console.log("»»» Nada a ver " + req.dataset_id + " successfully deleted for username: " + req.username);
-        } else {
-            res.statusCode = 400;
-            res.setHeader("Content-Type", "application/html");
-            res.end("<html><body><h1> " +
-                "Bad request. Check the definition documentation. " +
-                "</h1></body></html>");
-            console.log("»»» Bad request. Check the definition documentation.");
-        }
-    }
+			res.statusCode = 200;
+			res.setHeader("Content-Type", "application/html");
+			res.end("<html><body><h1> " +
+					"The DatasetID " + req.dataset_id  + " was delete sucessfully" +
+					"</h1></body></html>");
+		}
+		else {
+        	res.statusCode = 404 ;
+			res.setHeader("Content-Type", "application/html");
+			res.end("<html><body><h1> " +
+					"The Dataset: " + req.dataset_id + " was not found for Delete! " +
+					"</h1></body></html>");
+			console.log("»»» The Dataset: " + req.dataset_id + " was not found for Delete! ");
+			console.log(dataset);
+			return console.error(err);
+		}
+	});
 };
-
-exports.buildRandomDataset = function(lines, columns) {
-
-    var values = [];
-    var dataset_id = "";
-    var dataMatrix = matrix({ rows: lines, columns: columns, values: Math.random });
-
-    for(var row = 0; row < dataMatrix.numRows; row++) {
-        for(var col = 0; col < dataMatrix.numCols; col++) {
-            values.push(
-                Math.round((dataMatrix[row][col]*100), 3)
-            );
-        }
-    }
-
-    var dataset = new Dataset({
-        numRows: dataMatrix.numRows,
-        numCols: dataMatrix.numCols,
-        values: values
-    });
-
-
-
-    /*    var id = mongoose.Types.ObjectId();
-     var dataset = new Dataset({
-     numRows: dataMatrix.numRows,
-     numCols: dataMatrix.numCols,
-     values: values
-     });*/
-
-    dataset.save(
-        function(err, dataset) {
-            if (err) return console.error(err);
-            console.log(dataset);
-            dataset_id = dataset.idDataset;
-        }
-    );
-}

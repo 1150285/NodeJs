@@ -18,4 +18,7 @@ var transformationSchema = new Schema({
     }
 });
 
+autoIncrement.initialize(mongoose);
+transformationSchema.plugin(autoIncrement.plugin, { model: 'Transformation', field: 'idTransformation', startAt: 1});
+
 var Transformation = module.exports = mongoose.model('Transformation', transformationSchema);

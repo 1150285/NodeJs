@@ -14,7 +14,6 @@
 
 var express = require('express');
 var bodyParser = require('body-parser');
-//var methodOverride = require('method-override');
 var request = require('request');
 
 var jsonParser = bodyParser.json();
@@ -33,22 +32,15 @@ var statisticalController = require('./controllers/statistical');
 /*var connection = require('./db/db')
 var Dataset = require('./models/dataset');*/
 
-
 var app = express();
-
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
-//app.use(methodOverride());
-
 // Use the passport package in our application
 app.use(passport.initialize());
 
 var callbackApp = express();
 callbackApp.use(bodyParser.json());
 callbackApp.use(bodyParser.urlencoded({extended:true}));
-
-// logging : DEBUG
-//app.use(express.logger('dev'));
 
 const port = process.env.PORT || 3001;
 const SERVER_ROOT = "http://localhost:" + port;
@@ -59,36 +51,9 @@ const serverHeavyOps = "http://localhost:" + serverHeavyOpsPort;
 const callbackPort = process.env.PORT || 3005;
 const CALLBACK_ROOT = "http://localhost:" + callbackPort;
 
-
-
 /************
  data store
 ************/
-
-/*
-
-var db = mongoose.connection;
-
-db.on('error', console.error);
-db.once('open', function() {
-
-});
-
-var datasetSchema = new mongoose.Schema({
-	idDataset: Number,
-    numRows: Number,
-    numCols: Number,
-    values: [Number]
-});
-
- */
-//var connection = mongoose.createConnection('mongodb://localhost/datasetdb');
-//var Dataset = connection.model('Dataset', datasetSchema);
-
-
-
-
-//mongoose.connect('mongodb://localhost/datasetdb');
 
 var users =  {};
 var datasets =  {};
@@ -107,9 +72,36 @@ users['u1'] = {username: "u1", fullName:"Paulo Afonso",			Password:"node1234", 	
 users['u2'] = {username: "u2", fullName:"Leonardo Andrade", 	Password:"node1234", 	createdOn: now, updatedOn: now};
 users['u3'] = {username: "u3", fullName:"Paulo Russo",			Password:"node1234", 	createdOn: now, updatedOn: now};
 
+//A group of functions to Calculate Stats or Transfs and Prints Charts in a row 
+macros['m1'] = {content: "s1,t1,c1", 			createdOn: now, updatedOn: now};
+macros['m2'] = {content: "s1,t1,c1,s2,t2,c2", 	createdOn: now, updatedOn: now};
 
-//3 Random Datasets as initial example
+//Calculate statistical measures of a row, column, entire data set
+stats['s1'] = {stat_id: "s1",  	desc_stat:"Geometric mean" };
+stats['s2'] = {stat_id: "s2",  	desc_stat:"Median" };
+stats['s3'] = {stat_id: "s3",  	desc_stat:"Mode" };
+stats['s4'] = {stat_id: "s4",  	desc_stat:"Midrange" };
+stats['s5'] = {stat_id: "s5",  	desc_stat:"Variance" };
+stats['s6'] = {stat_id: "s6",  	desc_stat:"Standard deviation"};
 
+//Perform transformations on the data set (without changing the original data set)
+transfs['t1'] = {transf_id: "t1", desc_transfs:"Transpose the dataset" };
+transfs['t2'] = {transf_id: "t2", desc_transfs:"Scale" };
+transfs['t3'] = {transf_id: "t3", desc_transfs:"Add a scalar" };
+transfs['t4'] = {transf_id: "t4", desc_transfs:"Add two data sets" };
+transfs['t5'] = {transf_id: "t5", desc_transfs:"Multiply two data sets" };
+transfs['t6'] = {transf_id: "t6", desc_transfs:"Augment the data set using linear interpolation on the rows or columns",};
+
+//Return a chart representation (image binary file) of the dataset
+charts['c1'] = {chart_id: "c1",		desc_chart:"Pie chart of a desired row / column"};
+charts['c2'] = {chart_id: "c2",		desc_chart:"Line / bar chart of a desired row / column"};
+charts['c3'] = {chart_id: "c3",		desc_chart:"Line / bar chart of the entire data set"};
+
+//Store Heavy Ops for later consulting
+resultsStoreList [1] = {ResultNumber: "No results from Heavy Ops to see yet"} 
+/************
+global functions
+************/
 
 function printDatasetHTML(dataset) {
 
@@ -184,64 +176,9 @@ function printDatasetHTML(dataset) {
     return datasetTableValuesFinal;
 }
 
-datasetController.buildRandomDataset(2, 2);
-datasetController.buildRandomDataset(3, 5);
-datasetController.buildRandomDataset(2, 7);
-
-//A group of functions to Calculate Stats or Transfs and Prints Charts in a row 
-macros['m1'] = {content: "s1,t1,c1", 			createdOn: now, updatedOn: now};
-macros['m2'] = {content: "s1,t1,c1,s2,t2,c2", 	createdOn: now, updatedOn: now};
-
-//Calculate statistical measures of a row, column, entire data set
-stats['s1'] = {stat_id: "s1",  	desc_stat:"Geometric mean" };
-stats['s2'] = {stat_id: "s2",  	desc_stat:"Median" };
-stats['s3'] = {stat_id: "s3",  	desc_stat:"Mode" };
-stats['s4'] = {stat_id: "s4",  	desc_stat:"Midrange" };
-stats['s5'] = {stat_id: "s5",  	desc_stat:"Variance" };
-stats['s6'] = {stat_id: "s6",  	desc_stat:"Standard deviation"};
-
-//Perform transformations on the data set (without changing the original data set)
-transfs['t1'] = {transf_id: "t1", desc_transfs:"Transpose the dataset" };
-transfs['t2'] = {transf_id: "t2", desc_transfs:"Scale" };
-transfs['t3'] = {transf_id: "t3", desc_transfs:"Add a scalar" };
-transfs['t4'] = {transf_id: "t4", desc_transfs:"Add two data sets" };
-transfs['t5'] = {transf_id: "t5", desc_transfs:"Multiply two data sets" };
-transfs['t6'] = {transf_id: "t6", desc_transfs:"Augment the data set using linear interpolation on the rows or columns",};
-
-//Return a chart representation (image binary file) of the dataset
-charts['c1'] = {chart_id: "c1",		desc_chart:"Pie chart of a desired row / column"};
-charts['c2'] = {chart_id: "c2",		desc_chart:"Line / bar chart of a desired row / column"};
-charts['c3'] = {chart_id: "c3",		desc_chart:"Line / bar chart of the entire data set"};
-
-//Store Heavy Ops for later consulting
-resultsStoreList [1] = {ResultNumber: "No results from Heavy Ops to see yet"} 
-/************
-global functions
-************/
-
-function buildMessageCreation(newID, text, user){
-	const now = new Date();
-	return {
-			id : newID, 
-			text : text,
-			sender : user, 
-			createdOn : now,
-		};
-}
-
-function buildMessageUpdate(newID, text, user){
-	const now = new Date();
-	return {
-			id : newID, 
-			text : text,
-			sender : user, 
-			updatedOn: now,
-		};
-}
-
-
-
-
+//datasetController.buildRandomDataset(2, 2);
+//datasetController.buildRandomDataset(3, 5);
+//datasetController.buildRandomDataset(2, 7);
 
 // Create our Express router
 var router = express.Router();
@@ -571,14 +508,14 @@ callbackApp.route("/Users/:userID/Datasets/:datasetID/Stats/:statID/Results/:cal
         // process the response to our callback request
         // handle callbacks that are not sent by our server "security". postman can't invoke this endpoint directly.
         //persists the result in the resultsStoreList[].
-        console.log( "The result of dataset"+ req.params.statID +" callback number " + req.params.callbackID + " is " + req.url );
+        console.log( "The result of dataset "+ req.params.statID +" callback number " + req.params.callbackID + " is " + req.url );
 
         var resultJson = {};
         resultJson.key = req.url;
         resultJson.value = req.body.myRefValue;
 
         resultsStoreList [req.params.myRefID] = resultJson;
-        console.log("»»» Received a callback request with: " + req.body.result + " for cliRef = " + req.url + " Develop here what happens!!!");
+        console.log("»»» Received a callback request with: " + req.body.result + " for cliRef = " + req.url);
     });
 	//
 //URL: /Users/:userID/Datasets/:datasetID/:transfID

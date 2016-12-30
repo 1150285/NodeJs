@@ -14,18 +14,11 @@
 
 var express = require('express');
 var bodyParser = require('body-parser');
-//var methodOverride = require('method-override');
 var request = require('request');
 
-
 var app = express();
-
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
-//app.use(methodOverride());
-
-// logging : DEBUG
-//app.use(express.logger('dev'));
 
 const port = process.env.PORT || 3002;
 const SERVER_ROOT = "http://localhost:" + port;

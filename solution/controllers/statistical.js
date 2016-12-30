@@ -25,7 +25,7 @@ function getSequence(seqtype) {
 }
 
 exports.postStatisticals = function(req, res) {
-    console.log("»»» Accepted POST request to calculate statID:  " + req.query.StatID + "for DatasetID: " + req.dataset_id + " and UserID: " + req.username + " Develop here what happens");
+    console.log("»»» Accepted POST request to calculate statID:  " + req.query.StatID + "for DatasetID: " + req.dataset_id + " and UserID: " + req.username );
     if (req.username && req.dataset_id && req.query.StatID ) {
         callbackID = getSequence("stID");
         var urlCallback = CALLBACK_ROOT + "/Users/" + req.username + "/Datasets/" + req.dataset_id + "/Stats/"+req.query.StatID+"/Results"
@@ -97,7 +97,7 @@ exports.putStatistical = function(req, res) {
 
 };
 
-
 exports.deleteStatistical = function(req, res) {
+
 
 };

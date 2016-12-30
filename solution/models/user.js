@@ -47,8 +47,5 @@ userSchema.methods.verifyPassword = function(password, cb) {
 };
 
 // Export the Mongoose model
-autoIncrement.initialize(mongoose);
-userSchema.plugin(autoIncrement.plugin, { model: 'User', field: 'username', startAt: 1});
-
-var User = module.exports = mongoose.model('User', userSchema);
+module.exports = mongoose.model('User', userSchema);
 

@@ -55,10 +55,8 @@ const CALLBACK_ROOT = "http://localhost:" + callbackPort;
  data store
 ************/
 
-var users =  {};
 var datasets =  {};
 var datasetTableValues = "";
-var macros =  {};
 var stats =  {};
 var transfs =  {};
 var charts = {}
@@ -66,15 +64,6 @@ var resultsStoreList = [];
 var now = new Date();
 
 // INITIAL DATA
-
-//3 users as initial example
-users['u1'] = {username: "u1", fullName:"Paulo Afonso",			Password:"node1234", 	createdOn: now, updatedOn: now};
-users['u2'] = {username: "u2", fullName:"Leonardo Andrade", 	Password:"node1234", 	createdOn: now, updatedOn: now};
-users['u3'] = {username: "u3", fullName:"Paulo Russo",			Password:"node1234", 	createdOn: now, updatedOn: now};
-
-//A group of functions to Calculate Stats or Transfs and Prints Charts in a row 
-macros['m1'] = {content: "s1,t1,c1", 			createdOn: now, updatedOn: now};
-macros['m2'] = {content: "s1,t1,c1,s2,t2,c2", 	createdOn: now, updatedOn: now};
 
 //Calculate statistical measures of a row, column, entire data set
 stats['s1'] = {stat_id: "s1",  	desc_stat:"Geometric mean" };

@@ -21,11 +21,11 @@ exports.getDatasets = function(req, res) {
 			res.end("<html><body><h1> " +
 					"Dataset: " + req.dataset_id + " was not found! " +
 					"</h1></body></html>");
-			console.log("»»» Dataset: " + req.dataset_id + " or User " + req.username + " not found! ");
+			console.log("»»» Dataset: " + req.dataset_id + " not found! ");
 			return console.error(err);
 		}
 		else {
-			if (dataset.length === 0) {
+			if (datasets.length === 0) {
 
 				res.statusCode = 404;
 				res.setHeader("Content-Type", "application/html");

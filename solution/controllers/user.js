@@ -5,7 +5,7 @@ exports.postUsers = function(req, res) {
     if (req.body.username && req.body.password) {
 
         //TODO = Develop here what happens
-        console.log("»»» Accepted POST to this resource. Develop here what happens");
+        console.log("»»» Accepted POST to this resource");
 
         var user = new User({
             fullName: req.body.fullName,
@@ -40,13 +40,36 @@ exports.postUsers = function(req, res) {
 // Create endpoint /api/users for GET
 exports.getUsers = function(req, res) {
 
-    //TODO = Develop here what happens
-    console.log("»»» Accepted GET to this resource. Develop here what happens");
+    console.log("»»» Accepted GET to User resource.");
+    var users = "";
     User.find(function(err, users) {
-        if (err)
-            return res.send(err);
+		if (err) {
+			res.statusCode = 404 ;
+			res.setHeader("Content-Type", "application/html");
+			res.end("<html><body><h1> " +
+					"User: " + req.username + " was not found! " +
+					"</h1></body></html>");
+			console.log("»»» User " + req.username + " was not found! ");
+			return console.error(err);
+		}
+		else {
+			if (users.length === 0) {
 
-        res.json(users);
+				res.statusCode = 404;
+				res.setHeader("Content-Type", "application/html");
+				res.end("<html><body><h1> " +
+						"None Users found! " +
+						"Create one doing POST to <a href='http://localhost:3001/Users'>http://localhost:3001/Users</a>" +
+						"</h1></body></html>");
+				console.log(user);
+				console.log("»»» User: " + req.username + " was not found! ");
+			}	else {
+				res.statusCode = 200;
+				res.setHeader("Content-Type", "application/json");
+				res.json(users);
+				console.log("»»» Returned GET with all existent Users");
+			}
+		}
     });
 };
 
@@ -59,17 +82,37 @@ exports.putUsers = function(req, res) {
 }
 
 exports.getUser = function(req, res) {
-    if (req.username) {
-        console.log("»»» Accepted GET to this resource. Develop here what happens");
-        res.json(users[req.username])
-    } else {
-        res.statusCode = 404 ;
-        res.setHeader("Content-Type", "application/html");
-        res.end("<html><body><h1> " +
-            "User " + req.username + " not found! " +
-            "</h1></body></html>");
-        console.log("»»» User " + req.username + " not found!");
-    }
+    console.log("»»» Accepted GET to User resource.");
+    var user = "";
+    User.find(function(err, user) {
+		if (err) {
+			res.statusCode = 404 ;
+			res.setHeader("Content-Type", "application/html");
+			res.end("<html><body><h1> " +
+					"User: " + req.username + " was not found! " +
+					"</h1></body></html>");
+			console.log("»»» User " + req.username + " was not found! ");
+			return console.error(err);
+		}
+		else {
+			if (user.length === 0) {
+
+				res.statusCode = 404;
+				res.setHeader("Content-Type", "application/html");
+				res.end("<html><body><h1> " +
+						"None Users found! " +
+						"Create one doing POST to <a href='http://localhost:3001/Users'>http://localhost:3001/Users</a>" +
+						"</h1></body></html>");
+				console.log(user);
+				console.log("»»» User: " + req.username + " was not found! ");
+			}	else {
+				res.statusCode = 200;
+				res.setHeader("Content-Type", "application/json");
+				res.json(users);
+				console.log("»»» Returned GET with all existent Users");
+			}
+		}
+    });
 
 };
 

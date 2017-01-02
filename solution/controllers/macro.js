@@ -1,4 +1,9 @@
 var Macro = require('../models/macro');
+var macros =  {};
+
+//A group of functions to Calculate Stats or Transfs and Prints Charts in a row 
+macros['m1'] = {content: "s1,t1,c1", 			};
+macros['m2'] = {content: "s1,t1,c1,s2,t2,c2", 	};
 
 exports.postMacros = function(req, res) {
     if (req.username && req.body.macro_id) {
@@ -27,23 +32,20 @@ exports.postMacros = function(req, res) {
 };
 
 exports.getMacros = function(req, res) {
-    console.log("»»» Accepted GET to this resource. Develop here what happens");
+	
+	res.statusCode = 200;
+    res.setHeader("Content-Type", "application/json");
+    console.log("»»» Accepted GET to this resource. ");
     res.json(macros);
 
 };
 
 exports.getMacro = function(req, res) {
-    if (req.macro_id) {
-        console.log("»»» Accepted GET to this resource. Develop here what happens");
-        res.json(macros[req.macro_id]);
-    } else {
-        res.statusCode = 404 ;
-        res.setHeader("Content-Type", "application/html");
-        res.end("<html><body><h1> " +
-            "Macro or User " + req.macro_id + " or " + req.username + " not found! " +
-            "</h1></body></html>");
-        console.log("»»» Macro or User " + req.macro_id + " or " + req.username + " not found! ");
-    }
+	
+	res.statusCode = 200;
+    res.setHeader("Content-Type", "application/json");
+    console.log("»»» Accepted GET to this resource. ");
+    res.json(macros);
 
 };
 

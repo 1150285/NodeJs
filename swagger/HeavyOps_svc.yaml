@@ -7,10 +7,10 @@ info:
 schemes:
   - http
 host: localhost:3005
-basePath: /Trnsf/v1
+basePath: /Heavy_Ops/v1
 
 paths:
-  /:
+  /HeavyOps/{UserID}/{DatasetID}/{OperID}/:
     post:
       tags:
         - Transformation
@@ -22,27 +22,22 @@ paths:
         - application/json
         - application/xml
       parameters:
-       - name: body
-         in: body
-         required: true
-         schema:
-           type: object
-           properties:
-            dataset:
-               "$ref": "#/definitions/Dataset"
-            list_operations:
-              type: array
-              items: {
-                "$ref": "#/definitions/Item"
-                }
-       - name: trnsf_type
-         in: query
+       - name: UserID
+         in: path
          required: true
          type: string
-       - name: value
+       - name: DatasetID
+         in: path
+         required: true
+         type: string
+       - name: OperID
+         in: path
+         required: true
+         type: string
+       - name: datasetV
          in: query
          required: false
-         description: value for the transformation. 
+         description: Dataset values for the operation. 
          type: string
        - name: MyRef
          in: query
@@ -59,42 +54,3 @@ paths:
           description: Accepted.
         400:
           description: Bad request. Check the definition documentation.
-definitions:
-  Dataset:
-    type: object
-    properties:
-      dataset_id:
-        type: string
-        description: Unique identifier 
-      rows:
-        type: string
-        description: Description of product.
-      cols:
-        type: string
-        description: Display name of product.
-      data:
-        type: object
-        properties:
-          values:
-            type: array
-            items: {
-              type: integer
-            }
-            description: Description of product.
-  Item:
-    type : object
-    properties:
-      order: 
-        type: integer
-      stat:
-        type: object
-        properties:
-          id:
-            type: string
-          value:
-            type: integer
-      transform:
-        type: object
-        properties:
-          id:
-            type: string

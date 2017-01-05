@@ -46,9 +46,17 @@ exports.postUsers = function(req, res) {
 		});
 
 		user.save(function(err) {
-			if (err)
-				return res.send(err);
-
+			if (err) {
+				
+			//send 409 response
+			res.statusCode = 409;
+			res.setHeader("Content-Type", "application/html");
+			res.end("<html><body><h1> " +
+					"The username informed already exists please choose another one " +
+			"</h1></body></html>");
+			return console.log(err);
+				
+			}
 			// send 201 response
 			res.statusCode = 201;
 			res.setHeader("Content-Type", "application/html");

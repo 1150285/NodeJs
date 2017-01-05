@@ -26,12 +26,12 @@ paths:
           in: body
           required: true
           schema:
-            $ref: '#/definitions/Users'
+            $ref: '#/definitions/User'
       responses:
         201:
           description: User successfully created.
           schema:
-            $ref: '#/definitions/UserID'
+            $ref: '#/definitions/UsersResponse'
         400:
           description: Bad request. Check the definition documentation.
     get:
@@ -71,7 +71,7 @@ paths:
         200:
           description: The user was found.
           schema:
-              $ref: '#/definitions/Users'
+              $ref: '#/definitions/User'
         400:
           description: Bad request. Check the definition documentation.
         404:
@@ -100,7 +100,7 @@ paths:
         200:
           description: User successfully updated.
           schema:
-             $ref: '#/definitions/Users'
+             $ref: '#/definitions/User'
         400:
           description: Bad request. Check the definition documentation.
         404:
@@ -597,7 +597,7 @@ definitions:
       fields:
         type: string
 
-  Users:
+  User:
     type: object
     properties:
       full name:
@@ -615,27 +615,21 @@ definitions:
       full name:
         type: string
         description: Your full name.
-      password:
-        type: string
-        description: Your password code.
-  UserID:
+  UsersResponse:
     type: object
     properties:
-      full name:
+      username:
         type: string
         description: Your full name confirming that you logged with sucess.
   UserListResponse: 
     type: array
     items: {
-        "$ref": "#/definitions/Users"
+        "$ref": "#/definitions/User"
     }
     description: The List of users.
   Dataset:
     type: object
     properties:
-      dataset_id:
-        type: string
-        description: Unique identifier representing a specific dataset id
       rows:
         type: integer
         description: The qtd. line number of dataset.

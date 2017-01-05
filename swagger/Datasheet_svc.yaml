@@ -124,7 +124,7 @@ paths:
           in: body
           required: true
           schema:
-            $ref: '#/definitions/Datasets'
+            $ref: '#/definitions/Dataset'
       responses:
         201:
           description: Dataset created successfully.
@@ -178,7 +178,7 @@ paths:
         200:
           description: Dataset found.
           schema:
-              $ref: '#/definitions/Datasets'
+              $ref: '#/definitions/Dataset'
         400:
           description: Bad request. Check the definition documentation.
         404:
@@ -385,7 +385,7 @@ paths:
               $ref: '#/definitions/Chart'
         400:
           description: Bad request. Check the definition documentation.
-  /Users/{UserID}/Datasets/{DatasetID}/Stats:
+  /Users/{UserID}/Datasets/{DatasetID}/Stats?StatID=StatID:
     post:
       tags:
         - Stats
@@ -435,7 +435,7 @@ paths:
           description: Accepted.
         400:
           description: Bad request. Check the definition documentation.
-  /Users/{UserID}/Datasets/{DatasetID}/Trnsf:
+  /Users/{UserID}/Datasets/{DatasetID}/Transfs?TransfID=TransfID:
     post:
       tags:
         - Transformations
@@ -482,7 +482,7 @@ paths:
           description: Unexpected error
           schema:
             $ref: "#/definitions/Error"
-  /Users/{UserID}/Datasets/{DatasetID}/{MacroID}/:
+  /Users/{UserID}/Datasets/{DatasetID}/Macros?MacroID=MacroID:
     post:
       tags:
         - Stats
@@ -503,7 +503,7 @@ paths:
          required: true
          type: string
        - name: MacroID
-         in: path
+         in: query
          required: true
          type: string
        - name: row
@@ -532,31 +532,10 @@ paths:
         400:
           description: Bad request. Check the definition documentation.
 definitions:
-  Dataset:
-    type: object
-    properties:
-      dataset_id:
-        type: string
-        description: Unique identifier 
-      rows:
-        type: string
-        description: Description of product.
-      cols:
-        type: string
-        description: Display name of product.
-      data:
-        type: object
-        properties:
-          values:
-            type: array
-            items: {
-              type: integer
-            }
-            description: Description of product.
   DatasetListResponse: 
     type: array
     items: {
-        "$ref": "#/definitions/Datasets"
+        "$ref": "#/definitions/Dataset"
     }
     description: The List of datasets.
   Macros:
@@ -651,7 +630,7 @@ definitions:
         "$ref": "#/definitions/Users"
     }
     description: The List of users.
-  Datasets:
+  Dataset:
     type: object
     properties:
       dataset_id:
@@ -665,7 +644,7 @@ definitions:
         description: The qtd. column number of dataset.
       values:
         type: string
-        description: List of values of dataset in HTML.
+        description: List of values of dataset separeted by comma.
   DatasetRequest:
     type: object
     properties:
@@ -676,12 +655,8 @@ definitions:
         type: integer
         description: The qtd. column number of dataset.
       values:
-        type: array
-        items: {
-          type: integer,
-          description:  values of dataset.
-        }
-        description: List of values of dataset.
+        type: string
+        description: List of values of dataset separeted by comma.
   DatasetID:
     type: object
     properties:

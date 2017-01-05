@@ -67,12 +67,12 @@ var now = new Date();
 // INITIAL DATA
 
 //Calculate statistical measures of a row, column, entire data set
-stats['s1'] = {stat_id: "s1",  	desc_stat:"Geometric mean" };
-stats['s2'] = {stat_id: "s2",  	desc_stat:"Median" };
-stats['s3'] = {stat_id: "s3",  	desc_stat:"Mode" };
-stats['s4'] = {stat_id: "s4",  	desc_stat:"Midrange" };
-stats['s5'] = {stat_id: "s5",  	desc_stat:"Variance" };
-stats['s6'] = {stat_id: "s6",  	desc_stat:"Standard deviation"};
+stats['s1'] = {stat_id: "1",  	desc_stat:"Geometric mean" };
+stats['s2'] = {stat_id: "2",  	desc_stat:"Median" };
+stats['s3'] = {stat_id: "3",  	desc_stat:"Mode" };
+stats['s4'] = {stat_id: "4",  	desc_stat:"Midrange" };
+stats['s5'] = {stat_id: "5",  	desc_stat:"Variance" };
+stats['s6'] = {stat_id: "6",  	desc_stat:"Standard deviation"};
 
 //Perform transformations on the data set (without changing the original data set)
 transfs['t1'] = {transf_id: "t1", desc_transfs:"Transpose the dataset" };

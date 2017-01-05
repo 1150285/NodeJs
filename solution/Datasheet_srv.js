@@ -101,7 +101,7 @@ app.use('/', router);
 //
 //URL: /Users/
 //GET 		return all users, returns 200
-//POST		create new user, returns 201, 400 or 409
+//POST		create new user, returns 201 or 400
 //PUT 		not allowed, returns 405
 //DELETE 	not allowed, returns 405
 //
@@ -400,36 +400,15 @@ callbackApp.route("/callback/:myRefID")
 //DELETE 	not allowed, returns 405
 //
 
-app.param('statID', function(req, res, next, statID){
+/*app.param('statID', function(req, res, next, statID){
 	req.stat_id = statID;
 	return next()
-	})
+	})*/
 	
-app.route("/Users/:userID/Datasets/:datasetID/Stats/:statID")
-	.post(statisticalController.postStatisticals)
-	.put(function(req, res) {
-		res.statusCode = 405;
-		res.setHeader("Content-Type", "application/html");
-		res.end("<html><body><h1> " +
-				"Method not allowed in this resource. Check the definition documentation " +
-				"</h1></body></html>");
-	})
-	.post(function(req, res) {
-		res.statusCode = 405;
-		res.setHeader("Content-Type", "application/html");
-		res.end("<html><body><h1> " +
-				"Method not allowed in this resource. Check the definition documentation " +
-				"</h1></body></html>");
-	})
-	.delete(function(req, res) {
-		res.statusCode = 405;
-		res.setHeader("Content-Type", "application/html");
-		res.end("<html><body><h1> " +
-				"Method not allowed in this resource. Check the definition documentation " +
-				"</h1></body></html>");
-	});
+app.route("/Users/:userID/Datasets/:datasetID/Stats")
+	.post(statisticalController.postStatisticals);
 
-callbackApp.route("/Users/:userID/Datasets/:datasetID/Stats/:statID/Results/:callbackID")
+callbackApp.route("/Users/:userID/Datasets/:datasetID/Transf/:transfID/Results/:callbackID")
     .get(function(req, res) {
         res.statusCode = 405;
         res.setHeader("Content-Type", "application/html");
@@ -466,7 +445,7 @@ app.param('transfID', function(req, res, next, transfID){
 	return next()
 	})
 	
-app.route("/Users/:userID/Datasets/:datasetID/:transfID")
+app.route("/Users/:userID/Datasets/:datasetID/Transf/:transfID")
 	.get(transformationController.getTransformations)
 	.post(transformationController.postTransformations)
 	.put(transformationController.putTransformations)

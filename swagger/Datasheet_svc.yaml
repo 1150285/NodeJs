@@ -3,7 +3,7 @@ swagger: "2.0"
 info:
   version: 1.0.0
   title: Datasheet Service
-  description: This API allows the consumer to perform several operations in a table matrix.
+  description: This API  allows the consumer to perform several operations in a table matrix.
 schemes:
   - http
 host: localhost:3001
@@ -16,9 +16,11 @@ paths:
         - Users
       description: Create a new item in the resource User.
       consumes:
-        - application/x-www-form-urlencoded
+        - application/json
+        - application/xml
       produces:
-        - application/html
+        - application/json
+        - application/xml
       parameters:
         - name: user
           in: body
@@ -36,8 +38,12 @@ paths:
       tags:
         - Users
       description: Get all available registered users.
+      consumes:
+        - application/json
+        - application/xml
       produces:
         - application/json
+        - application/xml
       responses:
         200:
           description: User(s) was/were found.
@@ -45,15 +51,17 @@ paths:
             $ref: '#/definitions/UserListResponse'
         400:
           description: Bad request. Check the definition documentation.
-        409:
-          description: Duplicated. Check the definition documentation.
   /Users/{UserID}:
     get:
       tags:
         - Users
       description: Gets the information for a specific UserID
+      consumes:
+        - application/json
+        - application/xml
       produces:
         - application/json
+        - application/xml
       parameters:
         - name: UserID
           in: path
@@ -64,6 +72,8 @@ paths:
           description: The user was found.
           schema:
               $ref: '#/definitions/Users'
+        400:
+          description: Bad request. Check the definition documentation.
         404:
           description: User wasn't found.
     put:
@@ -71,9 +81,11 @@ paths:
         - Users
       description: Update the information for a specific UserID.
       consumes:
-        - application/x-www-form-urlencoded
+        - application/json
+        - application/xml
       produces:
         - application/json
+        - application/xml
       parameters:
         - name: UserID
           in: path
@@ -81,7 +93,7 @@ paths:
           type: string
         - name: body
           in: body
-          required: false
+          required: true
           schema:
             $ref: '#/definitions/UsersRequest'
       responses:
@@ -99,7 +111,8 @@ paths:
         - Datasets
       description: Create datasets.
       consumes:
-        - application/x-www-form-urlencoded
+        - application/json
+        - application/xml
       produces:
         - application/html
       parameters:
@@ -107,21 +120,11 @@ paths:
           in: path
           required: true
           type: string
-        - name: row
-          in: query
+        - name: dataset
+          in: body
           required: true
-          description: Row number of dataset
-          type: integer
-        - name: col
-          in: query
-          required: true
-          description: Column number of dataset
-          type: integer
-        - name: values
-          in: query
-          description:  values of dataset separeted by comma ","
-          type: array
-          items: { type: integer,}
+          schema:
+            $ref: '#/definitions/Datasets'
       responses:
         201:
           description: Dataset created successfully.
@@ -133,6 +136,9 @@ paths:
       tags:
         - Datasets
       description: Gets all existents datasets of this user.
+      consumes:
+        - application/json
+        - application/xml
       produces:
         - application/html
       parameters:
@@ -153,7 +159,10 @@ paths:
     get:
       tags:
         - Datasets
-      description: Gets the information for a specific DatasetID
+      description: Gets the information for a specific DatasetID 
+      consumes:
+        - application/json
+        - application/xml
       produces:
         - application/html
       parameters:
@@ -179,7 +188,8 @@ paths:
         - Datasets
       description: Update a dataset.
       consumes:
-        - application/x-www-form-urlencoded
+        - application/json
+        - application/xml
       produces:
         - application/html
       parameters:
@@ -191,22 +201,11 @@ paths:
           in: path
           required: true
           type: string
-        - name: row
-          in: query
+        - name: dataset
+          in: body
           required: true
-          description: Row number of dataset
-          type: integer
-        - name: col
-          in: query
-          required: true
-          description: Column number of dataset
-          type: integer
-        - name: values
-          in: query
-          required: true
-          description:  values of dataset separeted by comma ","
-          type: array
-          items: { type: integer,}
+          schema:
+            $ref: '#/definitions/DatasetRequest'
       responses:
         200:
           description: Dataset successfully updated
@@ -218,6 +217,9 @@ paths:
       tags:
         - Datasets
       description: Delete a specific DatasetID.
+      consumes:
+        - application/json
+        - application/xml
       produces:
         - application/html
       parameters:
@@ -242,9 +244,11 @@ paths:
         - Macros
       description: Creates a macro
       consumes:
-        - application/x-www-form-urlencoded
+        - application/json
+        - application/xml
       produces:
-        - application/html
+        - application/json
+        - application/xml
       parameters:
         - name: UserID
           in: path
@@ -271,8 +275,12 @@ paths:
       tags:
         - Macros
       description: Gets all existent macros of current user.
+      consumes:
+        - application/json
+        - application/xml
       produces:
         - application/json
+        - application/xml
       parameters:
         - name: UserID
           in: path
@@ -297,9 +305,11 @@ paths:
         - Macros
       description: Update a macro.
       consumes:
-        - application/x-www-form-urlencoded
+        - application/json
+        - application/xml
       produces:
         - application/json
+        - application/xml
       parameters:
         - name: UserID
           in: path
@@ -326,8 +336,12 @@ paths:
       tags:
         - Stats
       description: List all operations (ID, MathType and Description) available for a specific statistic math operation.
+      consumes:
+        - application/json
+        - application/xml
       produces:
         - application/json
+        - application/xml
       responses:
         200:
           description: Stat(s) available.
@@ -335,18 +349,22 @@ paths:
               $ref: '#/definitions/StatResponse'
         400:
           description: Bad request. Check the definition documentation.
-  /Transfs:
+  /Trnsfs:
     get:
       tags:
         - Transformations
       description: List all operations (ID, MathType and Description) available for a specific transformation math operation.
+      consumes:
+        - application/json
+        - application/xml
       produces:
         - application/json
+        - application/xml
       responses:
         200:
           description: Tansoformation(s) available.
           schema:
-              $ref: '#/definitions/Transfs'
+              $ref: '#/definitions/TrnsfResponse'
         400:
           description: Bad request. Check the definition documentation.
   /Charts:
@@ -354,8 +372,12 @@ paths:
       tags:
         - Charts
       description: Return a chart representation (image binary file) of the dataset.
+      consumes:
+        - application/json
+        - application/xml
       produces:
         - application/json
+        - application/xml
       responses:
         200:
           description: Charts(s) available.
@@ -363,28 +385,28 @@ paths:
               $ref: '#/definitions/Chart'
         400:
           description: Bad request. Check the definition documentation.
-  /Users/{UserID}/Datasets/{DatasetID}/Stats/{StatID}:
+  /Users/{UserID}/Datasets/{DatasetID}/Stats:
     post:
       tags:
         - Stats
       description: Calculate stat of entire dataset
       consumes:
-        - application/x-www-form-urlencoded
+        - application/json
+        - application/xml
       produces:
-        - application/html
+        - application/json
+        - application/xml
       parameters:
        - name: UserID
          in: path
          required: true
-         description: Username
          type: string
        - name: DatasetID
          in: path
          required: true
-         description: Number of Dataset ID
          type: string
        - name: StatID
-         in: path
+         in: query
          required: true
          description: Number of statID
          type: string
@@ -398,20 +420,32 @@ paths:
          required: false
          description: Column number of dataset
          type: integer
+       - name: MyRef
+         in: query
+         required: true
+         description: Reference for callback after operation finishes
+         type: string
+       - name: URLCallback
+         in: query
+         required: true
+         description: URL for callback after operation finishes
+         type: string
       responses:
         202:
           description: Accepted.
         400:
           description: Bad request. Check the definition documentation.
-  /Users/{UserID}/Datasets/{DatasetID}/Transf/{TransfID}:
+  /Users/{UserID}/Datasets/{DatasetID}/Trnsf:
     post:
       tags:
         - Transformations
-      description: Calculate transformation of entire dataset
+      description: Calculate transformation of a dataset
       consumes:
-        - application/x-www-form-urlencoded
+        - application/json
+        - application/xml
       produces:
-        - application/html
+        - application/json
+        - application/xml
       parameters:
        - name: UserID
          in: path
@@ -421,13 +455,23 @@ paths:
          in: path
          required: true
          type: string
-       - name: TransfID
-         in: path
+       - name: TrnsfID
+         in: query
          required: true
          type: string
        - name: value
          in: query
          description: value of the transformation. 
+         type: string
+       - name: MyRef
+         in: query
+         required: true
+         description: Reference for callback after operation finishes
+         type: string
+       - name: URLCallback
+         in: query
+         required: true
+         description: URL for callback after operation finishes
          type: string
       responses:
         202:
@@ -438,15 +482,17 @@ paths:
           description: Unexpected error
           schema:
             $ref: "#/definitions/Error"
-  /Users/{UserID}/Datasets/{DatasetID}/Marcros/{MacroID}/:
+  /Users/{UserID}/Datasets/{DatasetID}/{MacroID}/:
     post:
       tags:
         - Stats
-      description: Calculate macro for a given dataset
+      description: Calculate stat of entire dataset
       consumes:
-        - application/x-www-form-urlencoded
+        - application/json
+        - application/xml
       produces:
-        - application/html
+        - application/json
+        - application/xml
       parameters:
        - name: UserID
          in: path
@@ -470,6 +516,16 @@ paths:
          required: false
          description: Column number of dataset
          type: integer
+       - name: MyRef
+         in: query
+         required: true
+         description: Reference for callback after operation finishes
+         type: string
+       - name: URLCallback
+         in: query
+         required: true
+         description: URL for callback after operation finishes
+         type: string
       responses:
         202:
           description: Accepted.
@@ -525,13 +581,18 @@ definitions:
         properties:
           id:
             type: string
-  Transfs:
+  Trnsfs:
     type: object
     properties:
       transf_id:
         type: string
       desc_transfs:
         type: string
+  TrnsfResponse:
+    type: array
+    items: {
+      "$ref": "#/definitions/Trnsfs"
+    }
   Stat:
     type: object
     properties:
@@ -566,6 +627,9 @@ definitions:
       username:
         type: string
         description: Unique identifier as nickname. e.g. user123
+      password:
+        type: string
+        description: Your password code.
   UsersRequest:
     type: object
     properties:
@@ -602,6 +666,22 @@ definitions:
       values:
         type: string
         description: List of values of dataset in HTML.
+  DatasetRequest:
+    type: object
+    properties:
+      rows:
+        type: integer
+        description: The qtd. line number of dataset.
+      cols:
+        type: integer
+        description: The qtd. column number of dataset.
+      values:
+        type: array
+        items: {
+          type: integer,
+          description:  values of dataset.
+        }
+        description: List of values of dataset.
   DatasetID:
     type: object
     properties:
@@ -614,6 +694,9 @@ definitions:
       stat_id:
         type: string
         description: Unique identifier representing a specific statistic math id
+      stat_type:
+        type: string
+        description: the type of stat. E.g. StatMeasure, Transformations, Charts.
       desc_stat:
         type: string
         description: description of operation stat.

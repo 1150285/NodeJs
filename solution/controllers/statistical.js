@@ -63,13 +63,14 @@ exports.postStatisticals = function(req, res) {
             else if(MAX == req.query.StatID){
                 result = stat.max(datasetV.values);
             }
-
-        })
-        res.setHeader("Content-Type", "application/html");
+			res.setHeader("Content-Type", "application/html");
         res.end("<html><body><h1> " +
-            "<p>Success!... Your request result is"+result+"</p>" +
+            "<p>Success!... Your request result is "+result+"</p>" +
             "<p>Or come back to Home Page to request more operations <a href='http://localhost:3001/index.html'>Home Page</a></p>" +
             "</h1></body></html>");
+
+        })
+        
     } else {
         if (req.username === undefined || req.dataset_id === undefined || req.stat_id === undefined) {
             res.statusCode = 400;

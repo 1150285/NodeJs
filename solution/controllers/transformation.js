@@ -11,7 +11,7 @@ exports.getTransformations = function(req, res) {
 exports.postTransformations = function(req, res) {
     console.log("»»» Accepted POST request to calculate transfID: " + req.transf_id + " for DatasetID: " + req.dataset_id + " and UserID: " + req.username + " Develop here what happens");
     if (req.username && req.dataset_id && req.query.StatID ) {
-        callbackID = getSequence("stID");
+        //callbackID = getSequence("stID");
         var urlCallback = CALLBACK_ROOT + "/Users/" + req.username + "/Datasets/" + req.dataset_id + "/Transf/"+req.query.StatID+"/Results"
 
         var datasetV = "";

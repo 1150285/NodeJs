@@ -1,0 +1,111 @@
+{
+	"variables": [],
+	"info": {
+		"name": "restify",
+		"_postman_id": "99a67a8f-5db9-ec7e-4223-01cb0b7ecdeb",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "modify user",
+			"request": {
+				"url": "http://localhost:3001/Users/u1",
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t\"fullName\": \"Daniel Afonso\",\r\n\t\"password\": \"node1234\"\r\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "modifiy user",
+			"request": {
+				"url": "http://localhost:3001/Users/afonso",
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t\"fullName\": \"Daniel Afonso\",\r\n\t\"password\": \"node1234\"\r\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "cria dataset",
+			"request": {
+				"url": "http://localhost:3001/Users/u1/Datasets",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": " {\"rows\":2,\n \"cols\":2,\n \"values\":[1,2,3,4]}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "cria user",
+			"request": {
+				"url": "http://localhost:3001/Users/",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t\"fullName\": \"Daniel Afonso\",\r\n\t\"username\": \"afonso\",\r\n\t\"password\": \"afonso\"\r\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "get all users",
+			"request": {
+				"url": "http://localhost:3001/Users/",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t\"fullName\": \"Daniel Afonso\",\r\n\t\"password\": \"node1234\"\r\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}

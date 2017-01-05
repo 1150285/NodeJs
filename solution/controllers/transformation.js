@@ -1,5 +1,13 @@
 var Transformation = require('../models/transformation');
 
+exports.getTransformations = function(req, res) {
+		res.statusCode = 405;
+		res.setHeader("Content-Type", "application/html");
+		res.end("<html><body><h1> " +
+				"Method not allowed in this resource. Check the definition documentation " +
+				"</h1></body></html>");
+};
+
 exports.postTransformations = function(req, res) {
     console.log("»»» Accepted POST request to calculate transfID: " + req.transf_id + " for DatasetID: " + req.dataset_id + " and UserID: " + req.username + " Develop here what happens");
     if (req.username && req.dataset_id && req.query.StatID ) {
@@ -47,22 +55,18 @@ exports.postTransformations = function(req, res) {
     }
 };
 
-exports.getTransformations = function(req, res) {
-
-
+exports.putTransformations = function(req, res) {
+		res.statusCode = 405;
+		res.setHeader("Content-Type", "application/html");
+		res.end("<html><body><h1> " +
+				"Method not allowed in this resource. Check the definition documentation " +
+				"</h1></body></html>");
 };
 
-exports.getTransformation = function(req, res) {
-
-
-};
-
-exports.putTransformation = function(req, res) {
-
-
-};
-
-
-exports.deleteTransformation = function(req, res) {
-
+exports.deleteTransformations = function(req, res) {
+		res.statusCode = 405;
+		res.setHeader("Content-Type", "application/html");
+		res.end("<html><body><h1> " +
+				"Method not allowed in this resource. Check the definition documentation " +
+				"</h1></body></html>");
 };

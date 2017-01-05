@@ -1,18 +1,18 @@
 var Dataset = require('../models/dataset');
 var Functions = require('../controllers/functions');
 var matrix = require("node-matrix");
-var mongoose = require('mongoose')
+var mongoose = require('mongoose');
 
 //Functions.buildRandomDataset(2, 2);
 //Functions.buildRandomDataset(3, 5);
 //Functions.buildRandomDataset(2, 7);
 
-exports.getDatasets = function(req, res) {
+exports.getDatasets = function(req, res, user) {
 
 	console.log("»»» Accepted GET to .../Datasets/ resource");
-
-	res.statusCode = 200;
-	res.setHeader("Content-Type", "application/html");
+	
+	//check if the user is validUser before check Dataset
+	
 	var dataset = "";
 	Dataset.find(function (err, datasets) {
 		if (err) {
@@ -21,7 +21,7 @@ exports.getDatasets = function(req, res) {
 			res.end("<html><body><h1> " +
 					"Dataset: " + req.dataset_id + " was not found! " +
 					"</h1></body></html>");
-			console.log("»»» Dataset: " + req.dataset_id + " not found! ");
+			console.log("»»» None datasets found! ");
 			return console.error(err);
 		}
 		else {
@@ -33,13 +33,13 @@ exports.getDatasets = function(req, res) {
 						"None datasets found! " +
 						"Create one doing POST to <a href='http://localhost:3001/Datasets'>http://localhost:3001/Datasets</a>" +
 						"</h1></body></html>");
-				console.log(dataset);
-				console.log("»»» Dataset: " + req.dataset_id + " was not found! ");
+				console.log(datasets);
+				console.log("»»» None datasets found! ");
 			}
 			else {
 				res.statusCode = 200;
 				res.setHeader("Content-Type", "application/html");
-				res.end(Functions.printDatasetHTML(dataset));
+				res.end(Functions.printDatasetHTML(datasets));
 				console.log("»»» Returned GET with an existent Dataset");
 			}
 		}
@@ -48,8 +48,8 @@ exports.getDatasets = function(req, res) {
 
 exports.postDatasets = function(req, res) {
 	console.log("»»» Accepted POST to .../Datasets/ resource");
+	
 	if (Number (req.body.rows) && Number (req.body.cols) && req.body.values ) {
-		
 		var numbers = req.body.values;
 		var RowXCol = numbers.split(",");
 		var eachNumber = [];
@@ -58,7 +58,7 @@ exports.postDatasets = function(req, res) {
 			//console.log(eachNumber[i]);
 		}
 		//console.log(eachNumber.length);
-		
+
 		var arraySize = (req.body.rows * req.body.cols) ;
 		//console.log(arraySize);
 		
@@ -163,6 +163,24 @@ exports.postDatasets = function(req, res) {
 	}
 };
 
+exports.putDatasets = function(req, res) {
+		res.statusCode = 405;
+		res.setHeader("Content-Type", "application/html");
+		res.end("<html><body><h1> " +
+				"Method not allowed in this resource. Check the definition documentation " +
+				"</h1></body></html>");
+};
+
+exports.deleteDatasets = function(req, res) {
+		res.statusCode = 405;
+		res.setHeader("Content-Type", "application/html");
+		res.end("<html><body><h1> " +
+				"Method not allowed in this resource. Check the definition documentation " +
+				"</h1></body></html>");
+};
+
+//////////////
+
 exports.getDataset = function(req, res) {
 
 	console.log("»»» Accepted GET to /Datasets/ID? resource.");
@@ -198,6 +216,14 @@ exports.getDataset = function(req, res) {
 			}
 		});
 	} 
+};
+
+exports.postDataset = function(req, res) {
+		res.statusCode = 405;
+		res.setHeader("Content-Type", "application/html");
+		res.end("<html><body><h1> " +
+				"Method not allowed in this resource. Check the definition documentation " +
+				"</h1></body></html>");
 };
 
 exports.putDataset = function(req, res) {

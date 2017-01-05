@@ -29,6 +29,7 @@ var macroController = require('./controllers/macro');
 var transformationController = require('./controllers/transformation');
 var statisticalController = require('./controllers/statistical');
 
+
 /*var connection = require('./db/db')
 var Dataset = require('./models/dataset');*/
 
@@ -94,67 +95,71 @@ var router = express.Router();
 // Register all our routes with /api
 app.use('/', router);
 
+
+/// Users
+
 //
-//URL: /Users
-//
+//URL: /Users/
 //GET 		return all users, returns 200
-//POST		create new entry, returns 201 or 400
+//POST		create new user, returns 201 or 400
 //PUT 		not allowed, returns 405
 //DELETE 	not allowed, returns 405
 //
 router.route('/Users')
+	.get(userController.getUsers)
     .post(userController.postUsers)
 	.put(userController.putUsers)
-    .get(userController.getUsers);
+	.delete(userController.deleteUsers);
 
-/**
- * URL: /Users/:userID
- * GET 		return specific user 200 or 404
- * POST 	not allowed, returns 405
- * PUT 		overwrite data for existent user, returns 200, 400 or 404 
- * DELETE 	delete an user, returns 200 or 404
-**/
-
+//
+//URL: /Users/:userID
+//GET 		return specific user 200 or 404
+//POST 		not allowed, returns 405
+//PUT 		overwrite data for existent user, returns 200, 400 or 404  
+//DELETE 	delete an user, returns 200 or 404
+//
 app.param('userID', function(req, res, next, userID){
 req.username = userID;
 return next()
 })
 app.route("/Users/:userID")
 	.get(userController.getUser)
-	.put(authController.isAuthenticated,userController.putUser)
-	.delete(authController.isAuthenticated,userController.deleteUser);
+	.post(userController.postUser)
+	.put(userController.putUser)
+	.delete(userController.deleteUser);
 
 ///DATASETS
 
 //
 //URL: /Users/:userID/Datasets
-//
-//GET 		return all users, returns 200
-//POST		create new entry, returns 201 or 400
+//GET 		return all datasets, returns 200
+//POST		create new dataset, returns 201 or 400
 //PUT 		not allowed, returns 405
 //DELETE 	not allowed, returns 405
 
 app.route("/Users/:userID/Datasets")
-    .post(datasetController.postDatasets)
-    .get(datasetController.getDatasets);
+    .get(authController.isAuthenticated,datasetController.getDatasets)
+	.post(authController.isAuthenticated,datasetController.postDatasets)
+	.put(authController.isAuthenticated,datasetController.putDatasets)
+	.delete(authController.isAuthenticated,datasetController.deleteDatasets)
+    ;
 
 //
 //URL: /Users/:userID/Datasets/:datasetID
-//
-//GET 		return specific user 200 or 404
+//GET 		return specific dataset 200 or 404
 //POST 		not allowed, returns 405
-//PUT 		overwrite data for existent user, returns 200, 400 or 404 
-//DELETE 	delete an user, returns 200 or 404
+//PUT 		overwrite data for existent dataset, returns 200, 400 or 404 
+//DELETE 	delete an dataset, returns 200 or 404
 
 app.param('datasetID', function(req, res, next, datasetID){
 	req.dataset_id = datasetID;
 	return next()
 	});
-
 app.route("/Users/:userID/Datasets/:datasetID")
-    .put(datasetController.putDataset)
-    .get(datasetController.getDataset)
-	.delete(datasetController.deleteDataset);
+    .get(authController.isAuthenticated,datasetController.getDataset)
+	.post(authController.isAuthenticated,datasetController.postDataset)	
+	.put(authController.isAuthenticated,datasetController.putDataset)
+	.delete(authController.isAuthenticated,datasetController.deleteDataset);
 
 
 ///MACROS
@@ -441,7 +446,10 @@ app.param('transfID', function(req, res, next, transfID){
 	})
 	
 app.route("/Users/:userID/Datasets/:datasetID/:transfID")
-	.post(transformationController.postTransformations);
+	.get(transformationController.getTransformations)
+	.post(transformationController.postTransformations)
+	.put(transformationController.putTransformations)
+	.delete(transformationController.deleteTransformations);
 
 //
 //URL: /Users/:userID/Datasets/:datasetID/:macroID

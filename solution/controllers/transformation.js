@@ -1,15 +1,28 @@
 var Transformation = require('../models/transformation');
 
+var errors = {};
+errors['404'] = {code: 404, message: "Transformation not found!"};
+errors['400'] = {code: 400, message: "Bad Request!"};
+errors['405'] = {code: 405, message: "Method not allowed in this resource!"};
+
+const port = process.env.PORT || 3001;
+const SERVER_ROOT = "http://localhost:" + port;
+
+const serverHeavyOpsPort = process.env.PORT || 3002;
+const serverHeavyOps = "http://localhost:" + serverHeavyOpsPort;
+
+const callbackPort = process.env.PORT || 3005;
+const CALLBACK_ROOT = "http://localhost:" + callbackPort;
+
 exports.getTransformations = function(req, res) {
 		res.statusCode = 405;
 		res.setHeader("Content-Type", "application/html");
-		res.end("<html><body><h1> " +
-				"Method not allowed in this resource. Check the definition documentation " +
-				"</h1></body></html>");
+		res.json(errors[res.statusCode]);
 };
 
 exports.postTransformations = function(req, res) {
-    console.log("»»» Accepted POST request to calculate transfID: " + req.transf_id + " for DatasetID: " + req.dataset_id + " and UserID: " + req.username + " Develop here what happens");
+
+    console.log("»»» Accepted POST request to calculate transfID: " + req.query.transfID + " for DatasetID: " + req.dataset_id + " and UserID: " + req.username + " Develop here what happens");
     if (req.username && req.dataset_id && req.query.StatID ) {
         //callbackID = getSequence("stID");
         var urlCallback = CALLBACK_ROOT + "/Users/" + req.username + "/Datasets/" + req.dataset_id + "/Transf/"+req.query.StatID+"/Results"
@@ -58,15 +71,11 @@ exports.postTransformations = function(req, res) {
 exports.putTransformations = function(req, res) {
 		res.statusCode = 405;
 		res.setHeader("Content-Type", "application/html");
-		res.end("<html><body><h1> " +
-				"Method not allowed in this resource. Check the definition documentation " +
-				"</h1></body></html>");
+        res.json(errors[res.statusCode]);
 };
 
 exports.deleteTransformations = function(req, res) {
 		res.statusCode = 405;
 		res.setHeader("Content-Type", "application/html");
-		res.end("<html><body><h1> " +
-				"Method not allowed in this resource. Check the definition documentation " +
-				"</h1></body></html>");
+        res.json(errors[res.statusCode]);
 };

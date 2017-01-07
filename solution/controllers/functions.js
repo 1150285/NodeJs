@@ -2,29 +2,8 @@
 global functions
 ************/
 
-var User = require('../models/user');
 var errors =  {};
 errors['404'] = {code: 404, message: "Dataset not found!"};
-var allDatasets = [];
-var dataset = {};
-var contentValues = [];
-
-exports.printAllDatasetsJson = function (dataset) {
-
-    var values = [];
-	
-    for(var item = 0; item < dataset.length; item++) {
-		
-		allDatasets.push(dataset[item]);
-					
-	}
-    return allDatasets;
-}
-
-exports.printOneDatasetJson = function (dataset) {
-
-    return dataset[0];
-}
 
 exports.buildRandomDataset = function(lines, columns) {
 
@@ -61,4 +40,4 @@ exports.buildRandomDataset = function(lines, columns) {
             dataset_id = dataset.idDataset;
         }
     );
-}
+};

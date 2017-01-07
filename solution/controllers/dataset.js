@@ -13,13 +13,10 @@ errors['409'] = {code: 409, message: "Conflict, item already exists!"};
 errors['400'] = {code: 400, message: "Bad Request!"};
 errors['405'] = {code: 405, message: "Method not allowed in this resource!"};
 
-exports.getDatasets = function(req, res, user) {
+exports.getDatasets = function(req, res) {
 
 	console.log("»»» Accepted GET to .../Datasets/ resource");
-	
-	//check if the user is validUser before check Dataset
 
-        var dataset = "";
         Dataset.find({}, {_id: 0, __v: 0}, function (err, datasets) {
             if (err) {
                 res.statusCode = 404;
@@ -50,65 +47,52 @@ exports.getDatasets = function(req, res, user) {
 
 exports.postDatasets = function(req, res) {
 	console.log("»»» Accepted POST to .../Datasets/ resource");
-	
-	if (Number (req.body.rows) && Number (req.body.cols) && req.body.values ) {
-		var numbers = req.body.values;
-		var RowXCol = numbers.split(",");
-		var eachNumber = [];
-		for (var i =0; i < RowXCol.length; i++) {
-			eachNumber.push(parseInt(RowXCol[i]));
-			//console.log(eachNumber[i]);
-		}
-		//console.log(eachNumber.length);
 
-		var arraySize = (req.body.rows * req.body.cols) ;
-		//console.log(arraySize);
-		
-		if ( arraySize === eachNumber.length) {
-			
-			var id = mongoose.Types.ObjectId();
-			var dataset = new Dataset({
-				dataset_id: id,
-				numRows: req.body.rows,
-				numCols: req.body.cols,
-				values: eachNumber
-			});
-				dataset.save(
-				function(err, dataset) {
-					if (err) {
-						res.statusCode = 400;
-						res.setHeader("Content-Type", "application/json");
-						res.json(errors[statusCode]);
-						console.log("»»» Bad request. Check the definition documentation.");
-						return console.error(err);
-					}
-					else {
-						var dataset_id = dataset.idDataset;
-						// send 201 response
-						res.statusCode = 201;
-						res.setHeader("Content-Type", "application/json");
-						res.end("<html><body><h1> " +
-								"Your specific Dataset: " + dataset_id + " was successfully created for username: " + req.username +
-								"</h1></body></html>");
-						console.log(dataset);
-						console.log("»»» Your specific Dataset: " + dataset_id + " was successfully created for username: " + req.username);
-					}
-				}
-			);
-		}
-		else {
-			
-			res.statusCode = 400;
-			res.setHeader("Content-Type", "application/json");
-			res.json(errors[statusCode]);
-			console.log("»»» Bad request. Check the definition documentation.");
-			}
-	} 
-	else {
-		if (Number (req.body.rows) && Number (req.body.cols) ) {
+	//check if array exists. If create a random.
+    if ( req.body.values.length ) {
+
+    	if (Number (req.body.rows) && Number (req.body.cols) && req.body.values ) {
+
+		    var arraySize = (req.body.rows * req.body.cols );
+            if (arraySize === req.body.values.length) {
+
+                var dataset = new Dataset({
+                    dataset_id: mongoose.Types.ObjectId(),
+                    numRows: req.body.rows,
+                    numCols: req.body.cols,
+                    values: req.body.values
+                });
+                dataset.save(
+                    function (err, dataset) {
+                        if (err) {
+                            res.statusCode = 400;
+                            res.setHeader("Content-Type", "application/json");
+                            res.json(errors[res.statusCode]);
+                            console.log("»»» Bad request. Check the definition documentation.");
+                            return console.error(err);
+                        }
+                        else {
+                            var dataset_id = dataset.idDataset;
+                            // send 201 response
+
+                            res.statusCode = 201;
+                            res.setHeader("Content-Type", "application/json");
+                            res.json({"dataset_id": dataset_id});
+                            console.log(dataset);
+                            console.log("»»» Your specific Dataset: " + dataset_id + " was successfully created for username: " + req.username);
+                        }
+                    }
+                );
+            } else {
+                res.statusCode = 400;
+                res.setHeader("Content-Type", "application/json");
+                res.json(errors[res.statusCode]);
+                console.log("»»» Bad request. Check the definition documentation.");
+            }
+        }
+        else if (Number (req.body.rows) && Number (req.body.cols) ) {
 			
 			var values = [];
-			var dataset_id = "";
 			var dataMatrix = matrix({ rows: req.body.rows, columns: req.body.cols, values: Math.random });
 			
 			for(var row = 0; row < dataMatrix.numRows; row++) {
@@ -131,7 +115,7 @@ exports.postDatasets = function(req, res) {
 					if (err) {
 						res.statusCode = 400;
 						res.setHeader("Content-Type", "application/json");
-						res.json(errors[statusCode]);
+						res.json(errors[res.statusCode]);
 						console.log("»»» Bad request. Check the definition documentation.");
 						return console.error(err);
 					} else {
@@ -139,34 +123,36 @@ exports.postDatasets = function(req, res) {
 						// send 201 response
 						res.statusCode = 201;
 						res.setHeader("Content-Type", "application/json");
-						res.end("<html><body><h1> " +
-								"A Random Dataset for username: " + req.username + " was successfully created. Your DatasetID = " + dataset_id +  
-								"</h1></body></html>");
+                        res.json( {"dataset_id": dataset_id} );
 						console.log("»»» A Random Dataset for username: " + req.username + " was successfully created. Your DatasetID = " + dataset_id);
 					}
 					console.log(dataset);
 				}
 			);		
-		} 
-		else {
+		} else {
 			res.statusCode = 400;
 			res.setHeader("Content-Type", "application/json");
-			res.json(errors[statusCode]);
+			res.json(errors[res.statusCode]);
 			console.log("»»» Bad request. Check the definition documentation.");
 		}
-	}
+	} else {
+        res.statusCode = 400;
+        res.setHeader("Content-Type", "application/json");
+        res.json(errors[res.statusCode]);
+        console.log("»»» Bad request. Check the definition documentation.");
+    }
 };
 
 exports.putDatasets = function(req, res) {
 		res.statusCode = 405;
 		res.setHeader("Content-Type", "application/json");
-		res.json(errors['405']);
+		res.json(errors[res.statusCode]);
 };
 
 exports.deleteDatasets = function(req, res) {
 		res.statusCode = 405;
 		res.setHeader("Content-Type", "application/json");
-		res.json(errors['405']);
+		res.json(errors[res.statusCode]);
 };
 
 //////////////

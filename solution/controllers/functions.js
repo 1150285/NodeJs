@@ -62,24 +62,3 @@ exports.buildRandomDataset = function(lines, columns) {
         }
     );
 }
-
-exports.validUser = function(username) {
-	console.log("»»» Accepted GET to validate User");
-
-	var statusCode = User.find( { username: username }, { _id:0, __v:0 }, function(err, user) {
-		if (err) {
-			returnstatusCode = 404 ;
-		}
-		else {
-			if (user.length === 0) {
-
-				return statusCode = 404;
-				console.log(user);
-				console.log("»»» User: " + username + " not valid! ");
-			}	else {
-				return statusCode = 200;
-			}
-		}
-	});
-	return statusCode;
-};

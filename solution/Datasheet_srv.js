@@ -29,6 +29,7 @@ var macroController = require('./controllers/macro');
 var transformationController = require('./controllers/transformation');
 var statisticalController = require('./controllers/statistical');
 
+var User = require('./models/user');
 
 /*var connection = require('./db/db')
 var Dataset = require('./models/dataset');*/
@@ -62,7 +63,7 @@ var stats =  {};
 var transfs =  {};
 var charts = {}
 var resultsStoreList = [];
-var now = new Date();
+var errors = {};
 
 // INITIAL DATA
 
@@ -86,6 +87,11 @@ transfs['t6'] = {transf_id: "t6", desc_transfs:"Augment the data set using linea
 charts['c1'] = {chart_id: "c1",		desc_chart:"Pie chart of a desired row / column"};
 charts['c2'] = {chart_id: "c2",		desc_chart:"Line / bar chart of a desired row / column"};
 charts['c3'] = {chart_id: "c3",		desc_chart:"Line / bar chart of the entire data set"};
+
+//Erros List
+errors['404'] = {code: 404, message: "User not found!"};
+errors['400'] = {code: 400, message: "Bad Request!"};
+errors['405'] = {code: 405, message: "Method not allowed in this resource!"};
 
 //Store Heavy Ops for later consulting
 resultsStoreList [1] = {ResultNumber: "No results from Heavy Ops to see yet"} 
@@ -119,8 +125,29 @@ router.route('/Users')
 //DELETE 	delete an user, returns 200 or 404
 //
 app.param('userID', function(req, res, next, userID){
-req.username = userID;
-return next()
+//req.username = userID;
+
+    User.findOne({username: userID}, { username : 1 },
+        function (err, user) {
+            if (!err) {
+                console.log("»»» User founded");
+                if (user == null) {
+                    res.statusCode = 404;
+                    res.setHeader("Content-Type", "application/json");
+                    res.json(errors[res.statusCode]);
+                    console.log("»»» User " + userID + " was not found! ");
+
+                }
+                else {
+                    return next()
+                }
+            }
+            else {
+                return err
+            }
+        });
+
+
 })
 app.route("/Users/:userID")
 	.get(userController.getUser)

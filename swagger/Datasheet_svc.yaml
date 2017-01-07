@@ -493,6 +493,33 @@ paths:
             $ref: "#/definitions/MacroResult"
         400:
           description: Bad request. Check the definition documentation.
+  /Users/{UserID}/Results/{ResultID}:
+    get:
+      tags:
+        - Results
+      description: Result opertion of a Dataset
+      consumes:
+        - application/json
+        - application/xml
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+       - name: UserID
+         in: path
+         required: true
+         type: string
+       - name: ResultID
+         in: path
+         required: true
+         type: string
+      responses:
+        200:
+          description: Accepted.
+          schema:
+            $ref: "#/definitions/Result"
+        404:
+          description: Macro not found.
 definitions:
   Macro:
     type : object
@@ -627,6 +654,13 @@ definitions:
       dataset_id:
         type: string
         description: Unique identifier representing a specific dataset created.
+  Result:
+    type: object
+    properties:
+      transf:
+          "$ref": "#/definitions/Dataset"
+      stat:
+        type: integer
   StatRequest:
     type: object
     properties:

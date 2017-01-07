@@ -37,7 +37,7 @@ exports.getDatasets = function(req, res) {
                 else {
                     res.statusCode = 200;
                     res.setHeader("Content-Type", "application/json");
-                    res.json(Functions.printAllDatasetsJson(datasets));
+                    res.json(datasets);
                     console.log("»»» Returned GET with an existent Dataset");
                 }
             }
@@ -103,6 +103,7 @@ exports.postDatasets = function(req, res) {
 				}
 			}
 
+			var id = mongoose.Types.ObjectId();
 			var dataset = new Dataset({
 				numRows: dataMatrix.numRows,
 				numCols: dataMatrix.numCols,
@@ -189,85 +190,57 @@ exports.getDataset = function(req, res) {
 	}
 };
 
-exports.postDataset = function(req, res) {
-		res.statusCode = 405;
-		res.setHeader("Content-Type", "application/json");
-		res.json(errors[statusCode]);
+exports.postDataset = function (req, res) {
+    res.statusCode = 405;
+    res.setHeader("Content-Type", "application/json");
+    res.json(errors[statusCode]);
 };
 
-exports.putDataset = function(req, res) {
+exports.putDataset = function (req, res) {
 
-	console.log("»»» Accepted PUT to /Datasets/ID resource.");
-	if (Number (req.body.row) && Number (req.body.col) && Number (req.body.newValue) ) {
-        var datasetAfterPut = "";
-        Dataset.find({ idDataset: req.dataset_id },function (err, dataset) {
-            if (err) {
-    			res.statusCode = 404 ;
-    			res.setHeader("Content-Type", "application/json");
-    			res.json(errors[statusCode]);
-    			console.log("»»» Dataset: " + req.dataset_id + " was not found! ");
-            	return console.error(err);
-            }
-            else {
-                if (dataset.length === 0) {
-                	res.statusCode = 404 ;
-        			res.setHeader("Content-Type", "application/json");
-        			res.json(errors[statusCode]);
-        			console.log("»»» Dataset: " + req.dataset_id + " was not found! ");
-        			console.log(dataset);
-                }
-                else {
-            	    var rows = dataset[0].numRows;
-            	    var cols = dataset[0].numCols;
-                	if ( parseInt (req.body.row) < parseInt (rows + 1) 
-                			&& parseInt (req.body.col) < parseInt (cols + 1) ) {
+    console.log("»»» Accepted PUT to /Datasets/ID resource.");
 
-                		var arrayPosition = 0;
-                		if (parseInt(req.body.row) <= 1){
-                			arrayPosition = parseInt (req.body.col - 1);
-                		}
-                		else {
-                			arrayPosition = (  (parseInt(req.body.col) + 
-                							( parseInt(cols) * (parseInt(req.body.row) -1) )
-                							) - 1);
-                		}
-                    	                    		
-                	    if (dataset[0].values[arrayPosition]) {
-                	    	dataset[0].values[arrayPosition] = parseInt (req.body.newValue);
-                	    	//Data with new values
-            	            datasetAfterPut = dataset[0].values;
-            	            console.log(dataset[0].values);
-            	    		Dataset.findOneAndUpdate({ idDataset: req.dataset_id }, { $set: { values: dataset[0].values }}, function (err, dataset) {
-            	    			if (!err) {
-            						res.statusCode = 200;
-            						res.setHeader("Content-Type", "application/json");
-                    				res.end("<html><body><h1> " +
-                    						"Update OK. Do a GET to this DatasetID " + req.dataset_id  + " to see the results " +
-                    						"</h1></body></html>");
-                    				console.log("»»» Update OK. Do a GET do see Results");
-            	    			}
-            	    			else {
-            	    				return console.error(err);
-            	    			}
-            	    		});
-                	    }
-                	}
-            	    else {
-        				res.statusCode = 400;
-        				res.setHeader("Content-Type", "application/json");
-        				res.json(errors[statusCode]);
-        				console.log("»»» Bad request. Check the definition documentation.");
-            	    }
-            	}
+    //check if array exists. If create a random.
+    if ( req.body.values.length ) {
+
+        if (Number (req.body.numRows) && Number (req.body.numCols) && req.body.values ) {
+
+            var arraySize = (req.body.numRows * req.body.numCols );
+            if (arraySize === req.body.values.length) {
+
+                Dataset.findOneAndUpdate(
+                    {idDataset: req.params.datasetID},
+                    {$set: {numRows: req.body.numRows,numCols: req.body.numCols,values: req.body.values}},
+                    {projection: {_id: 0, __v: 0}, new: true},
+                    function (err, dataset) {
+                        if (!err) {
+                            if (dataset != null) {
+                                res.statusCode = 200;
+                                res.setHeader("Content-Type", "application/json");
+                                res.json(dataset);
+                                console.log("»»» Update OK. Do a GET do see Results");
+                            }
+                            else {
+                                res.statusCode = 404;
+                                res.setHeader("Content-Type", "application/json");
+                                res.json(errors[statusCode]);
+                                console.log("»»» Dataset: " + req.params.datasetID + " was not found! ");
+                                console.log(dataset);
+
+                            }
+                        }
+                        else {
+                            return console.error(err);
+                        }
+                    });
+            } else {
+                res.statusCode = 400;
+                res.setHeader("Content-Type", "application/json");
+                res.json(errors[res.statusCode]);
+                console.log("»»» Bad request. Check the definition documentation.");
             }
-        });
-	}
-	else {
-		res.statusCode = 400;
-		res.setHeader("Content-Type", "application/json");
-		res.json(errors[statusCode]);
-		console.log("»»» Bad request. Check the definition documentation.");
-	}
+        }
+    }
 };
 
 exports.deleteDataset = function(req, res) {

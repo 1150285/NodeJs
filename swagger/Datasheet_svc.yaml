@@ -238,7 +238,7 @@ paths:
           required: true
           type: string
       responses:
-        200:
+        204:
           description: Dataset sucessfully  deleted.
         400:
           description: Bad request. Check the definition documentation.
@@ -264,12 +264,7 @@ paths:
           in: body
           required: true
           schema:
-            type: array
-            items: {
-              $ref: '#/definitions/Macro'
-            }
-            description: Description of macro.
-
+            $ref: '#/definitions/MacroRequest'
       responses:
         201:
           description: Macro was successfully created.
@@ -509,6 +504,18 @@ definitions:
         items: {
             "$ref": "#/definitions/Item"
           }
+      description:
+        type: string
+  MacroRequest:
+    type : object
+    properties:
+      items:
+        type: array
+        items: {
+            "$ref": "#/definitions/Item"
+          }
+      description:
+        type: string
   MacroResult:
     type : object
     properties:
@@ -517,20 +524,12 @@ definitions:
   Item:
     type : object
     properties:
-      order:
+      stat_id:
+        type: string
+      transf_id:
+        type: string
+      value:
         type: integer
-      stat:
-        type: object
-        properties:
-          id:
-            type: string
-      transform:
-        type: object
-        properties:
-          id:
-            type: string
-          value:
-            type: integer
   TrnsfRequest:
     type: object
     properties:

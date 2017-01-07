@@ -150,9 +150,8 @@ exports.putUser = function (req, res) {
     else {
         res.statusCode = 400;
         res.setHeader("Content-Type", "application/json");
-        res.end("<html><body><h1> " +
-            "Bad request. Check the definition documentation. " +
-            "</h1></body></html>");
+        res.setHeader("Content-Type", "application/json");
+        res.json(errors[res.statusCode]);
         console.log("»»» Bad request. Check the definition documentation.");
     }
 };
@@ -165,10 +164,8 @@ exports.deleteUser = function(req, res) {
 			// No user found with that username
 			if (!user) { 
 				res.statusCode = 404 ;
-				res.setHeader("Content-Type", "application/json");
-				res.end("<html><body><h1> " +
-						"User: " + req.username + " was not found! " +
-				"</h1></body></html>");
+                res.setHeader("Content-Type", "application/json");
+                res.json(errors[res.statusCode]);
 				console.log("»»» User " + req.username + " was not found for delete! ");
 				return console.error(err);; 
 			}
@@ -180,10 +177,8 @@ exports.deleteUser = function(req, res) {
 				if (isDeleted){
 
 					res.statusCode = 200;
-					res.setHeader("Content-Type", "application/json");
-					res.end("<html><body><h1> " +
-							"Delete OK. Do a GET to see the results " +
-					"</h1></body></html>");
+                    res.setHeader("Content-Type", "application/json");
+                    res.json(errors[res.statusCode]);
 				}
 			}
 		});

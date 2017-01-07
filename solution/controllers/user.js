@@ -1,5 +1,11 @@
 var User = require('../models/user');
 
+var errors = {};
+errors['404'] = {code: 404, message: "User not found!"};
+errors['409'] = {code: 409, message: "Conflict, user already exists!"};
+errors['400'] = {code: 400, message: "Bad Request!"};
+errors['405'] = {code: 405, message: "Method not allowed in this resource!"};
+
 exports.getUsers = function(req, res) {
 
 	console.log("»»» Accepted GET to User resource.");
@@ -7,10 +13,8 @@ exports.getUsers = function(req, res) {
 	User.find( {}, { _id:0, password:0, __v:0 } , function(err, users) {
 		if (err) {
 			res.statusCode = 404 ;
-			res.setHeader("Content-Type", "application/html");
-			res.end("<html><body><h1> " +
-					"None user was not found! " +
-			"</h1></body></html>");
+			res.setHeader("Content-Type", "application/json");
+			res.json(errors[res.statusCode]);
 			console.log("»»» None user was not found! ");
 			return console.error(err);
 		}
@@ -18,11 +22,8 @@ exports.getUsers = function(req, res) {
 			if (users.length === 0) {
 
 				res.statusCode = 404;
-				res.setHeader("Content-Type", "application/html");
-				res.end("<html><body><h1> " +
-						"None Users found! " +
-						"Create one doing POST to <a href='http://localhost:3001/Users'>http://localhost:3001/Users</a>" +
-				"</h1></body></html>");
+				res.setHeader("Content-Type", "application/json");
+				res.json(errors[res.statusCode]);
 				console.log("»»» User was not found! ");
 			}	else {
 				res.statusCode = 200;
@@ -51,37 +52,29 @@ exports.postUsers = function(req, res) {
 
 			// send 201 response
 			res.statusCode = 201;
-			res.setHeader("Content-Type", "application/html");
-			res.end("<html><body><h1> " +
-					"The username: " + req.body.username + " was successfully created! " +
-			"</h1></body></html>");
+			res.setHeader("Content-Type", "application/json");
+			res.json(req.body.username);
 			console.log("»»» Username: " + req.body.username + " was successfully created!");
 		});
 
 	}else {
 		res.statusCode = 400;
-		res.setHeader("Content-Type", "application/html");
-		res.end("<html><body><h1> " +
-				"Bad request. Check the definition documentation. " +
-		"</h1></body></html>");
+		res.setHeader("Content-Type", "application/json");
+		res.json(errors[res.statusCode]);
 		console.log("»»» Bad request. Check the definition documentation.");
 	}
 };
 
 exports.putUsers = function(req, res) {
 	res.statusCode = 405;
-	res.setHeader("Content-Type", "application/html");
-	res.end("<html><body><h1> " +
-			"Method not allowed in this resource. Check the definition documentation " +
-	"</h1></body></html>");
+	res.setHeader("Content-Type", "application/json");
+	res.json(errors[res.statusCode]);
 }
 
 exports.deleteUsers = function(req, res) {
-	res.statusCode = 405;
-	res.setHeader("Content-Type", "application/html");
-	res.end("<html><body><h1> " +
-			"Method not allowed in this resource. Check the definition documentation " +
-	"</h1></body></html>");
+    res.statusCode = 405;
+    res.setHeader("Content-Type", "application/json");
+    res.json(errors[res.statusCode]);
 }
 
 
@@ -93,10 +86,8 @@ exports.getUser = function(req, res) {
 	User.find( { username: req.username }, { _id:0, __v:0 }, function(err, user) {
 		if (err) {
 			res.statusCode = 404 ;
-			res.setHeader("Content-Type", "application/html");
-			res.end("<html><body><h1> " +
-					"User: " + req.username + " was not found! " +
-			"</h1></body></html>");
+            res.setHeader("Content-Type", "application/json");
+            res.json(errors[res.statusCode]);
 			console.log("»»» User " + req.username + " was not found! ");
 			return console.error(err);
 		}
@@ -104,11 +95,8 @@ exports.getUser = function(req, res) {
 			if (user.length === 0) {
 
 				res.statusCode = 404;
-				res.setHeader("Content-Type", "application/html");
-				res.end("<html><body><h1> " +
-						"None Users found! " +
-						"Create one doing POST to <a href='http://localhost:3001/Users'>http://localhost:3001/Users</a>" +
-				"</h1></body></html>");
+                res.setHeader("Content-Type", "application/json");
+                res.json(errors[res.statusCode]);
 				console.log(user);
 				console.log("»»» User: " + req.username + " was not found! ");
 			}	else {
@@ -124,10 +112,8 @@ exports.getUser = function(req, res) {
 
 exports.postUser = function(req, res) {
 	res.statusCode = 405;
-	res.setHeader("Content-Type", "application/html");
-	res.end("<html><body><h1> " +
-			"Method not allowed in this resource. Check the definition documentation " +
-	"</h1></body></html>");
+    res.setHeader("Content-Type", "application/json");
+    res.json(errors[res.statusCode]);
 }
 
 exports.putUser = function(req, res) {
@@ -140,39 +126,40 @@ exports.putUser = function(req, res) {
 			// No user found with that username
 			if (!user) { 
 				res.statusCode = 404 ;
-				res.setHeader("Content-Type", "application/html");
-				res.end("<html><body><h1> " +
-						"User: " + req.username + " was not found! " +
-				"</h1></body></html>");
+                res.setHeader("Content-Type", "application/json");
+                res.json(errors[res.statusCode]);
 				console.log("»»» User " + req.username + " was not found! ");
 				return console.error(err);; 
 			}
 			else {
 
 				if (req.body.fullName) {
-					var isFullNameUpdated = User.findOneAndUpdate({ username: req.username}, { $set: { fullName: req.body.fullName }} ,function (err, user) {
-						if (!err) { console.log("»»» Update fullName OK. Do a GET do see Results");	}
+					var isFullNameUpdated = User.findOneAndUpdate({username: req.username}, {$set:{ fullName: req.body.fullName }},{
+                        projection: { _id:0, __v:0 },new: true},
+						function (err, user) {
+						if (!err) { console.log("»»» Update fullName OK. Do a GET do see Results");
+                            res.statusCode = 200;
+                            res.setHeader("Content-Type", "application/json");
+                            res.json(user);
+
+						}
 						else {console.log(err)}
 					});
 				}
 
-				res.statusCode = 200;
-				res.setHeader("Content-Type", "application/html");
-				res.end("<html><body><h1> " +
-						"Updates OK. Do a GET to see the results " +
-				"</h1></body></html>");
+
 			}
 		});
 	}
 	else {
 		res.statusCode = 400;
-		res.setHeader("Content-Type", "application/html");
+		res.setHeader("Content-Type", "application/json");
 		res.end("<html><body><h1> " +
 				"Bad request. Check the definition documentation. " +
 		"</h1></body></html>");
 		console.log("»»» Bad request. Check the definition documentation.");
 	}
-};
+ };
 
 exports.deleteUser = function(req, res) {
 	if (req.username) {
@@ -182,7 +169,7 @@ exports.deleteUser = function(req, res) {
 			// No user found with that username
 			if (!user) { 
 				res.statusCode = 404 ;
-				res.setHeader("Content-Type", "application/html");
+				res.setHeader("Content-Type", "application/json");
 				res.end("<html><body><h1> " +
 						"User: " + req.username + " was not found! " +
 				"</h1></body></html>");
@@ -197,7 +184,7 @@ exports.deleteUser = function(req, res) {
 				if (isDeleted){
 
 					res.statusCode = 200;
-					res.setHeader("Content-Type", "application/html");
+					res.setHeader("Content-Type", "application/json");
 					res.end("<html><body><h1> " +
 							"Delete OK. Do a GET to see the results " +
 					"</h1></body></html>");

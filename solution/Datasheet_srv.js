@@ -217,10 +217,10 @@ app.route("/Users/:userID/Macros")
 //DELETE 	delete an user, returns 200 or 404
 //
 
-app.param('macroID', function(req, res, next, macroID){
+/*app.param('macroID', function(req, res, next, macroID){
 	req.macro_id = macroID;
 	return next()
-	})
+	})*/
 
 app.route("/Users/:userID/Macros/:macroID")
 	.get(macroController.getMacro)

@@ -103,7 +103,6 @@ exports.postDatasets = function(req, res) {
 				}
 			}
 
-			var id = mongoose.Types.ObjectId();
 			var dataset = new Dataset({
 				numRows: dataMatrix.numRows,
 				numCols: dataMatrix.numCols,
@@ -187,7 +186,7 @@ exports.getDataset = function(req, res) {
 				}
 			}
 		});
-	} 
+	}
 };
 
 exports.postDataset = function(req, res) {
@@ -274,23 +273,28 @@ exports.putDataset = function(req, res) {
 exports.deleteDataset = function(req, res) {
 
     console.log("»»» Accepted DELETE to this resource. Develop here what happens");
-	Dataset.findOneAndRemove({ idDataset: req.dataset_id }, function (err, dataset) {
-		if (!err) {
-			console.log("»»» Delete OK. Do a GET do see Results");
-			
-			res.statusCode = 200;
-			res.setHeader("Content-Type", "application/json");
-			res.end("<html><body><h1> " +
-					"The DatasetID " + req.dataset_id  + " was delete sucessfully" +
-					"</h1></body></html>");
-		}
-		else {
-        	res.statusCode = 404 ;
-			res.setHeader("Content-Type", "application/json");
-			res.json(errors[statusCode]);
-			console.log("»»» The Dataset: " + req.dataset_id + " was not found for Delete! ");
-			console.log(dataset);
-			return console.error(err);
-		}
-	});
+    Dataset.findOneAndRemove({idDataset: req.dataset_id}, function (err, dataset) {
+        if (!err) {
+
+            if (dataset === null) {
+                res.statusCode = 404;
+                res.setHeader("Content-Type", "application/json");
+                res.json(errors[res.statusCode]);
+                console.log("»»» The Dataset: " + req.dataset_id + " was not found for Delete! ");
+            }
+            else {
+                console.log("»»» Delete OK. Do a GET do see Results");
+                res.statusCode = 204;
+                res.setHeader("Content-Type", "application/json");
+                res.json();
+            }
+        }
+        else {
+            res.statusCode = 404;
+            res.setHeader("Content-Type", "application/json");
+            res.json(errors[res.statusCode]);
+            console.log("»»» The Dataset: " + req.dataset_id + " was not found for Delete! ");
+        }
+
+    });
 };

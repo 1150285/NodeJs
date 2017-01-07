@@ -15,11 +15,6 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var request = require('request');
-
-var jsonParser = bodyParser.json();
-var json2html = require('json-to-html')
-var get = require('simple-object-query').get;
-var where = require('simple-object-query').where;
 var passport = require('passport');
 
 var userController = require('./controllers/user');
@@ -30,6 +25,7 @@ var transformationController = require('./controllers/transformation');
 var statisticalController = require('./controllers/statistical');
 
 var User = require('./models/user');
+var Dataset = require('./models/dataset');
 
 /*var connection = require('./db/db')
 var Dataset = require('./models/dataset');*/
@@ -44,24 +40,13 @@ var callbackApp = express();
 callbackApp.use(bodyParser.json());
 callbackApp.use(bodyParser.urlencoded({extended:true}));
 
-const port = process.env.PORT || 3001;
-const SERVER_ROOT = "http://localhost:" + port;
-
-const serverHeavyOpsPort = process.env.PORT || 3002;
-const serverHeavyOps = "http://localhost:" + serverHeavyOpsPort;
-
-const callbackPort = process.env.PORT || 3005;
-const CALLBACK_ROOT = "http://localhost:" + callbackPort;
-
 /************
  data store
 ************/
 
-var datasets =  {};
-var datasetTableValues = "";
 var stats =  {};
 var transfs =  {};
-var charts = {}
+var charts = {};
 var resultsStoreList = [];
 var errors = {};
 
@@ -81,7 +66,7 @@ transfs['t2'] = {transf_id: "t2", desc_transfs:"Scale" };
 transfs['t3'] = {transf_id: "t3", desc_transfs:"Add a scalar" };
 transfs['t4'] = {transf_id: "t4", desc_transfs:"Add two data sets" };
 transfs['t5'] = {transf_id: "t5", desc_transfs:"Multiply two data sets" };
-transfs['t6'] = {transf_id: "t6", desc_transfs:"Augment the data set using linear interpolation on the rows or columns",};
+transfs['t6'] = {transf_id: "t6", desc_transfs:"Augment the data set using linear interpolation on the rows or columns"};
 
 //Return a chart representation (image binary file) of the dataset
 charts['c1'] = {chart_id: "c1",		desc_chart:"Pie chart of a desired row / column"};
@@ -94,7 +79,7 @@ errors['400'] = {code: 400, message: "Bad Request!"};
 errors['405'] = {code: 405, message: "Method not allowed in this resource!"};
 
 //Store Heavy Ops for later consulting
-resultsStoreList [1] = {ResultNumber: "No results from Heavy Ops to see yet"} 
+resultsStoreList [1] = {ResultNumber: "No results from Heavy Ops to see yet"} ;
 
 // Create our Express router
 var router = express.Router();
@@ -125,9 +110,9 @@ router.route('/Users')
 //DELETE 	delete an user, returns 200 or 404
 //
 app.param('userID', function(req, res, next, userID){
-//req.username = userID;
+	//req.username = userID;
 
-    User.findOne({username: userID}, { username : 1 },
+    User.findOne({username: userID}, {username: 1},
         function (err, user) {
             if (!err) {
                 console.log("»»» User founded");
@@ -145,9 +130,8 @@ app.param('userID', function(req, res, next, userID){
             else {
                 return err
             }
-        });
-
-
+        }
+	);
 })
 app.route("/Users/:userID")
 	.get(userController.getUser)
@@ -179,9 +163,28 @@ app.route("/Users/:userID/Datasets")
 //DELETE 	delete an dataset, returns 200 or 404
 
 app.param('datasetID', function(req, res, next, datasetID){
-	req.dataset_id = datasetID;
-	return next()
-	});
+	//req.dataset_id = datasetID;
+    Dataset.findOne({idDataset: datasetID}, {idDataset: 1},
+        function (err, user) {
+            if (!err) {
+                console.log("»»» Dataset founded");
+                if (user == null) {
+                    res.statusCode = 404;
+                    res.setHeader("Content-Type", "application/json");
+                    res.json(errors[res.statusCode]);
+                    console.log("»»» Dataset " + datasetID + " was not found! ");
+                }
+                else {
+                    return next()
+                }
+            }
+            else {
+                return err
+            }
+        }
+    );
+
+});
 app.route("/Users/:userID/Datasets/:datasetID")
     .get(authController.isAuthenticated,datasetController.getDataset)
 	.post(authController.isAuthenticated,datasetController.postDataset)	
@@ -247,25 +250,19 @@ app.route("/Stats")
 	})
 	.put(function(req, res) {
 		res.statusCode = 405;
-		res.setHeader("Content-Type", "application/html");
-		res.end("<html><body><h1> " +
-				"Method not allowed in this resource. Check the definition documentation " +
-				"</h1></body></html>");
+		res.setHeader("Content-Type", "application/json");
+		res.json(errors[res.statusCode]);
 	})
 	.post(function(req, res) {
 		res.statusCode = 405;
-		res.setHeader("Content-Type", "application/html");
-		res.end("<html><body><h1> " +
-				"Method not allowed in this resource. Check the definition documentation " +
-				"</h1></body></html>");
+		res.setHeader("Content-Type", "application/json");
+		res.json(errors[res.statusCode]);
 	})
 	.delete(function(req, res) {
 		res.statusCode = 405;
-		res.setHeader("Content-Type", "application/html");
-		res.end("<html><body><h1> " +
-				"Method not allowed in this resource. Check the definition documentation " +
-				"</h1></body></html>");
-	})
+		res.setHeader("Content-Type", "application/json");
+		res.json(errors[res.statusCode]);
+	});
 
 //
 //handling individual items in the collection
@@ -286,25 +283,19 @@ app.route("/Transfs")
 	})
 	.put(function(req, res) {
 		res.statusCode = 405;
-		res.setHeader("Content-Type", "application/html");
-		res.end("<html><body><h1> " +
-				"Method not allowed in this resource. Check the definition documentation " +
-				"</h1></body></html>");
+		res.setHeader("Content-Type", "application/json");
+        res.json(errors[res.statusCode]);
 	})
 	.post(function(req, res) {
 		res.statusCode = 405;
-		res.setHeader("Content-Type", "application/html");
-		res.end("<html><body><h1> " +
-				"Method not allowed in this resource. Check the definition documentation " +
-				"</h1></body></html>");
+		res.setHeader("Content-Type", "application/json");
+        res.json(errors[res.statusCode]);
 	})
 	.delete(function(req, res) {
 		res.statusCode = 405;
-		res.setHeader("Content-Type", "application/html");
-		res.end("<html><body><h1> " +
-				"Method not allowed in this resource. Check the definition documentation " +
-				"</h1></body></html>");
-	})
+		res.setHeader("Content-Type", "application/json");
+        res.json(errors[res.statusCode]);
+	});
 	
 //
 //handling individual items in the collection
@@ -325,25 +316,19 @@ app.route("/Charts")
 	})
 	.put(function(req, res) {
 		res.statusCode = 405;
-		res.setHeader("Content-Type", "application/html");
-		res.end("<html><body><h1> " +
-				"Method not allowed in this resource. Check the definition documentation " +
-				"</h1></body></html>");
+		res.setHeader("Content-Type", "application/json");
+        res.json(errors[res.statusCode]);
 	})
 	.post(function(req, res) {
 		res.statusCode = 405;
-		res.setHeader("Content-Type", "application/html");
-		res.end("<html><body><h1> " +
-				"Method not allowed in this resource. Check the definition documentation " +
-				"</h1></body></html>");
+		res.setHeader("Content-Type", "application/json");
+        res.json(errors[res.statusCode]);
 	})
 	.delete(function(req, res) {
 		res.statusCode = 405;	
-		res.setHeader("Content-Type", "application/html");
-		res.end("<html><body><h1> " +
-				"Method not allowed in this resource. Check the definition documentation " +
-				"</h1></body></html>");
-	})
+		res.setHeader("Content-Type", "application/json");
+        res.json(errors[res.statusCode]);
+	});
 
 //
 //URL: /Results
@@ -365,32 +350,26 @@ app.route("/Results")
 	console.log(stringList);
 	
 	res.statusCode = 200;
-	res.setHeader("Content-Type", "application/html");
+	res.setHeader("Content-Type", "application/json");
 	res.end("<html><body><h1> Results stored untill now </h1>" +
 			stringList +
 			"</body></html>");	
 	})
 	.put(function(req, res) {
 		res.statusCode = 405;
-		res.setHeader("Content-Type", "application/html");
-		res.end("<html><body><h1> " +
-				"Method not allowed in this resource. Check the definition documentation " +
-				"</h1></body></html>");
+		res.setHeader("Content-Type", "application/json");
+		res.json(errors[res.statusCode]);
 	})
 	.post(function(req, res) {
 		res.statusCode = 405;
-		res.setHeader("Content-Type", "application/html");
-		res.end("<html><body><h1> " +
-				"Method not allowed in this resource. Check the definition documentation " +
-				"</h1></body></html>");
+		res.setHeader("Content-Type", "application/json");
+		res.json(errors[res.statusCode]);
 	})
 	.delete(function(req, res) {
 		res.statusCode = 405;
-		res.setHeader("Content-Type", "application/html");
-		res.end("<html><body><h1> " +
-				"Method not allowed in this resource. Check the definition documentation " +
-				"</h1></body></html>");
-	})
+		res.setHeader("Content-Type", "application/json");
+		res.json(errors[res.statusCode]);
+	});
 
 ///HEAVY OPS
 
@@ -426,11 +405,6 @@ callbackApp.route("/callback/:myRefID")
 //PUT 		not allowed, returns 405
 //DELETE 	not allowed, returns 405
 //
-
-/*app.param('statID', function(req, res, next, statID){
-	req.stat_id = statID;
-	return next()
-	})*/
 	
 app.route("/Users/:userID/Datasets/:datasetID/Stats")
 	.post(statisticalController.postStatisticals);
@@ -438,10 +412,8 @@ app.route("/Users/:userID/Datasets/:datasetID/Stats")
 callbackApp.route("/Users/:userID/Datasets/:datasetID/Transf/:transfID/Results/:callbackID")
     .get(function(req, res) {
         res.statusCode = 405;
-        res.setHeader("Content-Type", "application/html");
-        res.end("<html><body><h1> " +
-            "Method not allowed in this resource. Check the definition documentation " +
-            "</h1></body></html>");
+        res.setHeader("Content-Type", "application/json");
+        res.json(errors[res.statusCode]);
     })
     .post(function(req, res) {
         // reply back
@@ -467,12 +439,7 @@ callbackApp.route("/Users/:userID/Datasets/:datasetID/Transf/:transfID/Results/:
 //DELETE 	not allowed, returns 405
 //
 
-app.param('transfID', function(req, res, next, transfID){
-	req.transf_id = transfID;
-	return next()
-	})
-	
-app.route("/Users/:userID/Datasets/:datasetID/Transf/:transfID")
+app.route("/Users/:userID/Datasets/:datasetID/Transf")
 	.get(transformationController.getTransformations)
 	.post(transformationController.postTransformations)
 	.put(transformationController.putTransformations)

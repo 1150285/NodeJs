@@ -31,7 +31,7 @@ paths:
         201:
           description: User successfully created.
           schema:
-            $ref: '#/definitions/UsersResponse'
+            $ref: '#/definitions/UserResponse'
         400:
           description: Bad request. Check the definition documentation.
     get:
@@ -48,7 +48,10 @@ paths:
         200:
           description: User(s) was/were found.
           schema:
-            $ref: '#/definitions/UserListResponse'
+            type: array
+            items: {
+              "$ref": "#/definitions/SimpleUser"
+            }
         400:
           description: Bad request. Check the definition documentation.
   /Users/{UserID}:
@@ -95,7 +98,7 @@ paths:
           in: body
           required: true
           schema:
-            $ref: '#/definitions/UsersRequest'
+            $ref: '#/definitions/UserRequest'
       responses:
         200:
           description: User successfully updated.
@@ -124,12 +127,12 @@ paths:
           in: body
           required: true
           schema:
-            $ref: '#/definitions/Dataset'
+            $ref: '#/definitions/DatasetRequest'
       responses:
         201:
           description: Dataset created successfully.
           schema:
-            $ref: '#/definitions/DatasetID'
+            $ref: '#/definitions/DatasetResponse'
         400:
           description: Bad request. Check the definition documentation.
     get:
@@ -150,7 +153,10 @@ paths:
         200:
           description: Dataset(s) was/were found.
           schema:
-              $ref: '#/definitions/DatasetListResponse'
+            type: array
+            items: {
+              "$ref": "#/definitions/Dataset"
+            }
         400:
           description: Bad request. Check the definition documentation.
         404:
@@ -159,7 +165,7 @@ paths:
     get:
       tags:
         - Datasets
-      description: Gets the information for a specific DatasetID 
+      description: Gets the information for a specific DatasetID
       consumes:
         - application/json
         - application/xml
@@ -260,15 +266,15 @@ paths:
           schema:
             type: array
             items: {
-              $ref: '#/definitions/Stat'
+              $ref: '#/definitions/Macro'
             }
             description: Description of macro.
-                  
+
       responses:
         201:
           description: Macro was successfully created.
           schema:
-              $ref: '#/definitions/Dataset'
+              $ref: '#/definitions/Macro'
         400:
             description: Bad request. Check the definition documentation.
     get:
@@ -290,10 +296,9 @@ paths:
         200:
           description: Macro(s) was/were found.
           schema:
-            description: List of macros of current user.
             type: array
             items: {
-              $ref: '#/definitions/Macros'
+              "$ref": "#/definitions/Macro"
             }
         400:
           description: Bad request. Check the definition documentation.
@@ -323,7 +328,7 @@ paths:
           in: body
           required: true
           schema:
-            $ref: '#/definitions/Macros'
+            $ref: '#/definitions/Macro'
       responses:
         200:
           description: Macro successfully updated
@@ -410,29 +415,16 @@ paths:
          required: true
          description: Number of statID
          type: string
-       - name: row
-         in: query
+       - name: body
+         in: body
          required: false
-         description: Row number of dataset
-         type: integer
-       - name: col
-         in: query
-         required: false
-         description: Column number of dataset
-         type: integer
-       - name: MyRef
-         in: query
-         required: true
-         description: Reference for callback after operation finishes
-         type: string
-       - name: URLCallback
-         in: query
-         required: true
-         description: URL for callback after operation finishes
-         type: string
+         schema:
+          $ref: '#/definitions/StatRequest'
       responses:
-        202:
-          description: Accepted.
+        200:
+          description: Ok
+          schema:
+            $ref: '#/definitions/StatResponse'
         400:
           description: Bad request. Check the definition documentation.
   /Users/{UserID}/Datasets/{DatasetID}/Transfs?TransfID=TransfID:
@@ -459,23 +451,16 @@ paths:
          in: query
          required: true
          type: string
-       - name: value
-         in: query
-         description: value of the transformation. 
-         type: string
-       - name: MyRef
-         in: query
+       - name: body
+         in: body
          required: true
-         description: Reference for callback after operation finishes
-         type: string
-       - name: URLCallback
-         in: query
-         required: true
-         description: URL for callback after operation finishes
-         type: string
+         schema:
+            $ref: "#/definitions/TrnsfRequest"
       responses:
         202:
           description: Accepted.
+          schema:
+            $ref: "#/definitions/TrnsfResponse"
         400:
           description: Bad request. Check the definition documentation.
         default:
@@ -486,7 +471,7 @@ paths:
     post:
       tags:
         - Stats
-      description: Calculate stat of entire dataset
+      description: Calculate macro of entire dataset
       consumes:
         - application/json
         - application/xml
@@ -506,78 +491,55 @@ paths:
          in: query
          required: true
          type: string
-       - name: row
-         in: query
-         required: false
-         description: Row number of dataset
-         type: integer
-       - name: col
-         in: query
-         required: false
-         description: Column number of dataset
-         type: integer
-       - name: MyRef
-         in: query
-         required: true
-         description: Reference for callback after operation finishes
-         type: string
-       - name: URLCallback
-         in: query
-         required: true
-         description: URL for callback after operation finishes
-         type: string
       responses:
         202:
           description: Accepted.
+          schema:
+            $ref: "#/definitions/MacroResult"
         400:
           description: Bad request. Check the definition documentation.
 definitions:
-  DatasetListResponse: 
-    type: array
-    items: {
-        "$ref": "#/definitions/Dataset"
-    }
-    description: The List of datasets.
-  Macros:
-    type: array
-    items: {
-        "$ref": "#/definitions/Item"
-      }
+  Macro:
+    type : object
+    properties:
+      id:
+        type: integer
+      items:
+        type: array
+        items: {
+            "$ref": "#/definitions/Item"
+          }
+  MacroResult:
+    type : object
+    properties:
+      result_url:
+        type: integer
   Item:
     type : object
     properties:
-      order: 
+      order:
         type: integer
       stat:
         type: object
         properties:
           id:
             type: string
-          value:
-            type: integer
       transform:
         type: object
         properties:
           id:
             type: string
-  Trnsfs:
+          value:
+            type: integer
+  TrnsfRequest:
     type: object
     properties:
-      transf_id:
-        type: string
-      desc_transfs:
+      value:
         type: string
   TrnsfResponse:
-    type: array
-    items: {
-      "$ref": "#/definitions/Trnsfs"
-    }
-  Stat:
     type: object
     properties:
-      stat_id:
-        type: string
-      desc_stat:
+      result_url:
         type: string
   Chart:
     type: object
@@ -594,78 +556,91 @@ definitions:
         format: int32
       message:
         type: string
-      fields:
-        type: string
-
-  User:
+  SimpleUser:
     type: object
     properties:
-      full name:
-        type: string
-        description: Your full name.
       username:
         type: string
         description: Unique identifier as nickname. e.g. user123
+      full name:
+        type: string
+        description: Your full name.
+  User:
+    type: object
+    properties:
+      username:
+        type: string
+        description: Unique identifier as nickname. e.g. user123
+      full name:
+        type: string
+        description: Your full name.
       password:
         type: string
         description: Your password code.
-  UsersRequest:
+  UserRequest:
     type: object
     properties:
       full name:
         type: string
         description: Your full name.
-  UsersResponse:
+  UserResponse:
     type: object
     properties:
       username:
         type: string
         description: Your full name confirming that you logged with sucess.
-  UserListResponse: 
-    type: array
-    items: {
-        "$ref": "#/definitions/User"
-    }
-    description: The List of users.
   Dataset:
     type: object
     properties:
-      rows:
+      idDataset:
         type: integer
         description: The qtd. line number of dataset.
-      cols:
+      numRows:
+        type: integer
+        description: The qtd. line number of dataset.
+      numCols:
         type: integer
         description: The qtd. column number of dataset.
       values:
-        type: string
-        description: List of values of dataset separeted by comma.
+        type: array
+        items: {
+            type: integer
+          }
+        description: Array of values of dataset.
   DatasetRequest:
     type: object
     properties:
-      rows:
+      numRows:
         type: integer
         description: The qtd. line number of dataset.
-      cols:
+      numCols:
         type: integer
         description: The qtd. column number of dataset.
       values:
-        type: string
-        description: List of values of dataset separeted by comma.
-  DatasetID:
+        type: array
+        items: {
+            type: integer
+          }
+        description: Array of values of dataset.
+  DatasetResponse:
     type: object
     properties:
       dataset_id:
         type: string
-        description: Unique identifier representing a specific dataset id.
+        description: Unique identifier representing a specific dataset created.
+  StatRequest:
+    type: object
+    properties:
+      row:
+        type: integer
+      col:
+        type: integer
   StatResponse:
     type: object
     properties:
       stat_id:
         type: string
         description: Unique identifier representing a specific statistic math id
-      stat_type:
-        type: string
-        description: the type of stat. E.g. StatMeasure, Transformations, Charts.
-      desc_stat:
-        type: string
-        description: description of operation stat.
+      result:
+        type: integer
+        description: Result of the statistical calculation.

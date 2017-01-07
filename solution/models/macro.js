@@ -1,8 +1,22 @@
 var mongoose = require('../db/db'),
     Schema = mongoose.Schema,
     autoIncrement = require('mongoose-auto-increment');
-var Transformation = require('../models/transformation');
-var Statistical = require('../models/statistical');
+
+var item = mongoose.Schema({
+
+    transf_id: {
+        type: String,
+        required: false
+    },
+    stat_id: {
+        type: String,
+        required: false
+    },
+    value: {
+        type: Number,
+        required: false
+    }
+},{ _id : false });
 
 var macroSchema = new mongoose.Schema({
     idMacro: {
@@ -10,23 +24,14 @@ var macroSchema = new mongoose.Schema({
         unique: true,
         required: true
     },
-    list: [
-        {   order: Number,
-            transformation: {
-                type: mongoose.Schema.Types.ObjectId, ref: 'Transformation',
-                required: false
-            },
-            statistical: {
-                type: mongoose.Schema.Types.ObjectId, ref: 'Statistical',
-                required: false
-            }
-        }
+    items: [
+        item
     ],
     description: {
         type: String,
         required: false
     }
-});
+},{ _id : false });
 
 autoIncrement.initialize(mongoose);
 macroSchema.plugin(autoIncrement.plugin, { model: 'Macro', field: 'idMacro', startAt: 1});

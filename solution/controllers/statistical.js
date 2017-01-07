@@ -15,6 +15,12 @@ const MAX = 8;
 const callbackPort = process.env.PORT || 3005;
 const CALLBACK_ROOT = "http://localhost:" + callbackPort;
 
+var errors = {};
+errors['404'] = {code: 404, message: "Item not found!"};
+errors['409'] = {code: 409, message: "Conflict, item already exists!"};
+errors['400'] = {code: 400, message: "Bad Request!"};
+errors['405'] = {code: 405, message: "Method not allowed in this resource!"};
+
 var SequenceID = 1;
 /*
  * Function for auto-increment Callbacks ID
@@ -26,9 +32,8 @@ function getSequence(seqtype) {
 
 exports.postStatisticals = function(req, res) {
     console.log("»»» Accepted POST request to calculate statID:  " + req.query.StatID + "for DatasetID: " + req.dataset_id + " and UserID: " + req.username );
-    if (req.username && req.dataset_id && req.query.StatID ) {
+    if (req.params.datasetID && req.params.datasetID && req.query.StatID ) {
         callbackID = getSequence("stID");
-        var urlCallback = CALLBACK_ROOT + "/Users/" + req.username + "/Datasets/" + req.dataset_id + "/Stats/"+req.query.StatID+"/Results"
 
         var datasetV = "";
         var result = 0;
@@ -63,22 +68,18 @@ exports.postStatisticals = function(req, res) {
             else if(MAX == req.query.StatID){
                 result = stat.max(datasetV.values);
             }
-			res.setHeader("Content-Type", "application/html");
-        res.end("<html><body><h1> " +
-            "<p>Success!... Your request result is "+result+"</p>" +
-            "</h1></body></html>");
+			res.setHeader("Content-Type", "application/json");
+
+            var StatResponse = {stat_id:req.query.StatID,result:result};
+        res.json(StatResponse);
 
         })
         
     } else {
-        if (req.username === undefined || req.dataset_id === undefined || req.stat_id === undefined) {
             res.statusCode = 400;
-            res.setHeader("Content-Type", "application/html");
-            res.end("<html><body><h1> " +
-                "Bad request. Check the definition documentation. " +
-                "</h1></body></html>");
+            res.setHeader("Content-Type", "application/json");
+            res.json(errors[res.statusCode]);
             console.log("»»» Bad request. Check the definition documentation.");
-        }
     }
 };
 

@@ -3,78 +3,27 @@ global functions
 ************/
 
 var User = require('../models/user');
+var errors =  {};
+errors['404'] = {code: 404, message: "Dataset not found!"};
+var allDatasets = [];
+var dataset = {};
+var contentValues = [];
 
-exports.printDatasetHTML = function (dataset) {
+exports.printAllDatasetsJson = function (dataset) {
 
     var values = [];
-    var datasetTableValuesFinal = "";
-    for(item = 0; item < dataset.length; item++) {
+	
+    for(var item = 0; item < dataset.length; item++) {
+		
+		allDatasets.push(dataset[item]);
+					
+	}
+    return allDatasets;
+}
 
-    	var dataset_id = dataset[item].idDataset;
-	    var datasetTableValues = "";
-	    var rows = dataset[item].numRows;
-	    var cols = dataset[item].numCols;
-	    var line = 0;
-	    var column = 0;
-		var arrayPosition = 0;
-	
-	    var tableDatasetError = "<html><head>" +
-	        "<style>table { font-family: arial, sans-serif; border-collapse: collapse; width: 100%; } " +
-	        "td, th { border: 1px solid #dddddd; text-align: center; padding: 8px; } " +
-	        "tr:nth-child(even) { background-color: #dddddd; } </style> " +
-	        "</head><body><table>" +
-	        "<tr>" +
-	        "<th>Dataset</th>" +
-	        "</tr>" +
-	        "<tr>" +
-	        "<td>Error. There are no Datasets to see yet. Create one first!</td>" +
-	        "</tr>" +
-	        "</table></body></html>"
-	
-	    if (rows != 0) {
-	        if (cols != 0) {
-	            const tableDatasetHead = "<html><head>" +
-	                "<style>table { font-family: arial, sans-serif; border-collapse: collapse; width: 100%; } " +
-	                "td, th { border: 1px solid #dddddd; text-align: center; padding: 8px; } " +
-	                "tr:nth-child(even) { background-color: #dddddd; } </style> " +
-	                "</head><body><table style='width:100%' >";
-	
-	            var tableDatasetBody =
-	                "<tr>" +
-	                "<th colspan='" + (cols + 1 ) + "'>Dataset ID: " + dataset_id + "</th>" +
-	                "</tr>" +
-	                "<tr>" +
-	                "<td>Row X Col</td>";
-	            for(column = 0; column < cols; column++) {
-	
-	                tableDatasetBody += "<td>" + (column + 1) + "</td>";
-	            }
-	            tableDatasetBody +=
-	                "</tr>" +
-	                "<tr>" ;
-	            
-                for(line = 0; line < rows; line++) {
-                    tableDatasetBody += "<td>" + (line + 1) + "</td>" ;
-                    for(column = 0; column < cols; column++) {
-                        tableDatasetBody += "<td>" + dataset[item].values[arrayPosition] + "</td>" ;
-                        arrayPosition++
-                    }
-                    tableDatasetBody +=
-                        "</tr>" +
-                        "<tr>" ;
-                }
-	            
-	            const tableDatasetTail = "</tr></table></body></html>";
-	            datasetTableValues = tableDatasetHead + tableDatasetBody + tableDatasetTail;
-	        } else {
-	            datasetTableValues = tableDatasetError;
-	        }
-	    } else {
-	        datasetTableValues = tableDatasetError;
-	    }
-	        datasetTableValuesFinal = datasetTableValuesFinal.concat(datasetTableValues);
-    }
-    return datasetTableValuesFinal;
+exports.printOneDatasetJson = function (dataset) {
+
+    return dataset[0];
 }
 
 exports.buildRandomDataset = function(lines, columns) {

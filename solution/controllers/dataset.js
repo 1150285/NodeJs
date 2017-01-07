@@ -8,8 +8,7 @@ var mongoose = require('mongoose');
 //Functions.buildRandomDataset(2, 7);
 
 var errors = {};
-errors['404'] = {code: 404, message: "Item not found!"};
-errors['409'] = {code: 409, message: "Conflict, item already exists!"};
+errors['404'] = {code: 404, message: "Dataset not found!"};
 errors['400'] = {code: 400, message: "Bad Request!"};
 errors['405'] = {code: 405, message: "Method not allowed in this resource!"};
 
@@ -56,13 +55,13 @@ exports.postDatasets = function(req, res) {
 		    var arraySize = (req.body.rows * req.body.cols );
             if (arraySize === req.body.values.length) {
 
-                var dataset = new Dataset({
+                var dataset1 = new Dataset({
                     dataset_id: mongoose.Types.ObjectId(),
                     numRows: req.body.rows,
                     numCols: req.body.cols,
                     values: req.body.values
                 });
-                dataset.save(
+                dataset1.save(
                     function (err, dataset) {
                         if (err) {
                             res.statusCode = 400;
@@ -103,14 +102,13 @@ exports.postDatasets = function(req, res) {
 				}
 			}
 
-			var id = mongoose.Types.ObjectId();
-			var dataset = new Dataset({
+			var dataset2 = new Dataset({
 				numRows: dataMatrix.numRows,
 				numCols: dataMatrix.numCols,
 				values: values
 			});
 
-			dataset.save(
+			dataset2.save(
 				function(err, dataset) {
 					if (err) {
 						res.statusCode = 400;
@@ -246,27 +244,24 @@ exports.putDataset = function (req, res) {
 exports.deleteDataset = function(req, res) {
 
     console.log("»»» Accepted DELETE to this resource. Develop here what happens");
-    Dataset.findOneAndRemove({idDataset: req.dataset_id}, function (err, dataset) {
-        if (!err) {
-
-            if (dataset === null) {
-                res.statusCode = 404;
-                res.setHeader("Content-Type", "application/json");
-                res.json(errors[res.statusCode]);
-                console.log("»»» The Dataset: " + req.dataset_id + " was not found for Delete! ");
-            }
-            else {
-                console.log("»»» Delete OK. Do a GET do see Results");
-                res.statusCode = 204;
-                res.setHeader("Content-Type", "application/json");
-                res.json();
-            }
+    Dataset.findOneAndRemove({idDataset: req.params.datasetID}, function (err, dataset) {
+        if (err) {
+			res.statusCode = 404;
+			res.setHeader("Content-Type", "application/json");
+			res.json(errors[res.statusCode]);
+			console.log("»»» The Dataset: " + req.dataset_id + " was not found for Delete! ");
         }
-        else {
+        if (dataset === null) {
             res.statusCode = 404;
             res.setHeader("Content-Type", "application/json");
             res.json(errors[res.statusCode]);
             console.log("»»» The Dataset: " + req.dataset_id + " was not found for Delete! ");
+        }
+        else {
+            console.log("»»» Delete OK. Do a GET do see Results");
+            res.statusCode = 204;
+            res.setHeader("Content-Type", "application/json");
+            res.json();
         }
 
     });

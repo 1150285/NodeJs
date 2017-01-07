@@ -41,3 +41,12 @@ exports.buildRandomDataset = function(lines, columns) {
         }
     );
 };
+
+/*
+ * Function for auto-increment Callbacks, Stats, or Transfs ID
+ */
+var SequenceID = 1;
+
+exports.getSequence = function () {
+    return SequenceID++;
+};

@@ -1,4 +1,3 @@
-var Statistical = require('../models/statistical');
 var Dataset = require('../models/dataset');
 var stat = require('simple-statistics');
 
@@ -12,28 +11,16 @@ const COUNT = 6;
 const MIN = 7;
 const MAX = 8;
 
-const callbackPort = process.env.PORT || 3005;
-const CALLBACK_ROOT = "http://localhost:" + callbackPort;
-
 var errors = {};
 errors['404'] = {code: 404, message: "Item not found!"};
 errors['409'] = {code: 409, message: "Conflict, item already exists!"};
 errors['400'] = {code: 400, message: "Bad Request!"};
 errors['405'] = {code: 405, message: "Method not allowed in this resource!"};
 
-var SequenceID = 1;
-/*
- * Function for auto-increment Callbacks ID
- */
-function getSequence(seqtype) {
-    if (seqtype = "stID")
-        return SequenceID++;
-}
-
 exports.postStatisticals = function(req, res) {
     console.log("»»» Accepted POST request to calculate statID:  " + req.query.StatID + "for DatasetID: " + req.dataset_id + " and UserID: " + req.username );
     if (req.params.datasetID && req.params.datasetID && req.query.StatID ) {
-        callbackID = getSequence("stID");
+        callbackID = Function.getSequence();
 
         var datasetV = "";
         var result = 0;
@@ -84,21 +71,21 @@ exports.postStatisticals = function(req, res) {
 };
 
 exports.getStatisticals = function(req, res) {
+    res.statusCode = 405;
+    res.setHeader("Content-Type", "application/json");
+    res.json(errors[res.statusCode]);
+};
 
+exports.putStatisticals = function(req, res) {
+    res.statusCode = 405;
+    res.setHeader("Content-Type", "application/json");
+    res.json(errors[res.statusCode]);
 
 };
 
-exports.getStatistical = function(req, res) {
-
-
-};
-
-exports.putStatistical = function(req, res) {
-
-
-};
-
-exports.deleteStatistical = function(req, res) {
-
+exports.deleteStatisticals = function(req, res) {
+    res.statusCode = 405;
+    res.setHeader("Content-Type", "application/json");
+    res.json(errors[res.statusCode]);
 
 };

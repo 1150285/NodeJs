@@ -40,6 +40,9 @@ var callbackApp = express();
 callbackApp.use(bodyParser.json());
 callbackApp.use(bodyParser.urlencoded({extended:true}));
 
+const port = process.env.PORT || 3001;
+const callbackPort = process.env.PORT || 3005;
+
 /************
  data store
 ************/
@@ -74,7 +77,7 @@ charts['c2'] = {chart_id: "c2",		desc_chart:"Line / bar chart of a desired row /
 charts['c3'] = {chart_id: "c3",		desc_chart:"Line / bar chart of the entire data set"};
 
 //Erros List
-errors['404'] = {code: 404, message: "User not found!"};
+errors['404'] = {code: 404, message: "User or Dataset not found!"};
 errors['400'] = {code: 400, message: "Bad Request!"};
 errors['405'] = {code: 405, message: "Method not allowed in this resource!"};
 
@@ -115,7 +118,6 @@ app.param('userID', function(req, res, next, userID){
     User.findOne({username: userID}, {username: 1},
         function (err, user) {
             if (!err) {
-                console.log("»»» User founded");
                 if (user == null) {
                     res.statusCode = 404;
                     res.setHeader("Content-Type", "application/json");
@@ -124,6 +126,7 @@ app.param('userID', function(req, res, next, userID){
 
                 }
                 else {
+                    console.log("»»» User founded");
                     return next()
                 }
             }
@@ -132,7 +135,7 @@ app.param('userID', function(req, res, next, userID){
             }
         }
 	);
-})
+});
 app.route("/Users/:userID")
 	.get(userController.getUser)
 	.post(userController.postUser)
@@ -165,16 +168,16 @@ app.route("/Users/:userID/Datasets")
 app.param('datasetID', function(req, res, next, datasetID){
 	//req.dataset_id = datasetID;
     Dataset.findOne({idDataset: datasetID}, {idDataset: 1},
-        function (err, user) {
+        function (err, dataset) {
             if (!err) {
-                console.log("»»» Dataset founded");
-                if (user == null) {
+                if (dataset == null) {
                     res.statusCode = 404;
                     res.setHeader("Content-Type", "application/json");
                     res.json(errors[res.statusCode]);
                     console.log("»»» Dataset " + datasetID + " was not found! ");
                 }
                 else {
+                    console.log("»»» Dataset founded");
                     return next()
                 }
             }
@@ -407,7 +410,11 @@ callbackApp.route("/callback/:myRefID")
 //
 	
 app.route("/Users/:userID/Datasets/:datasetID/Stats")
-	.post(statisticalController.postStatisticals);
+    .get(statisticalController.getStatisticals)
+    .post(statisticalController.postStatisticals)
+    .put(statisticalController.putStatisticals)
+    .delete(statisticalController.deleteStatisticals);
+
 
 callbackApp.route("/Users/:userID/Datasets/:datasetID/Transf/:transfID/Results/:callbackID")
     .get(function(req, res) {

@@ -2,9 +2,6 @@
 global functions
 ************/
 
-var errors =  {};
-errors['404'] = {code: 404, message: "Dataset not found!"};
-
 exports.buildRandomDataset = function(lines, columns) {
 
     var values = [];
@@ -25,14 +22,6 @@ exports.buildRandomDataset = function(lines, columns) {
         values: values
     });
 
-
-    /*    var id = mongoose.Types.ObjectId();
-     var dataset = new Dataset({
-     numRows: dataMatrix.numRows,
-     numCols: dataMatrix.numCols,
-     values: values
-     });*/
-
     dataset.save(
         function(err, dataset) {
             if (err) return console.error(err);
@@ -43,10 +32,29 @@ exports.buildRandomDataset = function(lines, columns) {
 };
 
 /*
- * Function for auto-increment Callbacks, Stats, or Transfs ID
+ * Function for auto-increment Callbacks
  */
 var SequenceID = 1;
 
 exports.getSequence = function () {
     return SequenceID++;
+};
+
+/*
+ * Function for store userID e DatasetID
+ */
+var userID = "";
+exports.getUserID = function () {
+    return this.userID;
+};
+exports.setUserID = function (userID) {
+    this.userID = userID;
+};
+
+var datasetID = "";
+exports.getDatasetID = function () {
+    return this.datasetID;
+};
+exports.setDatasetID = function (datasetID) {
+    this.datasetID = datasetID;
 };

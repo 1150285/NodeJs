@@ -1,15 +1,13 @@
 var Dataset = require('../models/dataset');
 var stat = require('simple-statistics');
+var Function = require('../controllers/functions');
 
-const GEOMETRIC_MEAN = 0;
-const MEDIAN = 1;
-const MODE = 2;
-const MID_RANGE = 3;
-const VARIANCE = 4;
-const STD_DEVIATION = 5;
-const COUNT = 6;
-const MIN = 7;
-const MAX = 8;
+const GEOMETRIC_MEAN = 1;
+const MEDIAN = 2;
+const MODE = 3;
+const MID_RANGE = 4;
+const VARIANCE = 5;
+const STD_DEVIATION = 6;
 
 var errors = {};
 errors['404'] = {code: 404, message: "Item not found!"};
@@ -18,13 +16,13 @@ errors['400'] = {code: 400, message: "Bad Request!"};
 errors['405'] = {code: 405, message: "Method not allowed in this resource!"};
 
 exports.postStatisticals = function(req, res) {
-    console.log("»»» Accepted POST request to calculate statID:  " + req.query.StatID + "for DatasetID: " + req.dataset_id + " and UserID: " + req.username );
-    if (req.params.datasetID && req.params.datasetID && req.query.StatID ) {
+    console.log("»»» Accepted POST request to calculate statID:  " + req.query.StatID + " for DatasetID: " + Function.getDatasetID() + " and UserID: " + Function.getUserID() );
+    if (req.query.StatID ) {
         callbackID = Function.getSequence();
 
         var datasetV = "";
         var result = 0;
-        Dataset.find({ idDataset: req.dataset_id },function (err, dataset) {
+        Dataset.find({ idDataset: Function.getDatasetID() },function (err, dataset) {
             if (err) return console.error(err);
             console.log(dataset);
             datasetV = dataset[0];
@@ -46,20 +44,10 @@ exports.postStatisticals = function(req, res) {
             else if(STD_DEVIATION == req.query.StatID){
                 result = stat.standardDeviation(datasetV.values);
             }
-            else if(COUNT == req.query.StatID){
-                result = datasetV.values.length;
-            }
-            else if(MIN == req.query.StatID){
-                result = stat.min(datasetV.values);
-            }
-            else if(MAX == req.query.StatID){
-                result = stat.max(datasetV.values);
-            }
-			res.setHeader("Content-Type", "application/json");
-
             var StatResponse = {stat_id:req.query.StatID,result:result};
-        res.json(StatResponse);
-
+            res.statusCode = 200;
+            res.setHeader("Content-Type", "application/json");
+            res.json(StatResponse);
         })
         
     } else {

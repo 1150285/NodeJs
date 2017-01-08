@@ -16,6 +16,7 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var request = require('request');
 
+
 var app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
@@ -63,16 +64,6 @@ function calculation(callbackURL, myRefValue, oper_id, dataset_id, username) {
  * DELETE 	delete an user, returns 200 or 404
 **/
 
-app.param('userID', function(req, res, next, userID){
-	req.username = userID;
-	return next()
-	})
-
-app.param('datasetID', function(req, res, next, datasetID){
-	req.dataset_id = datasetID;
-	return next()
-	})
-
 app.param('operID', function(req, res, next, operID){
 	req.oper_id = operID;
 	return next()
@@ -81,20 +72,20 @@ app.param('operID', function(req, res, next, operID){
 app.route("/HeavyOps/:userID/:datasetID/:operID") 
 	.post(function(req, res) {
 		
-		console.log("»»» Accepted POST request to calculate operID: " + req.oper_id + " for DatasetID: " + req.dataset_id + " and UserID: " + req.username + " Develop here what happens");
+		console.log("»»» Accepted POST request to /HeavyOps with operID: " + req.oper_id + " for DatasetID: " + Function.getDatasetID() + " and UserID: " + Function.getUserID());
 		
 		//validate mandatory body fields in this IF
 		if (req.body.callbackURL && req.body.myRef) {
 					
 			// queue the request - handle it when possible - remove it after tests
 			
-			calculation(req.body.callbackURL, req.body.myRef, req.oper_id, req.dataset, req.username);
+			calculation(req.body.callbackURL, req.body.myRef, req.oper_id, req.dataset, Function.getUserID());
 
 			// send 202 Accepted
 			res.statusCode = 202;
 			res.setHeader("Content-Type", "application/html");
 			res.end("<html><body><h1> " + 
-					"Accepted POST request to calculate operID: " + req.oper_id + " for DatasetID: " + req.dataset_id + "and UserID: " + req.unsername + 
+					"Accepted POST request to calculate operID: " + req.oper_id + " for DatasetID: " + Function.getDatasetID() + "and UserID: " + req.unsername + 
 					"<h2><br>Your CallbackID is: " + req.body.myRef + "</br></h2>" +
 					"</h1></body></html>");
 			

@@ -22,6 +22,7 @@ var authController = require('./controllers/auth');
 var macroController = require('./controllers/macro');
 var transformationController = require('./controllers/transformation');
 var statisticalController = require('./controllers/statistical');
+var Function = require('./controllers/functions');
 
 var User = require('./models/user');
 var Dataset = require('./models/dataset');
@@ -60,12 +61,12 @@ stats['s5'] = {stat_id: "5",  	desc_stat:"Variance" };
 stats['s6'] = {stat_id: "6",  	desc_stat:"Standard deviation"};
 
 //Perform transformations on the data set (without changing the original data set)
-transfs['t1'] = {transf_id: "t1", desc_transfs:"Transpose the dataset" };
-transfs['t2'] = {transf_id: "t2", desc_transfs:"Scale" };
-transfs['t3'] = {transf_id: "t3", desc_transfs:"Add a scalar" };
-transfs['t4'] = {transf_id: "t4", desc_transfs:"Add two data sets" };
-transfs['t5'] = {transf_id: "t5", desc_transfs:"Multiply two data sets" };
-transfs['t6'] = {transf_id: "t6", desc_transfs:"Augment the data set using linear interpolation on the rows or columns"};
+transfs['t1'] = {transf_id: "1", desc_transfs:"Transpose the dataset" };
+transfs['t2'] = {transf_id: "2", desc_transfs:"Scale" };
+transfs['t3'] = {transf_id: "3", desc_transfs:"Add a scalar" };
+transfs['t4'] = {transf_id: "4", desc_transfs:"Add two data sets" };
+transfs['t5'] = {transf_id: "5", desc_transfs:"Multiply two data sets" };
+transfs['t6'] = {transf_id: "6", desc_transfs:"Augment the data set using linear interpolation on the rows or columns"};
 
 //Return a chart representation (image binary file) of the dataset
 charts['c1'] = {chart_id: "c1",		desc_chart:"Pie chart of a desired row / column"};
@@ -120,7 +121,8 @@ app.param('userID', function(req, res, next, userID){
 
                 }
                 else {
-                    console.log("»»» User founded");
+                    console.log("»»» User " + userID + " founded");
+                    Function.setUserID(userID);
                     return next()
                 }
             }
@@ -129,6 +131,7 @@ app.param('userID', function(req, res, next, userID){
             }
         }
 	);
+
 });
 app.route("/Users/:userID")
 	.get(userController.getUser)
@@ -169,8 +172,9 @@ app.param('datasetID', function(req, res, next, datasetID){
                     console.log("»»» Dataset " + datasetID + " was not found! ");
                 }
                 else {
-                    console.log("»»» Dataset founded");
-                    return next()
+                    console.log("»»» Dataset " + datasetID + " founded");
+                    Function.setDatasetID(datasetID);
+                    return next();
                 }
             }
             else {
@@ -356,7 +360,7 @@ app.route("/Users/:userID/Results/:resultID")
 //
 //internal usage
 //
-callbackApp.route("/callback/:myRefID")
+callbackApp.route("/Callback/:myRefID")
     .post(function(req, res) {
         // reply back
         res.status(204).send("No Content");
@@ -364,6 +368,7 @@ callbackApp.route("/callback/:myRefID")
         // handle callbacks that are not sent by our server "security". postman can't invoke this endpoint directly.
         //persists the result in the resultsStoreList[].
         console.log( "The result of callback number " + req.params.myRefID + " is " + req.body.myRefValue );
+        console.log( "The result of dataset "+ req.params.statID +" callback number " + req.params.callbackID + " is " + req.url );
 
         var resultJson = {};
         resultJson.key = req.params.myRefID;
@@ -371,28 +376,6 @@ callbackApp.route("/callback/:myRefID")
 
         resultsStoreList [req.params.myRefID] = resultJson;
         console.log("»»» Received a callback request with: " + req.body.result + " for cliRef = " + req.params.myRefID + " Develop here what happens!!!");
-    });
-
-callbackApp.route("/Users/:userID/Datasets/:datasetID/Transf/:transfID/Results/:callbackID")
-    .get(function(req, res) {
-        res.statusCode = 405;
-        res.setHeader("Content-Type", "application/json");
-        res.json(errors[res.statusCode]);
-    })
-    .post(function(req, res) {
-        // reply back
-        res.status(204).send("No Content");
-        // process the response to our callback request
-        // handle callbacks that are not sent by our server "security". postman can't invoke this endpoint directly.
-        //persists the result in the resultsStoreList[].
-        console.log( "The result of dataset "+ req.params.statID +" callback number " + req.params.callbackID + " is " + req.url );
-
-        var resultJson = {};
-        resultJson.key = req.url;
-        resultJson.value = req.body.myRefValue;
-
-        resultsStoreList [req.params.myRefID] = resultJson;
-        console.log("»»» Received a callback request with: " + req.body.result + " for cliRef = " + req.url);
     });
 
 ///HEAVY OPS
@@ -412,7 +395,7 @@ app.route("/Users/:userID/Datasets/:datasetID/Stats")
     .delete(statisticalController.deleteStatisticals);
 
 //
-//URL: /Users/:userID/Datasets/:datasetID/:transfID
+//URL: /Users/:userID/Datasets/:datasetID/Transfs/:transfID
 //
 //GET 		not allowed, returns 405
 //POST 		return specific user 202 or 400

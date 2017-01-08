@@ -158,34 +158,33 @@ exports.deleteDatasets = function(req, res) {
 exports.getDataset = function(req, res) {
 
 	console.log("»»» Accepted GET to /Datasets/ID? resource.");
-	if (req.dataset_id) {
 
-		Dataset.find({ idDataset: req.dataset_id } ,{_id:0, __v:0},function (err, dataset) {
-			if (err) {
-				res.statusCode = 404 ;
-				res.setHeader("Content-Type", "application/json");
-				res.json(errors[statusCode]);
-				console.log("»»» Dataset: " + req.dataset_id + " was not found! ");
-				return console.error(err);
-			}
-			else {
-				if (dataset.length === 0) {
-					res.statusCode = 404 ;
-					res.setHeader("Content-Type", "application/json");
-					res.json(errors[statusCode]);
-					console.log("»»» Dataset: " + req.dataset_id + " was not found! ");
-					console.log(dataset);
-				}
-				else {
-					res.statusCode = 200;
-					res.setHeader("Content-Type", "application/json");
-					res.json(Functions.printOneDatasetJson(dataset));
-					console.log(dataset);
-					console.log("»»» Returned GET for the existent Dataset");
-				}
-			}
-		});
-	}
+    Dataset.find({ idDataset: Functions.getDatasetID() } ,{_id:0, __v:0},function (err, dataset) {
+        if (err) {
+            res.statusCode = 404 ;
+            res.setHeader("Content-Type", "application/json");
+            res.json(errors[statusCode]);
+            console.log("»»» Dataset: " + req.dataset_id + " was not found! ");
+            return console.error(err);
+        }
+        else {
+            if (dataset.length === 0) {
+                res.statusCode = 404 ;
+                res.setHeader("Content-Type", "application/json");
+                res.json(errors[statusCode]);
+                console.log("»»» Dataset: " + req.dataset_id + " was not found! ");
+                console.log(dataset);
+            }
+            else {
+                res.statusCode = 200;
+                res.setHeader("Content-Type", "application/json");
+                res.json(dataset);
+                console.log(dataset);
+                console.log("»»» Returned GET for the existent Dataset");
+            }
+        }
+    });
+
 };
 
 exports.postDataset = function (req, res) {

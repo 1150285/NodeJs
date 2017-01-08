@@ -1,9 +1,19 @@
+var Dataset = require('../models/dataset');
 var Transformation = require('../models/transformation');
+var Function = require('../controllers/functions');
+var request = require('request');
+
+const GEOMETRIC_MEAN = 1;
+const MEDIAN = 2;
+const MODE = 3;
+const MID_RANGE = 4;
+const VARIANCE = 5;
+const STD_DEVIATION = 6;
 
 var errors = {};
-errors['404'] = {code: 404, message: "Transformation not found!"};
+errors['404'] = {code: 404, message: "Transformations type not found!"};
 errors['400'] = {code: 400, message: "Bad Request!"};
-errors['405'] = {code: 405, message: "Method not allowed in this resource!"};
+errors['500'] = {code: 500, message: "Error while processing your request. Please try again later"};
 
 const port = process.env.PORT || 3001;
 const SERVER_ROOT = "http://localhost:" + port;
@@ -16,66 +26,69 @@ const CALLBACK_ROOT = "http://localhost:" + callbackPort;
 
 exports.getTransformations = function(req, res) {
 		res.statusCode = 405;
-		res.setHeader("Content-Type", "application/html");
+		res.setHeader("Content-Type", "application/json");
 		res.json(errors[res.statusCode]);
 };
 
 exports.postTransformations = function(req, res) {
 
-    console.log("»»» Accepted POST request to calculate transfID: " + req.query.transfID + " for DatasetID: " + req.dataset_id + " and UserID: " + req.username + " Develop here what happens");
-    if (req.username && req.dataset_id && req.query.StatID ) {
+    console.log("»»» Accepted POST to /Transformation resource for TransfID: "
+        + req.query.TransfID + " for DatasetID: " + Function.getDatasetID() + " and UserID: " + Function.getUserID() );
+
+    //if de operations type
+
+    if (req.query.TransfID ) {
         callbackID = Function.getSequence();
-        var urlCallback = CALLBACK_ROOT + "/Users/" + req.username + "/Datasets/" + req.dataset_id + "/Transf/"+req.query.StatID+"/Results"
+        var userPoolingURL = SERVER_ROOT + "/Users/" + Function.getUserID() + "/Results/" + callbackID;
+        var serverCallbackURL = CALLBACK_ROOT + "/Callback/" + callbackID;
 
-        var datasetV = "";
-        Dataset.find({ idDataset: req.dataset_id },function (err, dataset) {
-            if (err) return console.error(err);
-            console.log(dataset);
-            datasetV = dataset[0];
-            //setTimeout(function() {
-            request({
-                    uri : serverHeavyOps + "/HeavyOps/" + req.username + "/" + req.dataset_id + "/" + req.query.StatID,
-                    method: "POST",
-                    json : {text:"test of callback post", sender:"Datasheet_srv.js", callbackURL: urlCallback, myRef:callbackID , dataset:datasetV},
-                },
-                function(err, res, body){
+        Dataset.find({ idDataset: Function.getDatasetID() },function (err, dataset) {
+            if (err) return console.log(err);
+            var datasetV = dataset[0].values;
+            console.log(datasetV);
+            //setTimeout(function () {
+                request({
+                        uri: serverHeavyOps + "/HeavyOps/" + Function.getUserID() + "/" + Function.getDatasetID() + "/" + req.query.TransfID,
+                        method: "POST",
+                        json: {
+                            sender: "Datasheet_srv",
+                            callbackURL: serverCallbackURL,
+                            dataset: datasetV
+                        },
+                    },
+                    function (err) {
 
-                    if (!err && 202 === res.statusCode) {
-                        console.log("»»» Posted a Heavy Operation request and got " + res.statusCode );
-                        console.log("»»» Success!... Gets your callback results within 30 seconds in " + urlCallback  );
-                        res.statusCode = 202;
-                    } else	{
-                        console.log("»»» Internal error in HeavyOps server. Please contact system administrator. Status Code = " + res.statusCode);
-                    }
-                });
+                        if (!err && 202 === res.statusCode) {
+                            console.log("»»» Posted a Heavy Operation request and got " + res.statusCode);
+                            console.log("»»» User Pooling URL = " + userPoolingURL);
+                            res.statusCode = 202;
+                            res.setHeader("Content-Type", "application/json");
+                            res.json( {result_url : userPoolingURL} );
+                            
+                        } else {
+                            console.log("»»» Error trying to reach HeavyOps server. Please contact system administrator.");
+                            res.statusCode = 500;
+                            res.setHeader("Content-Type", "application/json");
+                            res.json(errors[res.statusCode]);
+                        }
+                    });
             //}, 2000);
-        })
-        res.setHeader("Content-Type", "application/html");
-        res.end("<html><body><h1> " +
-            "<p>Success!... Your request operation number is " + callbackID + "</p>" +
-            "<p>This is a heavy operation so gets your callback result within 30 seconds in <a href='" + urlCallback + "'" + ">Results</a></p>" +
-            "<p>Or come back to Home Page to request more operations <a href='http://localhost:3001/index.html'>Home Page</a></p>" +
-            "</h1></body></html>");
+        });
     } else {
-        if (req.username === undefined || req.dataset_id === undefined || req.stat_id === undefined) {
-            res.statusCode = 400;
-            res.setHeader("Content-Type", "application/html");
-            res.end("<html><body><h1> " +
-                "Bad request. Check the definition documentation. " +
-                "</h1></body></html>");
-            console.log("»»» Bad request. Check the definition documentation.");
-        }
+        res.statusCode = 400;
+        res.setHeader("Content-Type", "application/json");
+        res.json(errors[res.statusCode]);
     }
 };
 
 exports.putTransformations = function(req, res) {
 		res.statusCode = 405;
-		res.setHeader("Content-Type", "application/html");
+		res.setHeader("Content-Type", "application/json");
         res.json(errors[res.statusCode]);
 };
 
 exports.deleteTransformations = function(req, res) {
 		res.statusCode = 405;
-		res.setHeader("Content-Type", "application/html");
+		res.setHeader("Content-Type", "application/json");
         res.json(errors[res.statusCode]);
 };

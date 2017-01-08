@@ -16,7 +16,7 @@ var datasetSchema = new Schema({
         required: true
     },
     values: [Number]
-},{ _id : false });
+});
 
 autoIncrement.initialize(mongoose);
 datasetSchema.plugin(autoIncrement.plugin, { model: 'Dataset', field: 'idDataset', startAt: 1});

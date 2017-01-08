@@ -31,7 +31,7 @@ var macroSchema = new mongoose.Schema({
         type: String,
         required: false
     }
-},{ _id : false });
+});
 
 autoIncrement.initialize(mongoose);
 macroSchema.plugin(autoIncrement.plugin, { model: 'Macro', field: 'idMacro', startAt: 1});

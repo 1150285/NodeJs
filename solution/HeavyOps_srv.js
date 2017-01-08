@@ -42,13 +42,13 @@ function calcTranspose(serverCallbackURL, operID, dataset) {
     dataset.numCols = result.cols;
     dataset.values = result.data;
 
-    console.log(dataset);
+    //console.log(dataset);
 	
 	request({
 		uri : serverCallbackURL,
 		method: "POST",
-		json : dataset,
-	   },
+		json : {result : dataset}
+        },
 	   function(err, res){
 			if (!err) {
 				console.log("»»» Posted callback successfully in the URL: " + serverCallbackURL +

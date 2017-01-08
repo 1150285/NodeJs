@@ -79,7 +79,7 @@ errors['400'] = {code: 400, message: "Bad Request!"};
 errors['405'] = {code: 405, message: "Method not allowed in this resource!"};
 
 //Store Heavy Ops for later consulting
-resultsStoreList [1] = {ResultID : 1 , Content: "No results from Heavy Ops to see yet"} ;
+resultsStoreList [0] = {ResultID : 0 , Content: "No results from Heavy Ops to see yet"} ;
 
 // Create our Express router
 var router = express.Router();
@@ -368,11 +368,11 @@ callbackApp.route("/Callback/:myRefID")
         //persists the result in the resultsStoreList[].
         console.log( "The callback number " + req.params.myRefID + " and result = " + req.body.result +
 			" OK. Replied 204 to server HeavyOps");
-
+		console.log ("volteopoooooooooo " + req.body.result);
         var resultJson = {};
         resultJson.ResultID = req.params.myRefID;
         resultJson.Content = req.body.result;
-        resultsStoreList [req.params.myRefID] = resultJson;
+        resultsStoreList [ (parseInt(req.params.myRefID) - 1)] = resultJson;
     });
 
 ///HEAVY OPS

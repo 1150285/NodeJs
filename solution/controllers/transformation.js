@@ -47,7 +47,7 @@ exports.postTransformations = function(req, res) {
             var userPoolingURL = SERVER_ROOT + "/Users/" + Function.getUserID() + "/Results/" + callbackID;
             var serverCallbackURL = CALLBACK_ROOT + "/Callback/" + callbackID;
 
-            Dataset.findOne({idDataset: Function.getDatasetID()}, function (err, dataset) {
+            Dataset.findOne({idDataset: Function.getDatasetID()}, {_id: 0, __v: 0}, function (err, dataset) {
                 if (err) return console.log(err);
 
                 request(

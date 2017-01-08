@@ -52,7 +52,7 @@ exports.postUsers = function(req, res) {
 			// send 201 response
 			res.statusCode = 201;
 			res.setHeader("Content-Type", "application/json");
-			res.json(req.body.username);
+			res.json({username: req.body.username});
 			console.log("»»» Username: " + req.body.username + " was successfully created!");
 		});
 

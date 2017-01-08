@@ -18,7 +18,7 @@ var userSchema = new mongoose.Schema({
         type: String,
         required: true
     }
-},{ _id : false });
+});
 
 // Execute before each user.save() call
 userSchema.pre('save', function(callback) {

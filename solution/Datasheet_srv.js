@@ -79,7 +79,7 @@ errors['400'] = {code: 400, message: "Bad Request!"};
 errors['405'] = {code: 405, message: "Method not allowed in this resource!"};
 
 //Store Heavy Ops for later consulting
-resultsStoreList [1] = {ResultNumber: "No results from Heavy Ops to see yet"} ;
+resultsStoreList [1] = {ResultID : 1 , Content: "No results from Heavy Ops to see yet"} ;
 
 // Create our Express router
 var router = express.Router();
@@ -336,7 +336,7 @@ app.route("/Users/:userID/Results/:resultID")
 		console.log("»»» Accepted GET to /Result resource.");
 		res.statusCode = 200;
 		res.setHeader("Content-Type", "application/json");
-		res.json( {GET:"OK"} );
+		res.json( resultsStoreList );
 
 	})
 	.put(function(req, res) {
@@ -362,20 +362,17 @@ app.route("/Users/:userID/Results/:resultID")
 //
 callbackApp.route("/Callback/:myRefID")
     .post(function(req, res) {
-        // reply back
-        res.status(204).send("No Content");
-        // process the response to our callback request
-        // handle callbacks that are not sent by our server "security". postman can't invoke this endpoint directly.
+
+    	res.status(204).send("No Content");
+
         //persists the result in the resultsStoreList[].
-        console.log( "The result of callback number " + req.params.myRefID + " is " + req.body.myRefValue );
-        console.log( "The result of dataset "+ req.params.statID +" callback number " + req.params.callbackID + " is " + req.url );
+        console.log( "The callback number " + req.params.myRefID + " and result = " + req.body.result +
+			" OK. Replied 204 to server HeavyOps");
 
         var resultJson = {};
-        resultJson.key = req.params.myRefID;
-        resultJson.value = req.body.myRefValue;
-
+        resultJson.ResultID = req.params.myRefID;
+        resultJson.Content = req.body.result;
         resultsStoreList [req.params.myRefID] = resultJson;
-        console.log("»»» Received a callback request with: " + req.body.result + " for cliRef = " + req.params.myRefID + " Develop here what happens!!!");
     });
 
 ///HEAVY OPS

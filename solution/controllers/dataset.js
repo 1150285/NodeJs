@@ -44,24 +44,25 @@ exports.getDatasets = function(req, res) {
 
 };
 
-exports.postDatasets = function(req, res) {
-	console.log("»»» Accepted POST to .../Datasets/ resource");
+exports.postDatasets = function (req, res) {
+    console.log("»»» Accepted POST to .../Datasets/ resource");
 
-	//check if array exists. If create a random.
-    if ( req.body.values.length ) {
+    //check if array exists. If create a random.
+    if (req.body.values) {
 
-    	if (Number (req.body.rows) && Number (req.body.cols) && req.body.values ) {
+        if (Number(req.body.rows) && Number(req.body.cols)) {
 
-		    var arraySize = (req.body.rows * req.body.cols );
+            var arraySize = (req.body.rows * req.body.cols );
             if (arraySize === req.body.values.length) {
 
-                var dataset1 = new Dataset({
-                    dataset_id: mongoose.Types.ObjectId(),
+                var id = mongoose.Types.ObjectId();
+                var dataset = new Dataset({
+                    dataset_id: id,
                     numRows: req.body.rows,
                     numCols: req.body.cols,
                     values: req.body.values
                 });
-                dataset1.save(
+                dataset.save(
                     function (err, dataset) {
                         if (err) {
                             res.statusCode = 400;
@@ -89,51 +90,47 @@ exports.postDatasets = function(req, res) {
                 console.log("»»» Bad request. Check the definition documentation.");
             }
         }
-        else if (Number (req.body.rows) && Number (req.body.cols) ) {
-			
-			var values = [];
-			var dataMatrix = matrix({ rows: req.body.rows, columns: req.body.cols, values: Math.random });
-			
-			for(var row = 0; row < dataMatrix.numRows; row++) {
-				for(var col = 0; col < dataMatrix.numCols; col++) {
-					values.push( 
-						Math.round((dataMatrix[row][col]*100), 3) 
-					);
-				}
-			}
+    } else if (Number(req.body.rows) && Number(req.body.cols)) {
 
-			var dataset2 = new Dataset({
-				numRows: dataMatrix.numRows,
-				numCols: dataMatrix.numCols,
-				values: values
-			});
+        var values = [];
+        var dataMatrix = matrix({rows: req.body.rows, columns: req.body.cols, values: Math.random});
 
-			dataset2.save(
-				function(err, dataset) {
-					if (err) {
-						res.statusCode = 400;
-						res.setHeader("Content-Type", "application/json");
-						res.json(errors[res.statusCode]);
-						console.log("»»» Bad request. Check the definition documentation.");
-						return console.error(err);
-					} else {
-						var dataset_id = dataset.idDataset;
-						// send 201 response
-						res.statusCode = 201;
-						res.setHeader("Content-Type", "application/json");
-                        res.json( {"dataset_id": dataset_id} );
-						console.log("»»» A Random Dataset for username: " + req.username + " was successfully created. Your DatasetID = " + dataset_id);
-					}
-					console.log(dataset);
-				}
-			);		
-		} else {
-			res.statusCode = 400;
-			res.setHeader("Content-Type", "application/json");
-			res.json(errors[res.statusCode]);
-			console.log("»»» Bad request. Check the definition documentation.");
-		}
-	} else {
+        for (var row = 0; row < dataMatrix.numRows; row++) {
+            for (var col = 0; col < dataMatrix.numCols; col++) {
+                values.push(
+                    Math.round((dataMatrix[row][col] * 100), 3)
+                );
+            }
+        }
+
+        var id = mongoose.Types.ObjectId();
+        var dataset2 = new Dataset({
+            dataset_id: id,
+            numRows: req.body.rows,
+            numCols: req.body.cols,
+            values: req.body.values
+        });
+
+        dataset2.save(
+            function (err, dataset) {
+                if (err) {
+                    res.statusCode = 400;
+                    res.setHeader("Content-Type", "application/json");
+                    res.json(errors[res.statusCode]);
+                    console.log("»»» Bad request. Check the definition documentation.");
+                    return console.error(err);
+                } else {
+                    var dataset_id = dataset.idDataset;
+                    // send 201 response
+                    res.statusCode = 201;
+                    res.setHeader("Content-Type", "application/json");
+                    res.json({"dataset_id": dataset_id});
+                    console.log("»»» A Random Dataset for username: " + req.username + " was successfully created. Your DatasetID = " + dataset_id);
+                }
+                console.log(dataset);
+            }
+        );
+    } else {
         res.statusCode = 400;
         res.setHeader("Content-Type", "application/json");
         res.json(errors[res.statusCode]);

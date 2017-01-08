@@ -14,7 +14,6 @@
 
 var express = require('express');
 var bodyParser = require('body-parser');
-var request = require('request');
 var passport = require('passport');
 
 var userController = require('./controllers/user');
@@ -26,9 +25,6 @@ var statisticalController = require('./controllers/statistical');
 
 var User = require('./models/user');
 var Dataset = require('./models/dataset');
-
-/*var connection = require('./db/db')
-var Dataset = require('./models/dataset');*/
 
 var app = express();
 app.use(bodyParser.json());
@@ -53,7 +49,7 @@ var charts = {};
 var resultsStoreList = [];
 var errors = {};
 
-// INITIAL DATA
+// FIXED DATA
 
 //Calculate statistical measures of a row, column, entire data set
 stats['s1'] = {stat_id: "1",  	desc_stat:"Geometric mean" };
@@ -86,9 +82,7 @@ resultsStoreList [1] = {ResultNumber: "No results from Heavy Ops to see yet"} ;
 
 // Create our Express router
 var router = express.Router();
-// Register all our routes with /api
 app.use('/', router);
-
 
 /// Users
 
@@ -150,7 +144,6 @@ app.route("/Users/:userID")
 //POST		create new dataset, returns 201 or 400
 //PUT 		not allowed, returns 405
 //DELETE 	not allowed, returns 405
-
 app.route("/Users/:userID/Datasets")
     .get(authController.isAuthenticated,datasetController.getDatasets)
 	.post(authController.isAuthenticated,datasetController.postDatasets)
@@ -164,7 +157,6 @@ app.route("/Users/:userID/Datasets")
 //POST 		not allowed, returns 405
 //PUT 		overwrite data for existent dataset, returns 200, 400 or 404 
 //DELETE 	delete an dataset, returns 200 or 404
-
 app.param('datasetID', function(req, res, next, datasetID){
 	//req.dataset_id = datasetID;
     Dataset.findOne({idDataset: datasetID}, {idDataset: 1},
@@ -194,7 +186,6 @@ app.route("/Users/:userID/Datasets/:datasetID")
 	.put(authController.isAuthenticated,datasetController.putDataset)
 	.delete(authController.isAuthenticated,datasetController.deleteDataset);
 
-
 ///MACROS
 
 //
@@ -207,10 +198,11 @@ app.route("/Users/:userID/Datasets/:datasetID")
 //PUT 		not allowed, returns 405
 //DELETE 	not allowed, returns  405
 //
-
 app.route("/Users/:userID/Macros")
 	.get(macroController.getMacros)
-	.post(macroController.postMacros);
+	.post(macroController.postMacros)
+    .put(macroController.postMacros)
+    .delete(macroController.postMacros);
 
 //
 //handling individual items in the collection
@@ -222,14 +214,9 @@ app.route("/Users/:userID/Macros")
 //PUT 		overwrite data for existent user, returns 200, 400 or 404 
 //DELETE 	delete an user, returns 200 or 404
 //
-
-/*app.param('macroID', function(req, res, next, macroID){
-	req.macro_id = macroID;
-	return next()
-	})*/
-
 app.route("/Users/:userID/Macros/:macroID")
 	.get(macroController.getMacro)
+    .post(macroController.getMacro)
 	.put(macroController.putMacro)
 	.delete(macroController.deleteMacro);
 
@@ -243,13 +230,11 @@ app.route("/Users/:userID/Macros/:macroID")
 //PUT 		not allowed, returns 405
 //DELETE 	not allowed, returns 405
 //
-
-app.route("/Stats") 
+app.route("/Stats")
 	.get(function(req, res) {
-	//for debug
-	//console.log(req.username);
-	console.log("»»» Accepted GET to this resource. Develop here what happens");
-	res.json(stats);
+		console.log("»»» Accepted GET to /Stat resource.");
+		res.json(stats);
+		console.log("»»» Response OK to GET /Stat resource.");
 	})
 	.put(function(req, res) {
 		res.statusCode = 405;
@@ -279,10 +264,9 @@ app.route("/Stats")
 //
 app.route("/Transfs") 
 	.get(function(req, res) {
-	//for debug
-	//console.log(req.username);
-	console.log("»»» Accepted GET to this resource. Develop here what happens");
-	res.json(transfs);
+		console.log("»»» Accepted GET to /Transfs resource.");
+		res.json(transfs);
+        console.log("»»» Response OK to GET /Transfs resource.");
 	})
 	.put(function(req, res) {
 		res.statusCode = 405;
@@ -312,10 +296,9 @@ app.route("/Transfs")
 //
 app.route("/Charts") 
 	.get(function(req, res) {
-	//for debug
-	//console.log(req.username);
-	console.log("»»» Accepted GET to this resource. Develop here what happens");
-	res.json(charts);
+		console.log("»»» Accepted GET to /Charts resource.");
+		res.json(charts);
+        console.log("»»» Response OK to GET /Charts resource.");
 	})
 	.put(function(req, res) {
 		res.statusCode = 405;
@@ -333,30 +316,24 @@ app.route("/Charts")
         res.json(errors[res.statusCode]);
 	});
 
+///RESULTS
+
 //
-//URL: /Results
+//URL: /Users/:userID/Results
 //
-//GET 		return specific user 200
+//GET 		return stored results for HeavyOps, when ready 200
 //POST 		not allowed, returns 405
 //PUT 		not allowed, returns 405
 //DELETE 	not allowed, returns 405
 //
-app.route("/Results") 
+app.route("/Users/:userID/Results/:resultID")
 	.get(function(req, res) {
 		
-	var stringList = "";
-	console.log("»»» Accepted GET to this resource. Develop here what happens ");
-	
-	for(var i = 1; i < resultsStoreList.length;i++) {
-		stringList += "<p>"+ json2html(resultsStoreList[i]) + "</p>";
-	}
-	console.log(stringList);
-	
-	res.statusCode = 200;
-	res.setHeader("Content-Type", "application/json");
-	res.end("<html><body><h1> Results stored untill now </h1>" +
-			stringList +
-			"</body></html>");	
+		console.log("»»» Accepted GET to /Result resource.");
+		res.statusCode = 200;
+		res.setHeader("Content-Type", "application/json");
+		res.json( {GET:"OK"} );
+
 	})
 	.put(function(req, res) {
 		res.statusCode = 405;
@@ -374,47 +351,27 @@ app.route("/Results")
 		res.json(errors[res.statusCode]);
 	});
 
-///HEAVY OPS
-
 //
 //URL: /callback/:myRefID
 //
 //internal usage
 //
-	
-callbackApp.route("/callback/:myRefID") 
-  .post(function(req, res) {
-    // reply back
-    res.status(204).send("No Content");
-    // process the response to our callback request
-    // handle callbacks that are not sent by our server "security". postman can't invoke this endpoint directly.
-    //persists the result in the resultsStoreList[].
-    console.log( "The result of callback number " + req.params.myRefID + " is " + req.body.myRefValue );
-    
-	var resultJson = {};
-	resultJson.key = req.params.myRefID;
-	resultJson.value = req.body.myRefValue;
-	
-    resultsStoreList [req.params.myRefID] = resultJson;
-	console.log("»»» Received a callback request with: " + req.body.result + " for cliRef = " + req.params.myRefID + " Develop here what happens!!!");
-  });
+callbackApp.route("/callback/:myRefID")
+    .post(function(req, res) {
+        // reply back
+        res.status(204).send("No Content");
+        // process the response to our callback request
+        // handle callbacks that are not sent by our server "security". postman can't invoke this endpoint directly.
+        //persists the result in the resultsStoreList[].
+        console.log( "The result of callback number " + req.params.myRefID + " is " + req.body.myRefValue );
 
+        var resultJson = {};
+        resultJson.key = req.params.myRefID;
+        resultJson.value = req.body.myRefValue;
 
-//
-//URL: /Users/:userID/Datasets/:datasetID/:statID
-//
-//GET 		not allowed, returns 405
-//POST 		return specific user 202 or 400
-//PUT 		not allowed, returns 405
-//DELETE 	not allowed, returns 405
-//
-	
-app.route("/Users/:userID/Datasets/:datasetID/Stats")
-    .get(statisticalController.getStatisticals)
-    .post(statisticalController.postStatisticals)
-    .put(statisticalController.putStatisticals)
-    .delete(statisticalController.deleteStatisticals);
-
+        resultsStoreList [req.params.myRefID] = resultJson;
+        console.log("»»» Received a callback request with: " + req.body.result + " for cliRef = " + req.params.myRefID + " Develop here what happens!!!");
+    });
 
 callbackApp.route("/Users/:userID/Datasets/:datasetID/Transf/:transfID/Results/:callbackID")
     .get(function(req, res) {
@@ -437,7 +394,24 @@ callbackApp.route("/Users/:userID/Datasets/:datasetID/Transf/:transfID/Results/:
         resultsStoreList [req.params.myRefID] = resultJson;
         console.log("»»» Received a callback request with: " + req.body.result + " for cliRef = " + req.url);
     });
-	//
+
+///HEAVY OPS
+
+//
+//URL: /Users/:userID/Datasets/:datasetID/Stats?StatID=(?)
+//
+//GET 		not allowed, returns 405
+//POST 		return specific user 202 or 400
+//PUT 		not allowed, returns 405
+//DELETE 	not allowed, returns 405
+//
+app.route("/Users/:userID/Datasets/:datasetID/Stats")
+    .get(statisticalController.getStatisticals)
+    .post(statisticalController.postStatisticals)
+    .put(statisticalController.putStatisticals)
+    .delete(statisticalController.deleteStatisticals);
+
+//
 //URL: /Users/:userID/Datasets/:datasetID/:transfID
 //
 //GET 		not allowed, returns 405
@@ -445,8 +419,7 @@ callbackApp.route("/Users/:userID/Datasets/:datasetID/Transf/:transfID/Results/:
 //PUT 		not allowed, returns 405
 //DELETE 	not allowed, returns 405
 //
-
-app.route("/Users/:userID/Datasets/:datasetID/Transf")
+app.route("/Users/:userID/Datasets/:datasetID/Transfs")
 	.get(transformationController.getTransformations)
 	.post(transformationController.postTransformations)
 	.put(transformationController.putTransformations)
@@ -460,21 +433,17 @@ app.route("/Users/:userID/Datasets/:datasetID/Transf")
 //PUT 		not allowed, returns 405
 //DELETE 	not allowed, returns 405
 //
-	
 app.route("/Users/:userID/Datasets/:datasetID/:macroID")
 	.post(macroController.postMacro);
 
-/*
- * RUNNING
- */
-	
-	
-// STARTING ...
+///RUNNING...
+
+//Starting Listening to Main Server
 app.listen(port, function() {
   console.log("Listening requests on " + port);
 });
 
-//STARTING callback
+//Starting Listening to Callback Derver
 callbackApp.listen(callbackPort, function() {
   console.log("Listening callbacks on " + callbackPort);
 });

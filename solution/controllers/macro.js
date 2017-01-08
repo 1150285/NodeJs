@@ -11,6 +11,36 @@ errors['409'] = {code: 409, message: "Conflict, Macro already exists!"};
 errors['400'] = {code: 400, message: "Bad Request!"};
 errors['405'] = {code: 405, message: "Method not allowed in this resource!"};
 
+exports.getMacros = function(req, res) {
+
+    Macro.find({},{_id: 0, __v: 0},function (err, macros) {
+        if (err) {
+            res.statusCode = 404;
+            res.setHeader("Content-Type", "application/json");
+            res.json(errors[statusCode]);
+            console.log("»»» None datasets found! ");
+            return console.error(err);
+        }
+        else {
+            if (macros.length === 0) {
+
+                res.statusCode = 404;
+                res.setHeader("Content-Type", "application/json");
+                res.json(errors[statusCode]);;
+                console.log("»»» None datasets found! ");
+            }
+            else {
+                res.statusCode = 200;
+                res.setHeader("Content-Type", "application/json");
+                res.json(macros);
+                console.log("»»» Returned GET with an existent Dataset");
+            }
+        }
+    });
+
+
+};
+
 exports.postMacros = function(req, res) {
     if (req.params.userID && req.body.items) {
         var count=0;
@@ -51,14 +81,14 @@ exports.postMacros = function(req, res) {
             );
         }else {
             res.statusCode = 400;
-            res.setHeader("Content-Type", "application/html");
+            res.setHeader("Content-Type", "application/json");
             res.json(errors[res.statusCode]);
             console.log("»»» Bad request. Check the definition documentation.");
         }
     }
     else {
         res.statusCode = 400;
-        res.setHeader("Content-Type", "application/html");
+        res.setHeader("Content-Type", "application/json");
         res.end("<html><body><h1> " +
             "Bad request. Check the definition documentation. " +
             "</h1></body></html>");
@@ -66,35 +96,19 @@ exports.postMacros = function(req, res) {
     }
 };
 
-exports.getMacros = function(req, res) {
-
-    Macro.find({},{_id: 0, __v: 0},function (err, macros) {
-        if (err) {
-            res.statusCode = 404;
-            res.setHeader("Content-Type", "application/json");
-            res.json(errors[statusCode]);
-            console.log("»»» None datasets found! ");
-            return console.error(err);
-        }
-        else {
-            if (macros.length === 0) {
-
-                res.statusCode = 404;
-                res.setHeader("Content-Type", "application/json");
-                res.json(errors[statusCode]);;
-                console.log("»»» None datasets found! ");
-            }
-            else {
-                res.statusCode = 200;
-                res.setHeader("Content-Type", "application/json");
-                res.json(macros);
-                console.log("»»» Returned GET with an existent Dataset");
-            }
-        }
-    });
-
-
+exports.putMacros = function(req, res) {
+    res.statusCode = 405;
+    res.setHeader("Content-Type", "application/json");
+    res.json(errors[res.statusCode]);
 };
+
+exports.deleteMacros = function(req, res) {
+    res.statusCode = 405;
+    res.setHeader("Content-Type", "application/json");
+    res.json(errors[res.statusCode]);
+};
+
+///////
 
 exports.getMacro = function(req, res) {
 
@@ -148,7 +162,7 @@ exports.postMacro = function(req, res) {
                 }
             });
         //}, 2000);
-        res.setHeader("Content-Type", "application/html");
+        res.setHeader("Content-Type", "application/json");
         res.end("<html><body><h1> " +
             "<p>Success!... Your request operation number is " + callbackID + "</p>" +
             "<p>This is a heavy operation so gets your callback result within 30 seconds in <a href='" + "http://localhost:3001/Results/" + "'" + ">Results</a></p>" +
@@ -157,7 +171,7 @@ exports.postMacro = function(req, res) {
     } else {
         if (req.username === undefined || req.dataset_id === undefined || req.macro_id === undefined) {
             res.statusCode = 400;
-            res.setHeader("Content-Type", "application/html");
+            res.setHeader("Content-Type", "application/json");
             res.end("<html><body><h1> " +
                 "Bad request. Check the definition documentation. " +
                 "</h1></body></html>");
@@ -166,7 +180,6 @@ exports.postMacro = function(req, res) {
     }
 
 };
-
 
 exports.putMacro = function(req, res) {
     if (req.username && req.macro_id) {
@@ -177,7 +190,7 @@ exports.putMacro = function(req, res) {
 
             // send 200 response
             res.statusCode = 200;
-            res.setHeader("Content-Type", "application/html");
+            res.setHeader("Content-Type", "application/json");
             res.end("<html><body><h1> " +
                 "Macro: " + req.macro_id + " successfully updated! " +
                 "</h1></body></html>");
@@ -187,14 +200,14 @@ exports.putMacro = function(req, res) {
     else {
         if (req.username === undefined || req.macro_id === undefined ) {
             res.statusCode = 404 ;
-            res.setHeader("Content-Type", "application/html");
+            res.setHeader("Content-Type", "application/json");
             res.end("<html><body><h1> " +
                 "Macro: or User " + req.macro_id + " or " + req.username + " not found! " +
                 "</h1></body></html>");
             console.log("»»» Macro: or User " + req.macro_id + " or " + req.username + " not found! ");
         } else {
             res.statusCode = 400;
-            res.setHeader("Content-Type", "application/html");
+            res.setHeader("Content-Type", "application/json");
             res.end("<html><body><h1> " +
                 "Bad request. Check the definition documentation. " +
                 "</h1></body></html>");
@@ -204,14 +217,13 @@ exports.putMacro = function(req, res) {
 
 };
 
-
 exports.deleteMacro = function(req, res) {
     if (req.username === undefined || req.macro_id === undefined ) {
 
         console.log("»»» Accepted DELETE to this resource. Develop here what happens");
 
         res.statusCode = 404 ;
-        res.setHeader("Content-Type", "application/html");
+        res.setHeader("Content-Type", "application/json");
         res.end("<html><body><h1> " +
             "Macro or User " + req.macro_id + " or " + req.username + " not found! " +
             "</h1></body></html>");
@@ -225,14 +237,14 @@ exports.deleteMacro = function(req, res) {
             console.log("»»» Accepted DELETE to this resource. Develop here what happens");
 
             res.statusCode = 200 ;
-            res.setHeader("Content-Type", "application/html");
+            res.setHeader("Content-Type", "application/json");
             res.end("<html><body><h1> " +
                 "Macro: " + req.macro_id + " successfully deleted for username: " + req.username +
                 "</h1></body></html>");
             console.log("»»» Macro: " + req.macro_id + " successfully deleted for username: " + req.username);
         } else {
             res.statusCode = 400;
-            res.setHeader("Content-Type", "application/html");
+            res.setHeader("Content-Type", "application/json");
             res.end("<html><body><h1> " +
                 "Bad request. Check the definition documentation. " +
                 "</h1></body></html>");

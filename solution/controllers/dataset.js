@@ -108,7 +108,7 @@ exports.postDatasets = function (req, res) {
             dataset_id: id,
             numRows: req.body.rows,
             numCols: req.body.cols,
-            values: req.body.values
+            values: values
         });
 
         dataset2.save(

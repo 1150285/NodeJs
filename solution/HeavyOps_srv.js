@@ -34,15 +34,14 @@ global functions
 ************/
 function calcTranspose(serverCallbackURL, operID, dataset) {
 
-	console.log(dataset.values);
+	console.log("Dataset before transpose", dataset);
     var myMatrix = new Matrix([dataset.values]);
     var result = myMatrix.transpose();
 	//console.log ( result );
 	dataset.numRows = result.rows;
     dataset.numCols = result.cols;
     dataset.values = result.data;
-
-    //console.log(dataset);
+    console.log("Dataset after transpose", dataset);
 	
 	request({
 		uri : serverCallbackURL,
@@ -52,7 +51,7 @@ function calcTranspose(serverCallbackURL, operID, dataset) {
 	   function(err, res){
 			if (!err) {
 				console.log("»»» Posted callback successfully in the URL: " + serverCallbackURL +
-					" and the result: " + result + " and got StatusCode: " + res.statusCode);
+					" and got StatusCode: " + res.statusCode);
 				if (204 != res.statusCode ) {
 					console.log("»»» Error trying to reach Datasheet server. " +
 						"Please contact system administrator ");
@@ -63,7 +62,6 @@ function calcTranspose(serverCallbackURL, operID, dataset) {
 					"Please contact system administrator" + err);
 			}
 	});
-	
 }
 
 /**
@@ -86,7 +84,7 @@ app.route("/HeavyOps/:operID")
 
         if ( TID == 1) {
 
-        	console.log("»»» Calculating Transpose ", req.body.datasetV);
+        	console.log("»»» Calculating Transpose");
 			calcTranspose(req.body.serverCallbackURL, req.oper_id, req.body.datasetV);
             return res.sendStatus(202);
 		}

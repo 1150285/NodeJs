@@ -366,9 +366,7 @@ callbackApp.route("/Callback/:myRefID")
     	res.status(204).send("No Content");
 
         //persists the result in the resultsStoreList[].
-        console.log( "The callback number " + req.params.myRefID + " and result = " + req.body.result +
-			" OK. Replied 204 to server HeavyOps");
-		console.log ("volteopoooooooooo " + req.body.result);
+        console.log( "»»» The callback number " + req.params.myRefID + " comes OK and replied 204 to server HeavyOps");
         var resultJson = {};
         resultJson.ResultID = req.params.myRefID;
         resultJson.Content = req.body.result;

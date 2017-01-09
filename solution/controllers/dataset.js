@@ -58,6 +58,7 @@ exports.postDatasets = function (req, res) {
                 var id = mongoose.Types.ObjectId();
                 var dataset = new Dataset({
                     dataset_id: id,
+                    username : Functions.getUserID(),
                     numRows: req.body.rows,
                     numCols: req.body.cols,
                     values: req.body.values
@@ -79,7 +80,7 @@ exports.postDatasets = function (req, res) {
                             res.setHeader("Content-Type", "application/json");
                             res.json({"dataset_id": dataset_id});
                             console.log(dataset);
-                            console.log("»»» Your specific Dataset: " + dataset_id + " was successfully created for username: " + req.username);
+                            console.log("»»» Your specific Dataset: " + dataset_id + " was successfully created for username: " + Functions.getUserID() );
                         }
                     }
                 );
@@ -106,6 +107,7 @@ exports.postDatasets = function (req, res) {
         var id = mongoose.Types.ObjectId();
         var dataset2 = new Dataset({
             dataset_id: id,
+            username : Functions.getUserID(),
             numRows: req.body.rows,
             numCols: req.body.cols,
             values: values
@@ -125,7 +127,7 @@ exports.postDatasets = function (req, res) {
                     res.statusCode = 201;
                     res.setHeader("Content-Type", "application/json");
                     res.json({"dataset_id": dataset_id});
-                    console.log("»»» A Random Dataset for username: " + req.username + " was successfully created. Your DatasetID = " + dataset_id);
+                    console.log("»»» A Random Dataset for username: " + Functions.getUserID() + " was successfully created. Your DatasetID = " + dataset_id);
                 }
                 console.log(dataset);
             }

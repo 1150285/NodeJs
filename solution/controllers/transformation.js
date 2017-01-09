@@ -78,7 +78,8 @@ exports.postTransformations = function(req, res) {
                 );
             });
         }
-        else if ( TID == Scale && Number (req.body.value) ) {
+        else if ( TID == Scale && Number (req.body.value) ||
+                  TID == Add_scalar && Number (req.body.value)) {
 
             var scalar = req.body.value;
             var callbackID = Function.getSequence();
@@ -117,11 +118,50 @@ exports.postTransformations = function(req, res) {
                 );
             });
         }
+        else if ( TID == Add_two_datasets && Number (req.body.value) ||
+                  TID == Multiply_two_datasets && Number (req.body.value) ) {
 
+            var secondDatasetID = req.body.value;
+            var callbackID = Function.getSequence();
+            var userPoolingURL = SERVER_ROOT + "/Users/" + Function.getUserID() + "/Results/" + callbackID;
+            var serverCallbackURL = CALLBACK_ROOT + "/Callback/" + callbackID;
 
+            Dataset.findOne({idDataset: Function.getDatasetID()}, {_id: 0, __v: 0}, function (err, dataset1) {
+                if (err) return console.log(err);
 
+                Dataset.findOne({idDataset: secondDatasetID }, {_id: 0, __v: 0}, function (err, dataset2) {
+                    if (err) return console.log(err);
 
-
+                    request(
+                        {
+                            uri: serverHeavyOps + "/HeavyOps/" + req.query.TransfID,
+                            method: "POST",
+                            json: {
+                                sender: "Datasheet_srv",
+                                serverCallbackURL: serverCallbackURL,
+                                datasetV1: dataset1,
+                                datasetV2: dataset2
+                            }
+                        },
+                        function (err, recall) {
+                            if (recall === undefined) {
+                                console.log("»»» Error trying to reach HeavyOps server. Please contact system administrator.");
+                                res.statusCode = 500;
+                                res.setHeader("Content-Type", "application/json");
+                                res.json(errors[res.statusCode]);
+                            }
+                            if (!err) {
+                                console.log("»»» Posted a Heavy Operation request and got 202 success");
+                                console.log("»»» Response to client with pooling URL = " + userPoolingURL);
+                                res.statusCode = 202;
+                                res.setHeader("Content-Type", "application/json");
+                                res.json({result_url: userPoolingURL});
+                            }
+                        }
+                    );
+                });
+            });
+        }
 
         else {
             res.statusCode = 400;

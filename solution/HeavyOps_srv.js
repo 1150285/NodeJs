@@ -32,7 +32,7 @@ errors['500'] = {code: 500, message: "Error while processing your request. Pleas
 /************
 global functions
 ************/
-function calcTranspose(serverCallbackURL, operID, dataset) {
+function calcTranspose(serverCallbackURL, dataset) {
 
 	console.log("Dataset before transpose", dataset);
     var myMatrix = new Matrix([dataset.values]);
@@ -67,8 +67,20 @@ function calcScale(serverCallbackURL, operID, dataset, scale) {
 
     console.log("Dataset before scale", dataset);
     var myMatrix = new Matrix(dataset.values);
-    var result = myMatrix.scalarMultiply( parseInt(scale));
-    console.log ( result );
+    //Multiply scalar
+    if (operID == 2) {
+        var result = myMatrix.scalarMultiply(parseInt(scale));
+        console.log(result);
+    }
+    //Add Scalar
+    else if (operID == 3) {
+        var sum = 0;
+        var result = myMatrix.foreach(
+            function () {
+                myMatrix.setDataPoint(0, sum, (myMatrix.get(0, sum) + parseInt(scale) ));
+                sum++;
+            });
+    }
     dataset.values = result.data;
     console.log("Dataset after scale", dataset);
 
@@ -93,6 +105,43 @@ function calcScale(serverCallbackURL, operID, dataset, scale) {
         });
 }
 
+function addOrMultiply(serverCallbackURL, operID, datasetV1, datasetV2) {
+
+    var myMatrix = new Matrix(datasetV1.values);
+    var myMatrix2 = new Matrix(datasetV2.values);
+    //Add matrix
+    if (operID == 4) {
+        console.log("Datasets before add ", datasetV1.values, datasetV2.values);
+        var datasetV3 = myMatrix.add( myMatrix2 );
+        console.log("Dataset after add ", datasetV3);
+    }
+    //Multiply matrix
+    else if (operID == 5) {
+        console.log("Datasets before Multiply", datasetV1.values, datasetV2.values);
+        var datasetV3 = myMatrix.elementWiseMultiplication( myMatrix2 );
+        console.log("Dataset after Multiply", datasetV3);
+    }
+
+    request({
+            uri : serverCallbackURL,
+            method: "POST",
+            json : {result : datasetV3}
+        },
+        function(err, res){
+            if (!err) {
+                console.log("»»» Posted callback successfully in the URL: " + serverCallbackURL +
+                    " and got StatusCode: " + res.statusCode);
+                if (204 != res.statusCode ) {
+                    console.log("»»» Error trying to reach Datasheet server. " +
+                        "Please contact system administrator ");
+                }
+            }
+            else {
+                console.log("»»» Unknown Error. Maybe Datasheet server is unavailable. " +
+                    "Please contact system administrator" + err);
+            }
+        });
+}
 /**
  * URL: 	/HeavyOps/:operID
  * GET 		return specific accepted 202 or server error 500
@@ -113,14 +162,19 @@ app.route("/HeavyOps/:operID")
 
         if ( TID == 1) {
         	console.log("»»» Calculating Transpose");
-			calcTranspose(req.body.serverCallbackURL, req.oper_id, req.body.datasetV);
+			calcTranspose(req.body.serverCallbackURL, req.body.datasetV);
             return res.sendStatus(202);
-		} else if ( TID == 2) {
+		}
+		else if ( TID == 2 || TID == 3) {
             console.log("»»» Scaling dataset in = " + req.body.scale);
             calcScale(req.body.serverCallbackURL, req.oper_id, req.body.datasetV, req.body.scale);
             return res.sendStatus(202);
         }
-
+        else if ( TID == 4 || TID == 5) {
+            console.log("»»» Got these datasets ID1 = " + req.body.datasetV1.idDataset + " e ID2 = " + req.body.datasetV2.idDataset);
+            addOrMultiply(req.body.serverCallbackURL, req.oper_id, req.body.datasetV1, req.body.datasetV2);
+            return res.sendStatus(202);
+        }
 
 		
 	})

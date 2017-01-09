@@ -524,8 +524,10 @@ definitions:
   Macro:
     type : object
     properties:
-      id:
+      idMacro:
         type: integer
+      username:
+        type: string
       items:
         type: array
         items: {
@@ -621,6 +623,9 @@ definitions:
       idDataset:
         type: integer
         description: The qtd. line number of dataset.
+      username:
+        type: string
+        description: Owner of the dataset.
       numRows:
         type: integer
         description: The qtd. line number of dataset.

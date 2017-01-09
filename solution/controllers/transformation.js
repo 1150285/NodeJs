@@ -41,7 +41,7 @@ exports.postTransformations = function(req, res) {
 
     if ( Number (TID) ) {
 
-        if ( TID == 1) {
+        if ( TID == Transpose_dataset ) {
 
             var callbackID = Function.getSequence();
             var userPoolingURL = SERVER_ROOT + "/Users/" + Function.getUserID() + "/Results/" + callbackID;
@@ -57,9 +57,47 @@ exports.postTransformations = function(req, res) {
                         json: {
                             sender: "Datasheet_srv",
                             serverCallbackURL: serverCallbackURL,
-                            datasetV: dataset,
+                            datasetV: dataset
+                        }
+                    },
+                    function (err, recall) {
+                        if (recall === undefined) {
+                            console.log("»»» Error trying to reach HeavyOps server. Please contact system administrator.");
+                            res.statusCode = 500;
+                            res.setHeader("Content-Type", "application/json");
+                            res.json(errors[res.statusCode]);
+                        }
+                        if (!err) {
+                            console.log("»»» Posted a Heavy Operation request and got 202 success");
+                            console.log("»»» Response to client with pooling URL = " + userPoolingURL);
+                            res.statusCode = 202;
+                            res.setHeader("Content-Type", "application/json");
+                            res.json({result_url: userPoolingURL});
+                        }
+                    }
+                );
+            });
+        }
+        else if ( TID == Scale && Number (req.body.value) ) {
 
-                        },
+            var scalar = req.body.value;
+            var callbackID = Function.getSequence();
+            var userPoolingURL = SERVER_ROOT + "/Users/" + Function.getUserID() + "/Results/" + callbackID;
+            var serverCallbackURL = CALLBACK_ROOT + "/Callback/" + callbackID;
+
+            Dataset.findOne({idDataset: Function.getDatasetID()}, {_id: 0, __v: 0}, function (err, dataset) {
+                if (err) return console.log(err);
+
+                request(
+                    {
+                        uri: serverHeavyOps + "/HeavyOps/" + req.query.TransfID,
+                        method: "POST",
+                        json: {
+                            sender: "Datasheet_srv",
+                            serverCallbackURL: serverCallbackURL,
+                            datasetV: dataset,
+                            scale: scalar
+                        }
                     },
                     function (err, recall) {
                         if (recall === undefined) {
@@ -81,12 +119,21 @@ exports.postTransformations = function(req, res) {
         }
 
 
+
+
+
+
+        else {
+            res.statusCode = 400;
+            res.setHeader("Content-Type", "application/json");
+            res.json(errors[res.statusCode]);
+        }
     } else {
         res.statusCode = 400;
         res.setHeader("Content-Type", "application/json");
         res.json(errors[res.statusCode]);
     }
-}
+};
 
 exports.putTransformations = function(req, res) {
 		res.statusCode = 405;

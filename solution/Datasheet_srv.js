@@ -74,12 +74,12 @@ charts['c2'] = {chart_id: "c2",		desc_chart:"Line / bar chart of a desired row /
 charts['c3'] = {chart_id: "c3",		desc_chart:"Line / bar chart of the entire data set"};
 
 //Erros List
-errors['404'] = {code: 404, message: "User or Dataset not found!"};
+errors['404'] = {code: 404, message: "User or Dataset or Result not found!"};
 errors['400'] = {code: 400, message: "Bad Request!"};
 errors['405'] = {code: 405, message: "Method not allowed in this resource!"};
 
 //Store Heavy Ops for later consulting
-resultsStoreList [0] = {ResultID : 0 , Content: "No results from Heavy Ops to see yet"} ;
+resultsStoreList [0] = {ResultID : 1 , Content: "No results from Heavy Ops to see yet"} ;
 
 // Create our Express router
 var router = express.Router();
@@ -330,7 +330,7 @@ app.route("/Charts")
 //PUT 		not allowed, returns 405
 //DELETE 	not allowed, returns 405
 //
-app.route("/Users/:userID/Results/:resultID")
+app.route("/Users/:userID/Results/")
 	.get(function(req, res) {
 		
 		console.log("»»» Accepted GET to /Result resource.");
@@ -354,6 +354,43 @@ app.route("/Users/:userID/Results/:resultID")
 		res.setHeader("Content-Type", "application/json");
 		res.json(errors[res.statusCode]);
 	});
+
+app.param('resultID', function(req, res, next, resultID){
+	if (Number (resultID)) {
+		req.result_id = resultID;
+    	return next()
+	}
+	else {
+        res.statusCode = 404;
+        res.setHeader("Content-Type", "application/json");
+        res.json(errors[res.statusCode]);
+        console.log("»»» Result " + resultID + " was not found! ");
+    }
+});
+app.route("/Users/:userID/Results/:resultID")
+    .get(function(req, res) {
+
+        console.log("»»» Accepted GET to /Result resource.");
+        res.statusCode = 200;
+        res.setHeader("Content-Type", "application/json");
+        res.json( resultsStoreList[(req.result_id - 1)]);
+
+    })
+    .put(function(req, res) {
+        res.statusCode = 405;
+        res.setHeader("Content-Type", "application/json");
+        res.json(errors[res.statusCode]);
+    })
+    .post(function(req, res) {
+        res.statusCode = 405;
+        res.setHeader("Content-Type", "application/json");
+        res.json(errors[res.statusCode]);
+    })
+    .delete(function(req, res) {
+        res.statusCode = 405;
+        res.setHeader("Content-Type", "application/json");
+        res.json(errors[res.statusCode]);
+    });
 
 //
 //URL: /callback/:myRefID

@@ -37,7 +37,6 @@ function calcTranspose(serverCallbackURL, operID, dataset) {
 	console.log("Dataset before transpose", dataset);
     var myMatrix = new Matrix([dataset.values]);
     var result = myMatrix.transpose();
-	//console.log ( result );
 	dataset.numRows = result.rows;
     dataset.numCols = result.cols;
     dataset.values = result.data;
@@ -64,6 +63,36 @@ function calcTranspose(serverCallbackURL, operID, dataset) {
 	});
 }
 
+function calcScale(serverCallbackURL, operID, dataset, scale) {
+
+    console.log("Dataset before scale", dataset);
+    var myMatrix = new Matrix(dataset.values);
+    var result = myMatrix.scalarMultiply( parseInt(scale));
+    console.log ( result );
+    dataset.values = result.data;
+    console.log("Dataset after scale", dataset);
+
+    request({
+            uri : serverCallbackURL,
+            method: "POST",
+            json : {result : dataset}
+        },
+        function(err, res){
+            if (!err) {
+                console.log("»»» Posted callback successfully in the URL: " + serverCallbackURL +
+                    " and got StatusCode: " + res.statusCode);
+                if (204 != res.statusCode ) {
+                    console.log("»»» Error trying to reach Datasheet server. " +
+                        "Please contact system administrator ");
+                }
+            }
+            else {
+                console.log("»»» Unknown Error. Maybe Datasheet server is unavailable. " +
+                    "Please contact system administrator" + err);
+            }
+        });
+}
+
 /**
  * URL: 	/HeavyOps/:operID
  * GET 		return specific accepted 202 or server error 500
@@ -76,18 +105,21 @@ app.param('operID', function(req, res, next, operID){
 	req.oper_id = operID;
     console.log("»»» Accepted POST request to /HeavyOps with operID: " + req.oper_id );
 	return next()
-	})
+	});
 
 app.route("/HeavyOps/:operID")
 	.post(function(req, res) {
         var TID = req.oper_id;
 
         if ( TID == 1) {
-
         	console.log("»»» Calculating Transpose");
 			calcTranspose(req.body.serverCallbackURL, req.oper_id, req.body.datasetV);
             return res.sendStatus(202);
-		}
+		} else if ( TID == 2) {
+            console.log("»»» Scaling dataset in = " + req.body.scale);
+            calcScale(req.body.serverCallbackURL, req.oper_id, req.body.datasetV, req.body.scale);
+            return res.sendStatus(202);
+        }
 
 
 		
@@ -106,7 +138,7 @@ app.route("/HeavyOps/:operID")
 		res.statusCode = 405;
 		res.setHeader("Content-Type", "application/html");
         res.json(errors[res.statusCode]);
-	})
+	});
 
 
 ///RUNNING...

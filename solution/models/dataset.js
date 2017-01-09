@@ -7,6 +7,11 @@ var datasetSchema = new Schema({
         type: Number,
         required: true
     },
+    username: {
+        type: String,
+        unique: true,
+        required: true
+    },
     numRows: {
         type: Number,
         required: true

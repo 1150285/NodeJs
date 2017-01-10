@@ -1,72 +1,190 @@
+var Dataset = require('../models/dataset');
 var Transformation = require('../models/transformation');
+var Function = require('../controllers/functions');
+var request = require('request');
+
+var errors = {};
+errors['404'] = {code: 404, message: "Transformations type not found!"};
+errors['400'] = {code: 400, message: "Bad Request!"};
+errors['500'] = {code: 500, message: "Error while processing your request. Please try again later"};
+
+//Perform transformations on the data set (without changing the original data set)
+const Transpose_dataset = 1;
+const Scale = 2;
+const Add_scalar = 3;
+const Add_two_datasets = 4;
+const Multiply_two_datasets = 5;
+const Augment_interpolation = 6;
+
+const port = process.env.PORT || 3001;
+const SERVER_ROOT = "http://localhost:" + port;
+
+const serverHeavyOpsPort = process.env.PORT || 3002;
+const serverHeavyOps = "http://localhost:" + serverHeavyOpsPort;
+
+const callbackPort = process.env.PORT || 3005;
+const CALLBACK_ROOT = "http://localhost:" + callbackPort;
 
 exports.getTransformations = function(req, res) {
 		res.statusCode = 405;
-		res.setHeader("Content-Type", "application/html");
-		res.end("<html><body><h1> " +
-				"Method not allowed in this resource. Check the definition documentation " +
-				"</h1></body></html>");
+		res.setHeader("Content-Type", "application/json");
+		res.json(errors[res.statusCode]);
 };
 
 exports.postTransformations = function(req, res) {
-    console.log("»»» Accepted POST request to calculate transfID: " + req.transf_id + " for DatasetID: " + req.dataset_id + " and UserID: " + req.username + " Develop here what happens");
-    if (req.username && req.dataset_id && req.query.StatID ) {
-        //callbackID = getSequence("stID");
-        var urlCallback = CALLBACK_ROOT + "/Users/" + req.username + "/Datasets/" + req.dataset_id + "/Transf/"+req.query.StatID+"/Results"
 
-        var datasetV = "";
-        Dataset.find({ idDataset: req.dataset_id },function (err, dataset) {
-            if (err) return console.error(err);
-            console.log(dataset);
-            datasetV = dataset[0];
-            //setTimeout(function() {
-            request({
-                    uri : serverHeavyOps + "/HeavyOps/" + req.username + "/" + req.dataset_id + "/" + req.query.StatID,
-                    method: "POST",
-                    json : {text:"test of callback post", sender:"Datasheet_srv.js", callbackURL: urlCallback, myRef:callbackID , dataset:datasetV},
-                },
-                function(err, res, body){
+    console.log("»»» Accepted POST to /Transformation resource for TransfID: "
+        + req.query.TransfID + " for DatasetID: " + Function.getDatasetID() + " and UserID: " + Function.getUserID() );
 
-                    if (!err && 202 === res.statusCode) {
-                        console.log("»»» Posted a Heavy Operation request and got " + res.statusCode );
-                        console.log("»»» Success!... Gets your callback results within 30 seconds in " + urlCallback  );
-                        res.statusCode = 202;
-                    } else	{
-                        console.log("»»» Internal error in HeavyOps server. Please contact system administrator. Status Code = " + res.statusCode);
+    //noinspection JSUnresolvedVariable
+    var TID = req.query.TransfID;
+
+    if ( Number (TID) ) {
+
+        if ( TID == Transpose_dataset ) {
+
+            var callbackID = Function.getSequence();
+            var userPoolingURL = SERVER_ROOT + "/Users/" + Function.getUserID() + "/Results/" + callbackID;
+            var serverCallbackURL = CALLBACK_ROOT + "/Callback/" + callbackID;
+
+            Dataset.findOne({idDataset: Function.getDatasetID()}, {_id: 0, __v: 0}, function (err, dataset) {
+                if (err) return console.log(err);
+
+                request(
+                    {
+                        uri: serverHeavyOps + "/HeavyOps/" + req.query.TransfID,
+                        method: "POST",
+                        json: {
+                            sender: "Datasheet_srv",
+                            serverCallbackURL: serverCallbackURL,
+                            datasetV: dataset
+                        }
+                    },
+                    function (err, recall) {
+                        if (recall === undefined) {
+                            console.log("»»» Error trying to reach HeavyOps server. Please contact system administrator.");
+                            res.statusCode = 500;
+                            res.setHeader("Content-Type", "application/json");
+                            res.json(errors[res.statusCode]);
+                        }
+                        if (!err) {
+                            console.log("»»» Posted a Heavy Operation request and got 202 success");
+                            console.log("»»» Response to client with pooling URL = " + userPoolingURL);
+                            res.statusCode = 202;
+                            res.setHeader("Content-Type", "application/json");
+                            res.json({result_url: userPoolingURL});
+                        }
                     }
-                });
-            //}, 2000);
-        })
-        res.setHeader("Content-Type", "application/html");
-        res.end("<html><body><h1> " +
-            "<p>Success!... Your request operation number is " + callbackID + "</p>" +
-            "<p>This is a heavy operation so gets your callback result within 30 seconds in <a href='" + urlCallback + "'" + ">Results</a></p>" +
-            "<p>Or come back to Home Page to request more operations <a href='http://localhost:3001/index.html'>Home Page</a></p>" +
-            "</h1></body></html>");
-    } else {
-        if (req.username === undefined || req.dataset_id === undefined || req.stat_id === undefined) {
-            res.statusCode = 400;
-            res.setHeader("Content-Type", "application/html");
-            res.end("<html><body><h1> " +
-                "Bad request. Check the definition documentation. " +
-                "</h1></body></html>");
-            console.log("»»» Bad request. Check the definition documentation.");
+                );
+            });
         }
+        else if ( TID == Scale && Number (req.body.value) ||
+                  TID == Add_scalar && Number (req.body.value)) {
+
+            var scalar = req.body.value;
+            var callbackID = Function.getSequence();
+            var userPoolingURL = SERVER_ROOT + "/Users/" + Function.getUserID() + "/Results/" + callbackID;
+            var serverCallbackURL = CALLBACK_ROOT + "/Callback/" + callbackID;
+
+            Dataset.findOne({idDataset: Function.getDatasetID()}, {_id: 0, __v: 0}, function (err, dataset) {
+                if (err) return console.log(err);
+
+                request(
+                    {
+                        uri: serverHeavyOps + "/HeavyOps/" + req.query.TransfID,
+                        method: "POST",
+                        json: {
+                            sender: "Datasheet_srv",
+                            serverCallbackURL: serverCallbackURL,
+                            datasetV: dataset,
+                            scale: scalar
+                        }
+                    },
+                    function (err, recall) {
+                        if (recall === undefined) {
+                            console.log("»»» Error trying to reach HeavyOps server. Please contact system administrator.");
+                            res.statusCode = 500;
+                            res.setHeader("Content-Type", "application/json");
+                            res.json(errors[res.statusCode]);
+                        }
+                        if (!err) {
+                            console.log("»»» Posted a Heavy Operation request and got 202 success");
+                            console.log("»»» Response to client with pooling URL = " + userPoolingURL);
+                            res.statusCode = 202;
+                            res.setHeader("Content-Type", "application/json");
+                            res.json({result_url: userPoolingURL});
+                        }
+                    }
+                );
+            });
+        }
+        else if ( TID == Add_two_datasets && Number (req.body.value) ||
+                  TID == Multiply_two_datasets && Number (req.body.value) ) {
+
+            var secondDatasetID = req.body.value;
+            var callbackID = Function.getSequence();
+            var userPoolingURL = SERVER_ROOT + "/Users/" + Function.getUserID() + "/Results/" + callbackID;
+            var serverCallbackURL = CALLBACK_ROOT + "/Callback/" + callbackID;
+
+            Dataset.findOne({idDataset: Function.getDatasetID()}, {_id: 0, __v: 0}, function (err, dataset1) {
+                if (err) return console.log(err);
+
+                Dataset.findOne({idDataset: secondDatasetID }, {_id: 0, __v: 0}, function (err, dataset2) {
+                    if (err) return console.log(err);
+
+                    request(
+                        {
+                            uri: serverHeavyOps + "/HeavyOps/" + req.query.TransfID,
+                            method: "POST",
+                            json: {
+                                sender: "Datasheet_srv",
+                                serverCallbackURL: serverCallbackURL,
+                                datasetV1: dataset1,
+                                datasetV2: dataset2
+                            }
+                        },
+                        function (err, recall) {
+                            if (recall === undefined) {
+                                console.log("»»» Error trying to reach HeavyOps server. Please contact system administrator.");
+                                res.statusCode = 500;
+                                res.setHeader("Content-Type", "application/json");
+                                res.json(errors[res.statusCode]);
+                            }
+                            if (!err) {
+                                console.log("»»» Posted a Heavy Operation request and got 202 success");
+                                console.log("»»» Response to client with pooling URL = " + userPoolingURL);
+                                res.statusCode = 202;
+                                res.setHeader("Content-Type", "application/json");
+                                res.json({result_url: userPoolingURL});
+                            }
+                        }
+                    );
+                });
+            });
+        }
+
+        else {
+            res.statusCode = 400;
+            res.setHeader("Content-Type", "application/json");
+            res.json(errors[res.statusCode]);
+        }
+    } else {
+        res.statusCode = 400;
+        res.setHeader("Content-Type", "application/json");
+        res.json(errors[res.statusCode]);
     }
 };
 
 exports.putTransformations = function(req, res) {
 		res.statusCode = 405;
-		res.setHeader("Content-Type", "application/html");
-		res.end("<html><body><h1> " +
-				"Method not allowed in this resource. Check the definition documentation " +
-				"</h1></body></html>");
+		res.setHeader("Content-Type", "application/json");
+        res.json(errors[res.statusCode]);
 };
 
 exports.deleteTransformations = function(req, res) {
 		res.statusCode = 405;
-		res.setHeader("Content-Type", "application/html");
-		res.end("<html><body><h1> " +
-				"Method not allowed in this resource. Check the definition documentation " +
-				"</h1></body></html>");
+		res.setHeader("Content-Type", "application/json");
+        res.json(errors[res.statusCode]);
 };
+
+

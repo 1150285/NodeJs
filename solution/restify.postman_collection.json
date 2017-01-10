@@ -2,71 +2,11 @@
 	"variables": [],
 	"info": {
 		"name": "restify",
-		"_postman_id": "99a67a8f-5db9-ec7e-4223-01cb0b7ecdeb",
+		"_postman_id": "d725ead4-30b0-8a37-97f0-ccfad98b1291",
 		"description": "",
 		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
 	},
 	"item": [
-		{
-			"name": "modify user",
-			"request": {
-				"url": "http://localhost:3001/Users/u1",
-				"method": "PUT",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/json",
-						"description": ""
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n\t\"fullName\": \"Daniel Afonso\",\r\n\t\"password\": \"node1234\"\r\n}"
-				},
-				"description": ""
-			},
-			"response": []
-		},
-		{
-			"name": "modifiy user",
-			"request": {
-				"url": "http://localhost:3001/Users/afonso",
-				"method": "PUT",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/json",
-						"description": ""
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n\t\"fullName\": \"Daniel Afonso\",\r\n\t\"password\": \"node1234\"\r\n}"
-				},
-				"description": ""
-			},
-			"response": []
-		},
-		{
-			"name": "cria dataset",
-			"request": {
-				"url": "http://localhost:3001/Users/u1/Datasets",
-				"method": "POST",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/json",
-						"description": ""
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": " {\"rows\":2,\n \"cols\":2,\n \"values\":[1,2,3,4]}"
-				},
-				"description": ""
-			},
-			"response": []
-		},
 		{
 			"name": "cria user",
 			"request": {
@@ -102,6 +42,494 @@
 				"body": {
 					"mode": "raw",
 					"raw": "{\r\n\t\"fullName\": \"Daniel Afonso\",\r\n\t\"password\": \"node1234\"\r\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "get user by username",
+			"request": {
+				"url": "http://localhost:3001/Users/eee",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t\"fullName\": \"Daniel Afonso\",\r\n\t\"password\": \"node1234\"\r\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "modify user",
+			"request": {
+				"url": "http://localhost:3001/Users/eee",
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t\"fullName\": \"Daniel Afonso\"\r\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "cria dataset",
+			"request": {
+				"url": "http://localhost:3001/Users/eee/Datasets",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "Authorization",
+						"value": "Basic ZWVlOjEyMw==",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": " {\n \"rows\":2,\n \"cols\":2,\n \"values\":[3,3,3,3]\n }"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "get all datasets by user",
+			"request": {
+				"url": "http://localhost:3001/Users/eee/Datasets/",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "Authorization",
+						"value": "Basic ZWVlOjEyMw==",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": " {\"rows\":2,\n \"cols\":2,\n \"values\":\"1,2,3,4\"}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "get specific dataset by user",
+			"request": {
+				"url": "http://localhost:3001/Users/eee/Datasets/2",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "Authorization",
+						"value": "Basic ZWVlOjEyMw==",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": " {\"rows\":2,\n \"cols\":2,\n \"values\":\"1,2,3,4\"}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "delete specific dataset by user",
+			"request": {
+				"url": "http://localhost:3001/Users/eee/Datasets/15",
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "Authorization",
+						"value": "Basic ZWVlOjEyMw==",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "cria dataset random",
+			"request": {
+				"url": "http://localhost:3001/Users/eee/Datasets",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "Authorization",
+						"value": "Basic ZWVlOjEyMw==",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": " {\"rows\":2,\n \"cols\":2}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "modify dataset",
+			"request": {
+				"url": "http://localhost:3001/Users/eee/Datasets/2",
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"description": ""
+					},
+					{
+						"key": "Authorization",
+						"value": "Basic ZWVlOjEyMw==",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "row",
+							"value": "2",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "col",
+							"value": "2",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "newValue",
+							"value": "6",
+							"type": "text",
+							"enabled": true
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "get stats",
+			"request": {
+				"url": "http://localhost:3001/Stats",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "Authorization",
+						"value": "Basic ZWVlOjEyMw==",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": " {\"rows\":2,\n \"cols\":2,\n \"values\":\"1,2,3,4\"}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "create stats",
+			"request": {
+				"url": "http://localhost:3001/Users/eee/Datasets/2/Stats?StatID=1",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "StatID",
+							"value": "1",
+							"type": "text",
+							"enabled": true
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "get charts",
+			"request": {
+				"url": "http://localhost:3001/Charts",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "Authorization",
+						"value": "Basic ZWVlOjEyMw==",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": " {\"rows\":2,\n \"cols\":2,\n \"values\":\"1,2,3,4\"}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "get transfs",
+			"request": {
+				"url": "http://localhost:3001/Transfs",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "Authorization",
+						"value": "Basic ZWVlOjEyMw==",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": " {\"rows\":2,\n \"cols\":2,\n \"values\":\"1,2,3,4\"}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "get macros",
+			"request": {
+				"url": "http://localhost:3001/Macros",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "Authorization",
+						"value": "Basic ZWVlOjEyMw==",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": " {\"rows\":2,\n \"cols\":2,\n \"values\":\"1,2,3,4\"}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "get Results",
+			"request": {
+				"url": "http://localhost:3001/Users/eee/Results/",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic ZWVlOjEyMw==",
+						"description": ""
+					}
+				],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "get Results by resultID",
+			"request": {
+				"url": "http://localhost:3001/Users/eee/Results/1",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic ZWVlOjEyMw==",
+						"description": ""
+					}
+				],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "post transformation - tipo 1 transpose",
+			"request": {
+				"url": "http://localhost:3001/Users/eee/Datasets/16/Transfs?TransfID=1",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic ZWVlOjEyMw==",
+						"description": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"description": ""
+					}
+				],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "post transformation - tipo 2 * scalar",
+			"request": {
+				"url": "http://localhost:3001/Users/eee/Datasets/16/Transfs?TransfID=2",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic ZWVlOjEyMw==",
+						"description": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "value",
+							"value": "3",
+							"type": "text",
+							"enabled": true
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "post transformation - tipo 3 add scalar",
+			"request": {
+				"url": "http://localhost:3001/Users/eee/Datasets/16/Transfs?TransfID=3",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic ZWVlOjEyMw==",
+						"description": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "value",
+							"value": "3",
+							"type": "text",
+							"enabled": true
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "post transformation - tipo 4 e 5 + e * matrix",
+			"request": {
+				"url": "http://localhost:3001/Users/eee/Datasets/17/Transfs?TransfID=5",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Basic ZWVlOjEyMw==",
+						"description": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "value",
+							"value": "18",
+							"type": "text",
+							"enabled": true
+						}
+					]
 				},
 				"description": ""
 			},

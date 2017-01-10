@@ -9,7 +9,6 @@ errors['405'] = {code: 405, message: "Method not allowed in this resource!"};
 exports.getUsers = function(req, res) {
 
 	console.log("»»» Accepted GET to User resource.");
-	var users = "";
 	User.find( {}, { _id:0, password:0, __v:0 } , function(err, users) {
 		if (err) {
 			res.statusCode = 404 ;
@@ -53,7 +52,7 @@ exports.postUsers = function(req, res) {
 			// send 201 response
 			res.statusCode = 201;
 			res.setHeader("Content-Type", "application/json");
-			res.json(req.body.username);
+			res.json({username: req.body.username});
 			console.log("»»» Username: " + req.body.username + " was successfully created!");
 		});
 
@@ -69,26 +68,25 @@ exports.putUsers = function(req, res) {
 	res.statusCode = 405;
 	res.setHeader("Content-Type", "application/json");
 	res.json(errors[res.statusCode]);
-}
+};
 
 exports.deleteUsers = function(req, res) {
     res.statusCode = 405;
     res.setHeader("Content-Type", "application/json");
     res.json(errors[res.statusCode]);
-}
+};
 
 
 //##########
 
 exports.getUser = function(req, res) {
 	console.log("»»» Accepted GET to User resource.");
-	var user = "";
-	User.find( { username: req.username }, { _id:0, __v:0 }, function(err, user) {
+	User.find( { username: Function.getUserID() }, { _id:0, __v:0 }, function(err, user) {
 		if (err) {
 			res.statusCode = 404 ;
             res.setHeader("Content-Type", "application/json");
             res.json(errors[res.statusCode]);
-			console.log("»»» User " + req.username + " was not found! ");
+			console.log("»»» User " + Function.getUserID() + " was not found! ");
 			return console.error(err);
 		}
 		else {
@@ -98,7 +96,7 @@ exports.getUser = function(req, res) {
                 res.setHeader("Content-Type", "application/json");
                 res.json(errors[res.statusCode]);
 				console.log(user);
-				console.log("»»» User: " + req.username + " was not found! ");
+				console.log("»»» User: " + Function.getUserID() + " was not found! ");
 			}	else {
 				res.statusCode = 200;
 				res.setHeader("Content-Type", "application/json");
@@ -114,82 +112,82 @@ exports.postUser = function(req, res) {
 	res.statusCode = 405;
     res.setHeader("Content-Type", "application/json");
     res.json(errors[res.statusCode]);
-}
+};
 
-exports.putUser = function(req, res) {
-	console.log("»»» Accepted PUT to User resource.");
-	if (req.username && req.body.fullName) {
+exports.putUser = function (req, res) {
+    console.log("»»» Accepted PUT to User resource.");
+    if (Function.getUserID() && req.body.fullName) {
 
-		User.findOne({ username: req.username }, function (err, user) {
-			if (err) { return console.error(err); }
-
-			// No user found with that username
-			if (!user) { 
-				res.statusCode = 404 ;
-                res.setHeader("Content-Type", "application/json");
-                res.json(errors[res.statusCode]);
-				console.log("»»» User " + req.username + " was not found! ");
-				return console.error(err);; 
-			}
-			else {
-
-				if (req.body.fullName) {
-					var isFullNameUpdated = User.findOneAndUpdate({username: req.username}, {$set:{ fullName: req.body.fullName }},{
-                        projection: { _id:0, __v:0 },new: true},
-						function (err, user) {
-						if (!err) { console.log("»»» Update fullName OK. Do a GET do see Results");
-                            res.statusCode = 200;
-                            res.setHeader("Content-Type", "application/json");
-                            res.json(user);
-
-						}
-						else {console.log(err)}
-					});
-				}
-
-
-			}
-		});
-	}
-	else {
-		res.statusCode = 400;
-		res.setHeader("Content-Type", "application/json");
-		res.end("<html><body><h1> " +
-				"Bad request. Check the definition documentation. " +
-		"</h1></body></html>");
-		console.log("»»» Bad request. Check the definition documentation.");
-	}
- };
+        User.findOneAndUpdate(
+            {username: Function.getUserID()},
+            {$set: {fullName: req.body.fullName}},
+            {projection: {_id: 0, __v: 0}, new: true},
+            function (err, user) {
+                if (!err) {
+                    console.log("»»» Update fullName OK. Do a GET do see Results");
+                    if (user !== null) {
+                        res.statusCode = 200;
+                        res.setHeader("Content-Type", "application/json");
+                        res.json(user);
+                    } else {
+                        res.statusCode = 404;
+                        res.setHeader("Content-Type", "application/json");
+                        res.json(errors[res.statusCode]);
+                        console.log("»»» User " + Function.getUserID() + " was not found! ");
+                        return console.error(err);
+                    }
+                }
+                else {
+                    res.statusCode = 500;
+                    res.json(errors[res.statusCode]);
+                    console.log(err)
+                }
+            }
+        );
+    }
+    else {
+        res.statusCode = 400;
+        res.setHeader("Content-Type", "application/json");
+        res.setHeader("Content-Type", "application/json");
+        res.json(errors[res.statusCode]);
+        console.log("»»» Bad request. Check the definition documentation.");
+    }
+};
 
 exports.deleteUser = function(req, res) {
-	if (req.username) {
-		User.findOne({ username: req.username }, function (err, user) {
-			if (err) { return console.error(err); }
+	if (Function.getUserID()) {
+        User.findOne({username: Function.getUserID()},
+			function (err, user) {
+                if (err) {
+                    return console.error(err);
+                }
 
-			// No user found with that username
-			if (!user) { 
-				res.statusCode = 404 ;
-				res.setHeader("Content-Type", "application/json");
-				res.end("<html><body><h1> " +
-						"User: " + req.username + " was not found! " +
-				"</h1></body></html>");
-				console.log("»»» User " + req.username + " was not found for delete! ");
-				return console.error(err);; 
-			}
-			else {
-				var isDeleted = User.remove({ username: req.username} ,function (err, user) {
-					if (!err) { console.log("»»» Delete OK. Do a GET do see Results");	}
-					else {console.log(err)}
-				});
-				if (isDeleted){
-
-					res.statusCode = 200;
-					res.setHeader("Content-Type", "application/json");
-					res.end("<html><body><h1> " +
-							"Delete OK. Do a GET to see the results " +
-					"</h1></body></html>");
-				}
-			}
-		});
+                // No user found with that username
+                if (!user) {
+                    res.statusCode = 404;
+                    res.setHeader("Content-Type", "application/json");
+                    res.json(errors[res.statusCode]);
+                    console.log("»»» User " + Function.getUserID() + " was not found for delete! ");
+                    return console.error(err);
+                }
+                else {
+                    var isDeleted = User.remove({username: Function.getUserID()},
+						function (err) {
+							if (!err) {
+								console.log("»»» Delete OK. Do a GET do see Results");
+							}
+							else {
+								console.log(err)
+							}
+                    	}
+                    );
+                    if (isDeleted) {
+                        res.statusCode = 200;
+                        res.setHeader("Content-Type", "application/json");
+                        res.json(errors[res.statusCode]);
+                    }
+                }
+            }
+        );
 	}
 };

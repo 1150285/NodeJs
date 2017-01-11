@@ -1,4 +1,5 @@
 var User = require('../models/user');
+var Functions = require('../controllers/functions');
 
 var errors = {};
 errors['404'] = {code: 404, message: "User not found!"};
@@ -81,12 +82,12 @@ exports.deleteUsers = function(req, res) {
 
 exports.getUser = function(req, res) {
 	console.log("»»» Accepted GET to User resource.");
-	User.find( { username: Function.getUserID() }, { _id:0, __v:0 }, function(err, user) {
+	User.find( { username: Functions.getUserID() }, { _id:0, __v:0 }, function(err, user) {
 		if (err) {
 			res.statusCode = 404 ;
             res.setHeader("Content-Type", "application/json");
             res.json(errors[res.statusCode]);
-			console.log("»»» User " + Function.getUserID() + " was not found! ");
+			console.log("»»» User " + Functions.getUserID() + " was not found! ");
 			return console.error(err);
 		}
 		else {
@@ -96,7 +97,7 @@ exports.getUser = function(req, res) {
                 res.setHeader("Content-Type", "application/json");
                 res.json(errors[res.statusCode]);
 				console.log(user);
-				console.log("»»» User: " + Function.getUserID() + " was not found! ");
+				console.log("»»» User: " + Functions.getUserID() + " was not found! ");
 			}	else {
 				res.statusCode = 200;
 				res.setHeader("Content-Type", "application/json");
@@ -116,10 +117,10 @@ exports.postUser = function(req, res) {
 
 exports.putUser = function (req, res) {
     console.log("»»» Accepted PUT to User resource.");
-    if (Function.getUserID() && req.body.fullName) {
+    if (Functions.getUserID() && req.body.fullName) {
 
         User.findOneAndUpdate(
-            {username: Function.getUserID()},
+            {username: Functions.getUserID()},
             {$set: {fullName: req.body.fullName}},
             {projection: {_id: 0, __v: 0}, new: true},
             function (err, user) {
@@ -133,7 +134,7 @@ exports.putUser = function (req, res) {
                         res.statusCode = 404;
                         res.setHeader("Content-Type", "application/json");
                         res.json(errors[res.statusCode]);
-                        console.log("»»» User " + Function.getUserID() + " was not found! ");
+                        console.log("»»» User " + Functions.getUserID() + " was not found! ");
                         return console.error(err);
                     }
                 }
@@ -155,8 +156,8 @@ exports.putUser = function (req, res) {
 };
 
 exports.deleteUser = function(req, res) {
-	if (Function.getUserID()) {
-        User.findOne({username: Function.getUserID()},
+	if (Functions.getUserID()) {
+        User.findOne({username: Functions.getUserID()},
 			function (err, user) {
                 if (err) {
                     return console.error(err);
@@ -167,11 +168,11 @@ exports.deleteUser = function(req, res) {
                     res.statusCode = 404;
                     res.setHeader("Content-Type", "application/json");
                     res.json(errors[res.statusCode]);
-                    console.log("»»» User " + Function.getUserID() + " was not found for delete! ");
+                    console.log("»»» User " + Functions.getUserID() + " was not found for delete! ");
                     return console.error(err);
                 }
                 else {
-                    var isDeleted = User.remove({username: Function.getUserID()},
+                    var isDeleted = User.remove({username: Functions.getUserID()},
 						function (err) {
 							if (!err) {
 								console.log("»»» Delete OK. Do a GET do see Results");

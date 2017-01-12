@@ -3,10 +3,6 @@ var Functions = require('../controllers/functions');
 var matrix = require("node-matrix");
 var mongoose = require('mongoose');
 
-//Functions.buildRandomDataset(2, 2);
-//Functions.buildRandomDataset(3, 5);
-//Functions.buildRandomDataset(2, 7);
-
 var errors = {};
 errors['404'] = {code: 404, message: "Dataset not found!"};
 errors['400'] = {code: 400, message: "Bad Request!"};
@@ -20,7 +16,7 @@ exports.getDatasets = function(req, res) {
             if (err) {
                 res.statusCode = 404;
                 res.setHeader("Content-Type", "application/json");
-                res.json(errors[statusCode]);
+                res.json(errors[res.statusCode]);
                 console.log("»»» None datasets found! ");
                 return console.error(err);
             }
@@ -29,7 +25,7 @@ exports.getDatasets = function(req, res) {
 
                     res.statusCode = 404;
                     res.setHeader("Content-Type", "application/json");
-                    res.json(errors[statusCode]);
+                    res.json(errors[res.statusCode]);
                     console.log(datasets);
                     console.log("»»» None datasets found! ");
                 }
@@ -162,7 +158,7 @@ exports.getDataset = function(req, res) {
         if (err) {
             res.statusCode = 404 ;
             res.setHeader("Content-Type", "application/json");
-            res.json(errors[statusCode]);
+            res.json(errors[res.statusCode]);
             console.log("»»» Dataset: " + req.dataset_id + " was not found! ");
             return console.error(err);
         }
@@ -170,7 +166,7 @@ exports.getDataset = function(req, res) {
             if (dataset.length === 0) {
                 res.statusCode = 404 ;
                 res.setHeader("Content-Type", "application/json");
-                res.json(errors[statusCode]);
+                res.json(errors[res.statusCode]);
                 console.log("»»» Dataset: " + req.dataset_id + " was not found! ");
                 console.log(dataset);
             }
@@ -189,7 +185,7 @@ exports.getDataset = function(req, res) {
 exports.postDataset = function (req, res) {
     res.statusCode = 405;
     res.setHeader("Content-Type", "application/json");
-    res.json(errors[statusCode]);
+    res.json(errors[res.statusCode]);
 };
 
 exports.putDataset = function (req, res) {
@@ -219,7 +215,7 @@ exports.putDataset = function (req, res) {
                             else {
                                 res.statusCode = 404;
                                 res.setHeader("Content-Type", "application/json");
-                                res.json(errors[statusCode]);
+                                res.json(errors[res.statusCode]);
                                 console.log("»»» Dataset: " + req.params.datasetID + " was not found! ");
                                 console.log(dataset);
 

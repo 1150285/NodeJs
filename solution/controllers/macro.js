@@ -14,7 +14,7 @@ exports.getMacros = function(req, res) {
         if (err) {
             res.statusCode = 404;
             res.setHeader("Content-Type", "application/json");
-            res.json(errors[statusCode]);
+            res.json(errors[res.statusCode]);
             console.log("»»» None datasets found! ");
             return console.error(err);
         }
@@ -23,7 +23,7 @@ exports.getMacros = function(req, res) {
 
                 res.statusCode = 404;
                 res.setHeader("Content-Type", "application/json");
-                res.json(errors[statusCode]);
+                res.json(errors[res.statusCode]);
                 console.log("»»» None datasets found! ");
             }
             else {
@@ -61,7 +61,7 @@ exports.postMacros = function(req, res) {
                     if (err) {
                         res.statusCode = 400;
                         res.setHeader("Content-Type", "application/json");
-                        res.json(errors[statusCode]);
+                        res.json(errors[res.statusCode]);
                         console.log("»»» Bad request. Check the definition documentation.");
                         return console.error(err);
                     }
@@ -112,7 +112,7 @@ exports.getMacro = function(req, res) {
         if (err) {
             res.statusCode = 404;
             res.setHeader("Content-Type", "application/json");
-            res.json(errors[statusCode]);
+            res.json(errors[res.statusCode]);
             console.log("»»» None datasets found! ");
             return console.error(err);
         }
@@ -121,7 +121,7 @@ exports.getMacro = function(req, res) {
 
                 res.statusCode = 404;
                 res.setHeader("Content-Type", "application/json");
-                res.json(errors[statusCode]);
+                res.json(errors[res.statusCode]);
                 console.log(macros);
                 console.log("»»» None datasets found! ");
             }
